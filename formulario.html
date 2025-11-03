@@ -33,8 +33,8 @@
 
 <!-- Botones para segunda y tercera asistencia -->
 <div id="botonesAsistencia" style="margin-top:20px; display:none;">
-  <button id="btnSegunda" disabled>Registrar Segunda Asistencia</button>
-  <button id="btnTercera" disabled>Registrar Tercera Asistencia</button>
+  <button id="btnSegunda" disabled>Registrar Segunda Asistencia (<span id="timerSegunda">30:00</span>)</button>
+  <button id="btnTercera" disabled>Registrar Tercera Asistencia (<span id="timerTercera">10:00</span>)</button>
 </div>
 
 <p id="mensaje"></p>
@@ -74,10 +74,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnSegunda = document.getElementById("btnSegunda");
   const btnTercera = document.getElementById("btnTercera");
   const botonesDiv = document.getElementById("botonesAsistencia");
+  const timerSegunda = document.getElementById("timerSegunda");
+  const timerTercera = document.getElementById("timerTercera");
 
   tituloEl.textContent = "Cargando...";
 
-  // Obtener datos del formulario desde backend
   const resForm = await fetch(`/api/obtenerFormulario?id=${idFormulario}`);
   if (!resForm.ok) { tituloEl.textContent = "Formulario no encontrado"; return; }
   const formData = await resForm.json();
@@ -118,24 +119,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await cargarRespuestas();
 
-  // Determinar estado del usuario actual
   const registroUsuario = registros.find(r=>r.visitanteId===visitanteId);
+
+  // Mostrar interfaz según estado
   if(!registroUsuario){
     formularioEl.style.display="block";
     botonesDiv.style.display="none";
   } else {
     formularioEl.style.display="none";
     botonesDiv.style.display="block";
+    // Revisar temporizadores según asistencias previas
+    if(registroUsuario.asistencias?.[0]?.registrado && !registroUsuario.asistencias[1]){
+      startTimer(30*60, timerSegunda, ()=> btnSegunda.disabled=false);
+    }
+    if(registroUsuario.asistencias?.[1]?.registrado && !registroUsuario.asistencias[2]){
+      startTimer(10*60, timerTercera, ()=> btnTercera.disabled=false);
+    }
   }
 
-  // Temporizadores de asistencia
-  let tiempoSegunda=null, tiempoTercera=null;
-
-  function habilitarSegunda(){
-    btnSegunda.disabled=false;
-  }
-  function habilitarTercera(){
-    btnTercera.disabled=false;
+  // Función de temporizador visual
+  function startTimer(segundos, displayEl, callback){
+    displayEl.parentElement.querySelector("button").disabled=true;
+    let s = segundos;
+    const interval = setInterval(()=>{
+      const min = Math.floor(s/60).toString().padStart(2,"0");
+      const sec = (s%60).toString().padStart(2,"0");
+      displayEl.textContent = `${min}:${sec}`;
+      s--;
+      if(s<0){ clearInterval(interval); callback(); }
+    },1000);
   }
 
   // Submit primera asistencia
@@ -149,9 +161,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("mensaje").textContent="✅ Primera asistencia registrada";
       formularioEl.style.display="none";
       botonesDiv.style.display="block";
-
-      // activar segunda asistencia después de 30 min
-      tiempoSegunda = setTimeout(habilitarSegunda,30*60*1000);
+      startTimer(30*60, timerSegunda, ()=> btnSegunda.disabled=false);
       await cargarRespuestas();
     }
   });
@@ -163,7 +173,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const res=await fetch("/api/guardar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(datos)});
     if(res.ok){
       document.getElementById("mensaje").textContent="✅ Segunda asistencia registrada";
-      tiempoTercera = setTimeout(habilitarTercera,10*60*1000); // activar tercera después de 10 min
+      startTimer(10*60, timerTercera, ()=> btnTercera.disabled=false);
       await cargarRespuestas();
     }
   });
