@@ -142,42 +142,49 @@
       }
   
       // 📊 Mostrar respuestas del formulario
-      async function cargarRespuestas(idFormulario) {
-        const tablaBody = document.querySelector("#tablaRespuestas tbody");
-        tablaBody.innerHTML = "<tr><td colspan='7'>Cargando respuestas...</td></tr>";
-  
-        try {
-          const res = await fetch(`/api/verRespuestas?id=${idFormulario}`);
-          if (!res.ok) {
-            tablaBody.innerHTML = "<tr><td colspan='7'>No hay respuestas aún.</td></tr>";
-            return;
-          }
-  
-          const respuestas = await res.json();
-          if (!respuestas.length) {
-            tablaBody.innerHTML = "<tr><td colspan='7'>No hay respuestas aún.</td></tr>";
-            return;
-          }
-  
-          tablaBody.innerHTML = "";
-          respuestas.forEach((r, index) => {
-            tablaBody.insertAdjacentHTML("beforeend", `
-              <tr>
-                <td>${index + 1}</td>
-                <td>${r.nombre}</td>
-                <td>${r.correo || "-"}</td>
-                <td>${r.edad || "-"}</td>
-                <td>${r.telefono}</td>
-                <td>${r.asociacion}</td>
-                <td>${new Date(r.fecha).toLocaleString()}</td>
-              </tr>
-            `);
-          });
-        } catch (error) {
-          console.error(error);
-          tablaBody.innerHTML = "<tr><td colspan='7'>Error al cargar respuestas.</td></tr>";
-        }
-      }
+      // 📊 Mostrar respuestas del formulario
+async function cargarRespuestas(idFormulario) {
+  const tablaBody = document.querySelector("#tablaRespuestas tbody");
+  tablaBody.innerHTML = "<tr><td colspan='7'>Cargando respuestas...</td></tr>";
+
+  try {
+    const res = await fetch(`/api/verRespuestas?id=${encodeURIComponent(idFormulario)}`);
+    if (!res.ok) {
+      tablaBody.innerHTML = "<tr><td colspan='7'>No hay respuestas aún.</td></tr>";
+      return;
+    }
+
+    const respuestas = await res.json();
+
+    if (!Array.isArray(respuestas) || respuestas.length === 0) {
+      tablaBody.innerHTML = "<tr><td colspan='7'>No hay respuestas aún.</td></tr>";
+      return;
+    }
+
+    tablaBody.innerHTML = "";
+    respuestas.forEach((r, i) => {
+      tablaBody.insertAdjacentHTML(
+        "beforeend",
+        `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${r.nombre || "-"}</td>
+            <td>${r.correo || "-"}</td>
+            <td>${r.edad || "-"}</td>
+            <td>${r.telefono || "-"}</td>
+            <td>${r.asociacion || "-"}</td>
+            <td>${r.fecha ? new Date(r.fecha).toLocaleString() : "-"}</td>
+          </tr>
+        `
+      );
+    });
+  } catch (error) {
+    console.error("Error al cargar respuestas:", error);
+    tablaBody.innerHTML =
+      "<tr><td colspan='7'>⚠️ Error al conectar con el servidor.</td></tr>";
+  }
+}
+
   
       // 📝 Envío del formulario
       document.getElementById("formulario").addEventListener("submit", async function (e) {
