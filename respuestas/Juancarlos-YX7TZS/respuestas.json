@@ -6,7 +6,7 @@
     "asistencias": {
       "0": true,
       "1": true,
-      "2": false,
+      "2": true,
       "3": false
     },
     "fechaUltima": "2025-11-03T18:44:49.570Z",
@@ -14,6 +14,6 @@
     "telefono": "63160345",
     "asociacion": "ADS",
     "visitanteId": "bd880b77-7208-4b0d-b62a-5578eceaaff1",
-    "fecha": "2025-11-03T19:04:44.920Z"
+    "fecha": "2025-11-03T19:04:59.156Z"
   }
 ]
