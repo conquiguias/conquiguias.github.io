@@ -1,0 +1,16 @@
+[
+  {
+    "visitanteId": "d5652351-c604-4e0a-bff1-855b3cdbbca9",
+    "nombre": "Kendall Torres Báez",
+    "correo": "kendall.torres.17@gmail.com",
+    "telefono": "63160345",
+    "edad": "1",
+    "asociacion": "ADS",
+    "asistencias": [
+      true,
+      false,
+      false
+    ],
+    "fecha": "2025-11-03T20:09:10.963Z"
+  }
+]
