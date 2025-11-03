@@ -1,243 +1,250 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
-  <title>Formulario de Asistencia</title>
+  <title>Formulario</title>
 </head>
+
 <body>
   <img src="logo1.png" style="width: 25%;" alt="">
-<h2 id="tituloFormulario">Cargando...</h2>
-<p id="contador"></p>
+  <h2 id="tituloFormulario">Cargando...</h2>
+  <p id="contador"></p>
 
-<form id="formulario" style="display: none;">
-  <input type="hidden" name="id" id="idFormulario">
+  <form id="formulario" style="display: none;">
+    <input type="hidden" name="id" id="idFormulario">
 
-  <label>Nombre:</label><br>
-  <input type="text" name="nombre" required><br><br>
+    <label>Nombre:</label><br>
+    <input type="text" name="nombre" required><br><br>
 
-  <label>Correo:</label><br>
-  <input type="email" name="correo" required><br><br>
+    <label>Correo: (Opcional)</label><br>
+    <input type="email" name="correo"><br><br>
 
-  <label>Teléfono:</label><br>
-  <input type="tel" name="telefono" required><br><br>
+    <label>Edad: (Opcional)</label><br>
+    <input type="number" name="edad"><br><br>
 
-  <label>Asociación o campo:</label><br>
-  <input type="text" name="asociacion" required><br><br>
+    <label>Teléfono:</label><br>
+    <input type="tel" name="telefono" required><br><br>
 
-  <button type="submit">Registrar Primera Asistencia</button>
-</form>
+    <label>Asociación o campo:</label><br>
+    <input type="text" name="asociacion" required><br><br>
 
-<div id="botonesAsistencia" style="margin-top:20px; display:none;">
-  <button id="btnSegunda" style="display:none;">Registrar Segunda Asistencia</button>
-  <button id="btnTercera" style="display:none;">Registrar Tercera Asistencia</button>
-</div>
+    <button type="submit">Enviar</button>
+  </form>
 
-<p id="mensaje"></p>
+  <p id="mensaje"></p>
 
-<h3>📊 Respuestas registradas | Se actualiza cada 5 minutos.</h3>
-<p id="contadorRecarga">🔄 Próxima recarga en: <span id="segundos">300</span> segundos</p>
+  <h3>📊 Respuestas registradas | Se actualiza cada 5 minutos.</h3><p id="contadorRecarga">🔄 Próxima recarga en: <span id="segundos">300</span> segundos</p>
 
-<p>Información exclusiva para instructores y directores. Su información es borrada después de 90 días.</p>
-<table border="1" id="tablaRespuestas" style="border-collapse: collapse; width: 100%;">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Nombre</th>
-      <th>Correo</th>
-      <th>Teléfono</th>
-      <th>Asociación</th>
-      <th>Número Asistencia</th>
-      <th>¿Asistió?</th>
-      <th>Fecha</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <p>Información exclusiva para instructores y directores. Su información es borrada después de 90 días</p>
+  <table border="1" id="tablaRespuestas" style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Edad</th>
+        <th>Teléfono</th>
+        <th>Asociación</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-<script>
-  document.addEventListener("DOMContentLoaded", async () => {
-    const params = new URLSearchParams(location.search);
-    const id = params.get("id");
-    if (!id) return alert("❌ Falta el parámetro id en la URL.");
-  
-    document.getElementById("idFormulario").value = id;
-  
-    const form = document.getElementById("formulario");
-    const botonesDiv = document.getElementById("botonesAsistencia");
-    const btn2 = document.getElementById("btnSegunda");
-    const btn3 = document.getElementById("btnTercera");
-    const mensaje = document.getElementById("mensaje");
-    const tablaBody = document.querySelector("#tablaRespuestas tbody");
-  
-    // ⚙️ Recuperar correo global (no depende del ID)
-    const correoGlobal = localStorage.getItem("correoUsuario");
-  
-    // ⚙️ Verificar si ya existe registro previo en esta especialidad
-    let usuario = null;
-    let tiempoGuardado = null;
-  
-    if (correoGlobal) {
-      const res = await fetch(`/api/leer?id=${id}&correo=${encodeURIComponent(correoGlobal)}`);
-      const data = await res.json();
-  
-      if (data.success && data.asistencias.length > 0) {
-        const ultima = data.asistencias[data.asistencias.length - 1];
-        usuario = {
-          nombre: ultima.nombre,
-          correo: ultima.correo,
-          telefono: ultima.telefono,
-          asociacion: ultima.asociacion,
-          asistenciaNumero: data.asistencias.length
-        };
-        localStorage.setItem("asistenciaUsuario_" + id, JSON.stringify(usuario));
-        localStorage.setItem("asistenciaTiempo_" + id, JSON.stringify({ ultima: Date.now() }));
-      }
-    }
-  
-    // ⚙️ Cargar usuario desde almacenamiento local si existe
-    if (!usuario) {
-      usuario = JSON.parse(localStorage.getItem("asistenciaUsuario_" + id)) || null;
-      tiempoGuardado = JSON.parse(localStorage.getItem("asistenciaTiempo_" + id)) || null;
-    }
-  
-    if (usuario) {
-      form.style.display = "none";
-      mostrarEstado(usuario);
-    } else {
-      form.style.display = "block";
-    }
-  
-    // === Registro de la primera asistencia ===
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const datos = Object.fromEntries(new FormData(form).entries());
-  
-      const res = await fetch("/api/guardar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...datos, id })
-      });
-  
-      const data = await res.json();
-      if (!res.ok) return alert(data.error || "❌ Error al guardar.");
-  
-      alert(data.message);
-      localStorage.setItem("correoUsuario", datos.correo);
-  
-      const nuevoUsuario = {
-        nombre: datos.nombre,
-        correo: datos.correo,
-        telefono: datos.telefono,
-        asociacion: datos.asociacion,
-        asistenciaNumero: 1
-      };
-  
-      localStorage.setItem("asistenciaUsuario_" + id, JSON.stringify(nuevoUsuario));
-      localStorage.setItem("asistenciaTiempo_" + id, JSON.stringify({ ultima: Date.now() }));
-  
-      form.style.display = "none";
-      mostrarEstado(nuevoUsuario);
-    });
-  
-    // === Muestra botones y cronómetros según progreso ===
-    function mostrarEstado(usuario) {
-      botonesDiv.style.display = "block";
-      actualizarTabla();
-  
-      const tiempo = JSON.parse(localStorage.getItem("asistenciaTiempo_" + id));
-      const diffMin = tiempo ? Math.floor((Date.now() - tiempo.ultima) / 60000) : 0;
-  
-      btn2.style.display = "none";
-      btn3.style.display = "none";
-  
-      if (usuario.asistenciaNumero === 1) {
-        if (diffMin < 30) {
-          mensaje.textContent = `⏳ Espera ${30 - diffMin} minutos para registrar la segunda asistencia.`;
-        } else {
-          btn2.style.display = "inline-block";
-        }
-      } else if (usuario.asistenciaNumero === 2) {
-        if (diffMin < 30) {
-          mensaje.textContent = `⏳ Espera ${30 - diffMin} minutos para registrar la tercera asistencia.`;
-        } else {
-          btn3.style.display = "inline-block";
-        }
-      } else if (usuario.asistenciaNumero >= 3) {
-        mensaje.textContent = "✅ Has completado las 3 asistencias.";
-      }
-    }
-  
-    async function registrarAsistencia(num) {
-      const usuario = JSON.parse(localStorage.getItem("asistenciaUsuario_" + id));
-      const res = await fetch("/api/guardar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...usuario, id })
-      });
-      const data = await res.json();
-      if (!res.ok) return alert(data.error || "❌ Error al guardar.");
-  
-      alert(data.message);
-      usuario.asistenciaNumero = num;
-      localStorage.setItem("asistenciaUsuario_" + id, JSON.stringify(usuario));
-      localStorage.setItem("asistenciaTiempo_" + id, JSON.stringify({ ultima: Date.now() }));
-      btn2.style.display = "none";
-      btn3.style.display = "none";
-      mensaje.textContent = `✅ ${num === 2 ? "Segunda" : "Tercera"} asistencia registrada correctamente.`;
-      actualizarTabla();
-    }
-  
-    btn2.addEventListener("click", () => registrarAsistencia(2));
-    btn3.addEventListener("click", () => registrarAsistencia(3));
-  
-    // === Actualizar tabla ===
-    async function actualizarTabla() {
-      const correo = localStorage.getItem("correoUsuario");
-      if (!correo) return;
-      tablaBody.innerHTML = "<tr><td colspan='8'>Cargando...</td></tr>";
-  
-      const res = await fetch(`/api/leer?id=${id}&correo=${encodeURIComponent(correo)}`);
-      const data = await res.json();
-  
-      if (!data.success || !data.asistencias.length) {
-        tablaBody.innerHTML = "<tr><td colspan='8'>Sin registros aún.</td></tr>";
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const params = new URLSearchParams(location.search);
+      const id = params.get("id");
+    
+      if (!id) {
+        document.body.innerHTML = "<h2>❌ Error: ID de formulario no especificado.</h2>";
         return;
       }
-  
-      tablaBody.innerHTML = "";
-      data.asistencias.forEach((a, i) => {
-        tablaBody.insertAdjacentHTML("beforeend", `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${a.nombre}</td>
-            <td>${a.correo}</td>
-            <td>${a.telefono}</td>
-            <td>${a.asociacion}</td>
-            <td>${a.numeroAsistencia}</td>
-            <td>${a.asistio}</td>
-            <td>${new Date(a.fecha).toLocaleString()}</td>
-          </tr>
-        `);
-      });
-    }
-  
-    // 🔁 Recarga automática de tabla cada 5 minutos
-    let segundos = 300;
-    setInterval(() => {
-      segundos--;
-      document.getElementById("segundos").textContent = segundos;
-      if (segundos <= 0) {
-        actualizarTabla();
-        segundos = 300;
+    
+      // Clave única por especialidad
+      const storageKey = `asistencia_${id}`;
+    
+      // Recuperar progreso anterior (solo para este formulario)
+      let progreso = JSON.parse(localStorage.getItem(storageKey)) || {
+        asistencia: 0,
+        ultimaHora: null,
+      };
+    
+      try {
+        const res = await fetch(`/api/obtenerFormulario?id=${id}`);
+        if (!res.ok) {
+          document.body.innerHTML = `<h2>❌ Formulario '${id}' no encontrado.</h2>`;
+          return;
+        }
+    
+        const data = await res.json();
+        const tituloEl = document.getElementById("tituloFormulario");
+        const formulario = document.getElementById("formulario");
+        const mensaje = document.getElementById("mensaje");
+        const contadorEl = document.getElementById("contador");
+    
+        tituloEl.textContent = data.titulo;
+        document.getElementById("idFormulario").value = id;
+    
+        // 🔹 Función para mostrar contador visible
+        const iniciarContador = (duracion, callback) => {
+          let tiempoRestante = duracion;
+          contadorEl.style.display = "block";
+          const intervalo = setInterval(() => {
+            const minutos = Math.floor(tiempoRestante / 60);
+            const segundos = tiempoRestante % 60;
+            contadorEl.textContent = `⏳ Tiempo restante: ${minutos}:${segundos
+              .toString()
+              .padStart(2, "0")}`;
+            tiempoRestante--;
+            if (tiempoRestante < 0) {
+              clearInterval(intervalo);
+              callback();
+            }
+          }, 1000);
+        };
+    
+        // 🔹 Control de flujo según asistencia actual
+        if (progreso.asistencia === 0) {
+          formulario.style.display = "block";
+          iniciarContador(30 * 60, () => {
+            mensaje.textContent = "⏱️ Finalizó el tiempo de registro de la primera asistencia.";
+            formulario.style.display = "none";
+            progreso.asistencia = 1;
+            progreso.ultimaHora = Date.now();
+            localStorage.setItem(storageKey, JSON.stringify(progreso));
+          });
+        } else if (progreso.asistencia === 1) {
+          mostrarBotonAsistencia("Segunda", 30 * 60, 2);
+        } else if (progreso.asistencia === 2) {
+          mostrarBotonAsistencia("Tercera", 10 * 60, 3);
+        } else {
+          mensaje.textContent = "✅ Ya completaste las tres asistencias.";
+        }
+    
+        // 🔹 Función para mostrar botones dinámicos
+        function mostrarBotonAsistencia(nombre, duracion, siguiente) {
+          formulario.style.display = "none";
+          const contenedor = document.createElement("div");
+          contenedor.innerHTML = `<button id="btn${nombre}">Registrar ${nombre} Asistencia</button>`;
+          document.body.insertBefore(contenedor, mensaje);
+    
+          iniciarContador(duracion, () => {
+            mensaje.textContent = `⏱️ Finalizó el tiempo de la ${nombre.toLowerCase()} asistencia.`;
+            contenedor.remove();
+            progreso.asistencia = siguiente;
+            progreso.ultimaHora = Date.now();
+            localStorage.setItem(storageKey, JSON.stringify(progreso));
+          });
+    
+          document.getElementById(`btn${nombre}`).onclick = async () => {
+            const correo = localStorage.getItem("correoUsuario");
+            if (!correo) {
+              mensaje.textContent = "⚠️ Error: no se encontró tu registro inicial.";
+              return;
+            }
+    
+            const res = await fetch("/api/guardar", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id,
+                correo,
+                numeroAsistencia: siguiente - 1,
+              }),
+            });
+    
+            if (res.ok) {
+              mensaje.textContent = `✅ ${nombre} asistencia registrada correctamente.`;
+              contenedor.remove();
+              progreso.asistencia = siguiente;
+              progreso.ultimaHora = Date.now();
+              localStorage.setItem(storageKey, JSON.stringify(progreso));
+              cargarRespuestas(id);
+            } else {
+              mensaje.textContent = "❌ Error al registrar asistencia.";
+            }
+          };
+        }
+    
+        // Guardar correo después del primer registro
+        document
+          .getElementById("formulario")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const datos = Object.fromEntries(new FormData(this).entries());
+            localStorage.setItem("correoUsuario", datos.correo);
+    
+            const res = await fetch("/api/guardar", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(datos),
+            });
+    
+            if (res.ok) {
+              mensaje.textContent = "✅ Primera asistencia registrada.";
+              formulario.style.display = "none";
+              progreso.asistencia = 1;
+              progreso.ultimaHora = Date.now();
+              localStorage.setItem(storageKey, JSON.stringify(progreso));
+              cargarRespuestas(datos.id);
+            } else {
+              mensaje.textContent = "❌ Ocurrió un error al registrar.";
+            }
+          });
+    
+        // 🔹 Mostrar tabla
+        async function cargarRespuestas(idFormulario) {
+          const tablaBody = document.querySelector("#tablaRespuestas tbody");
+          tablaBody.innerHTML = "<tr><td colspan='7'>Cargando...</td></tr>";
+    
+          try {
+            const res = await fetch(`/api/verRespuestas?id=${idFormulario}`);
+            if (!res.ok) {
+              tablaBody.innerHTML = "<tr><td colspan='7'>No hay datos.</td></tr>";
+              return;
+            }
+    
+            const respuestas = await res.json();
+            if (!respuestas.length) {
+              tablaBody.innerHTML = "<tr><td colspan='7'>No hay respuestas.</td></tr>";
+              return;
+            }
+    
+            tablaBody.innerHTML = "";
+            respuestas.forEach((r, i) => {
+              const fila = `
+                <tr>
+                  <td>${i + 1}</td>
+                  <td>${r.nombre || "-"}</td>
+                  <td>${r.correo || "-"}</td>
+                  <td>${r.telefono || "-"}</td>
+                  <td>${r.asociacion || "-"}</td>
+                  <td>${r.numeroAsistencia || "-"}</td>
+                  <td>${r.asistio || "Sí"}</td>
+                  <td>${r.numeroAsistencia === 3 ? "🧠 Examen disponible" : "❌ No puede hacer examen"}</td>
+                  <td>${new Date(r.fecha).toLocaleString()}</td>
+                </tr>
+              `;
+              tablaBody.insertAdjacentHTML("beforeend", fila);
+            });
+          } catch (error) {
+            console.error(error);
+            tablaBody.innerHTML = "<tr><td colspan='7'>Error al cargar respuestas.</td></tr>";
+          }
+        }
+    
+        cargarRespuestas(id);
+      } catch (error) {
+        console.error(error);
+        document.body.innerHTML = "<h2>❌ Error al cargar el formulario.</h2>";
       }
-    }, 1000);
-  });
-  </script>
-  
+    });
+    </script>
+    
 
-    
-    
-    
-    
 </body>
+
 </html>
