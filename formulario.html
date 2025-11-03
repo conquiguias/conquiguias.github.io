@@ -1,198 +1,227 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
-  <title>Formulario de Asistencia</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8f9fa;
-      margin: 0; padding: 20px;
-    }
-    h1 { color: #333; }
-    form, #asistencia-container, #examen-container {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      max-width: 500px;
-      margin: 20px auto;
-    }
-    button {
-      background: #007bff;
-      border: none;
-      padding: 10px 15px;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover { background: #0056b3; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #007bff;
-      color: white;
-    }
-  </style>
+  <title>Formulario</title>
 </head>
+
 <body>
+  <img src="logo1.png" style="width: 25%;" alt="">
+  <h2 id="tituloFormulario">Cargando...</h2>
+  <p id="contador"></p>
 
-  <h1>Asistencia a Especialidad</h1>
+  <form id="formulario" style="display: none;">
+    <input type="hidden" name="id" id="idFormulario">
 
-  <!-- Formulario de registro -->
-  <div id="registro-container" style="display:none;">
-    <form id="formRegistro">
-      <label>Nombre:</label><br>
-      <input type="text" name="nombre" required><br><br>
-      <label>Email:</label><br>
-      <input type="email" name="email" required><br><br>
-      <button type="submit">Registrar Primera Asistencia</button>
-    </form>
-  </div>
+    <label>Nombre:</label><br>
+    <input type="text" name="nombre" required><br><br>
 
-  <!-- Contenedor dinámico de asistencias -->
-  <div id="asistencia-container"></div>
+    <label>Correo: (Opcional)</label><br>
+    <input type="email" name="correo"><br><br>
 
-  <!-- Tabla de resultados -->
-  <table id="tablaAsistencias" style="display:none;">
+    <label>Edad: (Opcional)</label><br>
+    <input type="number" name="edad"><br><br>
+
+    <label>Teléfono:</label><br>
+    <input type="tel" name="telefono" required><br><br>
+
+    <label>Asociación o campo:</label><br>
+    <input type="text" name="asociacion" required><br><br>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <p id="mensaje"></p>
+
+  <h3>📊 Respuestas registradas | Se actualiza cada 5 minutos.</h3><p id="contadorRecarga">🔄 Próxima recarga en: <span id="segundos">300</span> segundos</p>
+
+  <p>Información exclusiva para instructores y directores. Su información es borrada después de 90 días</p>
+  <table border="1" id="tablaRespuestas" style="border-collapse: collapse; width: 100%;">
     <thead>
       <tr>
+        <th>#</th>
         <th>Nombre</th>
-        <th>Email</th>
-        <th>Número Asistencia</th>
-        <th>¿Asistió?</th>
-        <th>Examen</th>
+        <th>Correo</th>
+        <th>Edad</th>
+        <th>Teléfono</th>
+        <th>Asociación</th>
+        <th>Fecha</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <!-- Contenedor examen (a futuro) -->
-  <div id="examen-container" style="display:none;">
-    <h3>Examen de Especialidad</h3>
-    <p>Aquí se cargarán las preguntas...</p>
-  </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-
-  let usuario = JSON.parse(localStorage.getItem("asistencia_usuario")) || null;
-  const form = document.getElementById("formRegistro");
-  const tabla = document.getElementById("tablaAsistencias");
-  const tbody = tabla.querySelector("tbody");
-
-  // Mostrar formulario si es primera vez
-  if (!usuario) {
-    document.getElementById("registro-container").style.display = "block";
-  } else {
-    mostrarSiguienteAsistencia(usuario);
-  }
-
-  // === Primera asistencia ===
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const nombre = form.nombre.value.trim();
-    const email = form.email.value.trim();
-
-    const nuevoUsuario = {
-      nombre,
-      email,
-      asistenciaNumero: 1,
-      asistencias: [true],
-      ultimaAsistencia: Date.now()
-    };
-
-    localStorage.setItem("asistencia_usuario", JSON.stringify(nuevoUsuario));
-    alert("✅ Primera asistencia registrada correctamente");
-
-    document.getElementById("registro-container").style.display = "none";
-    mostrarSiguienteAsistencia(nuevoUsuario);
-  });
-
-  // === Función que controla asistencias siguientes ===
-  function mostrarSiguienteAsistencia(usuario) {
-    const contenedor = document.getElementById("asistencia-container");
-    contenedor.innerHTML = "";
-    contenedor.style.display = "block";
-
-    let numero = usuario.asistenciaNumero + 1;
-    let texto = "";
-
-    if (numero === 2) texto = "Segunda Asistencia";
-    else if (numero === 3) texto = "Tercer Asistencia";
-    else if (numero > 3) texto = "Completado";
-
-    if (numero <= 3) {
-      contenedor.innerHTML = `
-        <h3>${texto}</h3>
-        <p>Disponibilidad: <strong>30 minutos</strong></p>
-        <button id="btnAsistencia">Registrar ${texto}</button>
-      `;
-
-      const btn = document.getElementById("btnAsistencia");
-      btn.addEventListener("click", () => {
-        usuario.asistenciaNumero = numero;
-        usuario.asistencias.push(true);
-        usuario.ultimaAsistencia = Date.now();
-        localStorage.setItem("asistencia_usuario", JSON.stringify(usuario));
-
-        alert(`✅ ${texto} registrada correctamente`);
-
-        // Reiniciar para próxima asistencia
-        if (numero < 3) {
-          setTimeout(() => {
-            mostrarSiguienteAsistencia(usuario);
-          }, 10 * 60 * 1000); // 10 minutos para la siguiente
-        } else {
-          mostrarTablaFinal(usuario);
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("formRegistro");
+      const registroContainer = document.getElementById("registro-container");
+      const asistenciaContainer = document.getElementById("asistencia-container");
+      const tabla = document.getElementById("tablaAsistencias");
+      const tbody = tabla.querySelector("tbody");
+    
+      let usuario = JSON.parse(localStorage.getItem("asistencia_usuario")) || null;
+    
+      // Función para mostrar cronómetro visible
+      function iniciarCronometro(duracionSegundos, onFinalizar, mostrar) {
+        let restante = duracionSegundos;
+        mostrar.textContent = `⏱ Tiempo restante: ${Math.floor(restante / 60)}:${(restante % 60).toString().padStart(2, "0")}`;
+    
+        const interval = setInterval(() => {
+          restante--;
+          const min = Math.floor(restante / 60);
+          const seg = (restante % 60).toString().padStart(2, "0");
+          mostrar.textContent = `⏱ Tiempo restante: ${min}:${seg}`;
+    
+          if (restante <= 0) {
+            clearInterval(interval);
+            onFinalizar();
+          }
+        }, 1000);
+      }
+    
+      // Primera vez: mostrar formulario
+      if (!usuario) {
+        registroContainer.style.display = "block";
+      } else {
+        manejarAsistencia(usuario);
+      }
+    
+      // === REGISTRO PRIMERA ASISTENCIA ===
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const nombre = form.nombre.value.trim();
+        const email = form.email.value.trim();
+    
+        try {
+          const res = await fetch("/api/guardar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: "especialidad", nombre, correo: email }),
+          });
+    
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Error al guardar");
+    
+          alert(data.message);
+    
+          usuario = {
+            nombre,
+            email,
+            asistenciaNumero: data.numeroAsistencia,
+            asistencias: [true],
+            ultimaAsistencia: Date.now(),
+          };
+          localStorage.setItem("asistencia_usuario", JSON.stringify(usuario));
+    
+          registroContainer.style.display = "none";
+          manejarAsistencia(usuario);
+        } catch (err) {
+          alert("❌ Error al registrar asistencia: " + err.message);
         }
       });
-    } else {
-      mostrarTablaFinal(usuario);
-    }
-  }
-
-  // === Mostrar tabla con estado ===
-  function mostrarTablaFinal(usuario) {
-    const contenedor = document.getElementById("asistencia-container");
-    contenedor.style.display = "none";
-    tabla.style.display = "table";
-    tbody.innerHTML = "";
-
-    const asistioTodas = usuario.asistencias.length === 3;
-    const fila = `
-      <tr>
-        <td>${usuario.nombre}</td>
-        <td>${usuario.email}</td>
-        <td>${usuario.asistenciaNumero}</td>
-        <td>${asistioTodas ? "Sí" : "No"}</td>
-        <td>${
-          asistioTodas
-            ? `<button id="btnExamen">Hacer Examen</button>`
-            : "No puede hacer examen"
-        }</td>
-      </tr>
-    `;
-    tbody.insertAdjacentHTML("beforeend", fila);
-
-    if (asistioTodas) {
-      document.getElementById("btnExamen").addEventListener("click", () => {
-        document.getElementById("examen-container").style.display = "block";
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-    }
-  }
-
-});
-</script>
+    
+      // === CONTROL DE ASISTENCIAS SIGUIENTES ===
+      function manejarAsistencia(usuario) {
+        asistenciaContainer.innerHTML = "";
+        asistenciaContainer.style.display = "block";
+    
+        let numero = usuario.asistenciaNumero + 1;
+        if (numero > 3) return mostrarTablaFinal(usuario);
+    
+        let texto = numero === 2 ? "Segunda Asistencia" : numero === 3 ? "Tercer Asistencia" : "Completado";
+    
+        const bloque = document.createElement("div");
+        bloque.innerHTML = `
+          <h3>${texto}</h3>
+          <p id="mensajeTiempo"></p>
+          <button id="btnAsistencia" disabled>Registrar ${texto}</button>
+        `;
+        asistenciaContainer.appendChild(bloque);
+    
+        const btn = bloque.querySelector("#btnAsistencia");
+        const mostrar = bloque.querySelector("#mensajeTiempo");
+    
+        // Duraciones específicas
+        let duracionEspera, duracionActivo;
+        if (numero === 2) {
+          duracionEspera = 30 * 60; // 30 min para habilitar
+          duracionActivo = 30 * 60; // 30 min para registrar
+        } else if (numero === 3) {
+          duracionEspera = 10 * 60; // 10 min para habilitar
+          duracionActivo = 10 * 60; // 10 min para registrar
+        }
+    
+        mostrar.textContent = "⏳ Espera el inicio de la siguiente asistencia...";
+        iniciarCronometro(duracionEspera, () => {
+          btn.disabled = false;
+          mostrar.textContent = `🟢 ${texto} disponible por ${duracionActivo / 60} minutos`;
+          iniciarCronometro(duracionActivo, () => {
+            btn.disabled = true;
+            mostrar.textContent = `⛔ Tiempo de ${texto} finalizado.`;
+            mostrarTablaFinal(usuario);
+          }, mostrar);
+        }, mostrar);
+    
+        btn.addEventListener("click", async () => {
+          try {
+            const res = await fetch("/api/guardar", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: "especialidad", nombre: usuario.nombre, correo: usuario.email }),
+            });
+    
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Error al guardar");
+    
+            alert(`✅ ${texto} registrada correctamente`);
+    
+            usuario.asistenciaNumero = numero;
+            usuario.asistencias.push(true);
+            usuario.ultimaAsistencia = Date.now();
+            localStorage.setItem("asistencia_usuario", JSON.stringify(usuario));
+    
+            manejarAsistencia(usuario);
+          } catch (err) {
+            alert("❌ Error al registrar asistencia: " + err.message);
+          }
+        });
+      }
+    
+      // === TABLA FINAL ===
+      function mostrarTablaFinal(usuario) {
+        asistenciaContainer.style.display = "none";
+        tabla.style.display = "table";
+        tbody.innerHTML = "";
+    
+        const asistioTodas = usuario.asistencias.length === 3;
+        const fila = `
+          <tr>
+            <td>${usuario.nombre}</td>
+            <td>${usuario.email}</td>
+            <td>${usuario.asistenciaNumero}</td>
+            <td>${asistioTodas ? "Sí" : "No"}</td>
+            <td>${
+              asistioTodas
+                ? `<button id="btnExamen">Hacer Examen</button>`
+                : "No puede hacer examen"
+            }</td>
+          </tr>
+        `;
+        tbody.insertAdjacentHTML("beforeend", fila);
+    
+        if (asistioTodas) {
+          document.getElementById("btnExamen").addEventListener("click", () => {
+            document.getElementById("examen-container").style.display = "block";
+            window.scrollTo(0, document.body.scrollHeight);
+          });
+        }
+      }
+    });
+    </script>
+    
 
 </body>
+
 </html>
