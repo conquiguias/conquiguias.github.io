@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  if (req.method !== "POST") 
+  if (req.method !== "POST")
     return res.status(405).json({ error: "Método no permitido" });
 
   const { id, nombre, correo, club, ...resto } = req.body;
@@ -20,39 +20,49 @@ export default async function handler(req, res) {
     });
 
     let registros = [];
+    let sha;
     if (respuesta.ok) {
       const data = await respuesta.json();
+      sha = data.sha;
       const decoded = Buffer.from(data.content, "base64").toString();
       registros = JSON.parse(decoded);
     }
 
     // 🔹 Buscar si ya existe este correo
-    const asistenciasPrevias = registros.filter(r => r.correo === correo);
-    const numeroAsistencia = asistenciasPrevias.length + 1;
+    let usuario = registros.find(r => r.correo === correo);
 
-    // 🔹 Validar máximo de 3 asistencias
-    if (numeroAsistencia > 3) {
-      return res.status(400).json({ error: "Ya registraste las 3 asistencias." });
+    // 🟢 Si no existe, crear un nuevo registro con primera asistencia
+    if (!usuario) {
+      usuario = {
+        id,
+        nombre,
+        correo,
+        club,
+        asistencias: { 1: true, 2: false, 3: false },
+        fechaUltima: new Date().toISOString(),
+        ...resto,
+      };
+      registros.push(usuario);
+      var numeroAsistencia = 1;
+    } 
+    // 🟢 Si ya existe, actualizar la siguiente asistencia
+    else {
+      const asistencias = usuario.asistencias || { 1: false, 2: false, 3: false };
+      const siguiente = Object.values(asistencias).filter(Boolean).length + 1;
+
+      if (siguiente > 3) {
+        return res.status(400).json({ error: "Ya registraste las 3 asistencias." });
+      }
+
+      asistencias[siguiente] = true;
+      usuario.asistencias = asistencias;
+      usuario.fechaUltima = new Date().toISOString();
+      numeroAsistencia = siguiente;
     }
-
-    // 🔹 Registrar nueva asistencia
-    const nuevoRegistro = {
-      id,
-      nombre,
-      correo,
-      club,
-      numeroAsistencia,
-      asistio: "Sí",
-      fecha: new Date().toISOString(),
-      ...resto,
-    };
-
-    registros.push(nuevoRegistro);
 
     // 🔹 Codificar y guardar en GitHub
     const contenidoBase64 = Buffer.from(JSON.stringify(registros, null, 2)).toString("base64");
 
-    // Subir el archivo actualizado
     await fetch(`https://api.github.com/repos/${repo}/contents/${archivo}`, {
       method: "PUT",
       headers: {
@@ -60,9 +70,9 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        message: `Registro de asistencia ${numeroAsistencia} - ${correo}`,
+        message: `Actualización de asistencia ${numeroAsistencia} - ${correo}`,
         content: contenidoBase64,
-        sha: respuesta.ok ? (await respuesta.json()).sha : undefined,
+        sha,
       }),
     });
 
