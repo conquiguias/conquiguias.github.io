@@ -9,5 +9,16 @@
     },
     "puntaje": 100,
     "fecha": "2025-11-04T23:54:36.839Z"
+  },
+  {
+    "visitanteId": "5082022b-25e7-4d27-abd7-c33c02cca0e8",
+    "respuestas": {
+      "q-1762279433120-iyuv2wjpi": "true-1762279433120-mcgbkbl9r",
+      "q-1762296097218-x50ljb4wg": "true-1762296097218-17m5v9wrd",
+      "q-1762296109217-wmml96rdu": "opt-1762296120978-cts1vj18l",
+      "q-1762296137649-cug8fsn3q": "true-1762296137649-qu0vewnhh"
+    },
+    "puntaje": 50,
+    "fecha": "2025-11-04T23:56:15.262Z"
   }
 ]
