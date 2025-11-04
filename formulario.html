@@ -405,6 +405,32 @@
         transform: rotate(360deg);
       }
     }
+
+    /* Añadir al final del CSS existente */
+    #resultadosModal .modal-content {
+      animation: fadeIn 0.3s ease;
+    }
+
+    #contenidoResultados {
+      line-height: 1.6;
+    }
+
+    #contenidoResultados div {
+      transition: all 0.3s ease;
+    }
+
+    #contenidoResultados div:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      #resultadosModal .modal-content {
+        margin: 20px auto;
+        padding: 20px;
+        width: 95%;
+      }
+    }
   </style>
 </head>
 
@@ -930,28 +956,29 @@
           // VERIFICAR SI ES EL USUARIO ACTUAL
           const esUsuarioActual = r.visitanteId === visitanteId;
 
+          // En la parte de la tabla, cambiar el botón a:
           const fila = `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${r.nombre}</td>
-          <td>${r.correo}</td>
-          <td>${r.edad}</td>
-          <td>${r.telefono}</td>
-          <td>${r.asociacion}</td>
-          <td>${new Date(r.fecha).toLocaleString()}</td>
-          <td>${r.maxAsistencia}</td>
-          <td>${asistioCompleto}</td>
-          <td>
-            ${esUsuarioActual && puedeExamen
+  <tr>
+    <td>${index + 1}</td>
+    <td>${r.nombre}</td>
+    <td>${r.correo}</td>
+    <td>${r.edad}</td>
+    <td>${r.telefono}</td>
+    <td>${r.asociacion}</td>
+    <td>${new Date(r.fecha).toLocaleString()}</td>
+    <td>${r.maxAsistencia}</td>
+    <td>${asistioCompleto}</td>
+    <td>
+      ${esUsuarioActual && puedeExamen
               ? (r.examen
                 ? `<button onclick="verResultadosExamen()" style="background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">📊 Ver Resultados</button>`
                 : `<button onclick="iniciarExamen()">📝 Hacer Examen</button>`)
               : (esUsuarioActual
                 ? '⏳ Complete las 3 asistencias'
                 : (r.examen ? '✅ Examen completado' : '❌ Examen no realizado'))}
-          </td>
-        </tr>
-      `;
+    </td>
+  </tr>
+`;
           tablaBody.insertAdjacentHTML("beforeend", fila);
         });
 
@@ -1282,7 +1309,7 @@
     }
 
     // Mostrar resultado del examen
-    // Mostrar resultado del examen CON RETROALIMENTACIÓN
+    // Mostrar resultado del examen después de enviarlo
     function mostrarResultadoExamen(porcentaje, correctas, total, respuestasUsuario) {
       const resultadoDiv = document.getElementById('resultadoExamen');
       const btnEnviar = document.getElementById('btnEnviarExamen');
@@ -1300,41 +1327,12 @@
         color = '#dc3545';
       }
 
-      // Generar retroalimentación de preguntas
-      let retroalimentacionHTML = '<div style="margin-top: 20px; text-align: left;">';
-      retroalimentacionHTML += '<h4 style="color: #2c3e50; margin-bottom: 15px;">📋 Retroalimentación:</h4>';
-
-      examenActual.forEach((pregunta, index) => {
-        const respuestaUsuario = respuestasUsuario[pregunta.id];
-        const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
-        const opcionUsuario = pregunta.options.find(opt => opt.id === respuestaUsuario);
-
-        const esCorrecta = respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id;
-
-        retroalimentacionHTML += `
-      <div style="margin-bottom: 15px; padding: 10px; border-left: 4px solid ${esCorrecta ? '#28a745' : '#dc3545'}; background: #f8f9fa;">
-        <p style="margin: 0 0 8px 0; font-weight: bold;">Pregunta ${index + 1}: ${pregunta.text}</p>
-        <p style="margin: 0 0 5px 0; color: ${esCorrecta ? '#28a745' : '#dc3545'};">
-          ${esCorrecta ? '✅ Correcta' : '❌ Incorrecta'}
-        </p>
-        ${!esCorrecta ? `
-          <p style="margin: 0 0 5px 0; font-size: 14px; color: #6c757d;">
-            <strong>Respuesta correcta:</strong> ${respuestaCorrecta.text}
-          </p>
-        ` : ''}
-      </div>
-    `;
-      });
-
-      retroalimentacionHTML += '</div>';
-
       resultadoDiv.innerHTML = `
     <div style="text-align: center; padding: 20px; background: ${color}15; border-radius: 10px; border-left: 5px solid ${color};">
       <h3 style="color: ${color};">${mensaje}</h3>
       <p style="font-size: 16px; margin: 10px 0;">
         <strong>Resumen:</strong> ${correctas} de ${total} preguntas correctas
       </p>
-      ${retroalimentacionHTML}
       <div style="margin-top: 20px;">
         <button onclick="cerrarExamen()" style="
           background: ${color};
@@ -1345,7 +1343,7 @@
           cursor: pointer;
           margin: 5px;
         ">Cerrar</button>
-        <button onclick="verResultadosExamen()" style="
+        <button onclick="verDetallesResultados()" style="
           background: #17a2b8;
           color: white;
           border: none;
@@ -1353,12 +1351,20 @@
           border-radius: 5px;
           cursor: pointer;
           margin: 5px;
-        ">📊 Ver Resultados Detallados</button>
+        ">📋 Ver Detalles</button>
       </div>
     </div>
   `;
 
       resultadoDiv.style.display = 'block';
+
+      // Guardar datos temporalmente para ver detalles
+      window.examenRecienEnviado = {
+        examen: examenActual,
+        respuestas: respuestasUsuario,
+        correctas: correctas,
+        total: total
+      };
 
       // Deshabilitar todas las opciones
       document.querySelectorAll('input[type="radio"]').forEach(radio => {
@@ -1366,16 +1372,197 @@
       });
     }
 
+    // Función para ver detalles después de enviar el examen
+    function verDetallesResultados() {
+      if (!window.examenRecienEnviado) return;
+
+      const { examen, respuestas, correctas, total } = window.examenRecienEnviado;
+
+      // Crear objeto resultado simulado
+      const resultado = {
+        respuestas: respuestas,
+        puntaje: (correctas / total) * 100
+      };
+
+      mostrarModalResultados(examen, resultado);
+      cerrarExamen(); // Cerrar el modal de examen
+    }
 
     // Función para redirigir a la página de resultados (futura implementación)
-    function verResultadosExamen() {
+    // Función para mostrar los resultados del examen en un modal
+    async function verResultadosExamen() {
       const idFormulario = document.getElementById("idFormulario").value;
 
-      // Por ahora, mostrar un mensaje ya que la página no está implementada
-      document.getElementById("mensaje").textContent = "📊 La página de resultados estará disponible próximamente. Tu calificación ha sido guardada en el sistema.";
+      try {
+        // Obtener los resultados del examen del usuario
+        const res = await fetch(`/api/obtenerResultadoExamen?id=${idFormulario}&visitanteId=${visitanteId}`);
 
-      // En el futuro, aquí irá la redirección:
-      // window.location.href = `/resultados-examen.html?id=${idFormulario}&visitanteId=${visitanteId}`;
+        if (!res.ok) {
+          throw new Error('No se pudieron cargar los resultados');
+        }
+
+        const resultado = await res.json();
+
+        // Obtener las preguntas del examen para la retroalimentación
+        const resExamen = await fetch(`/api/obtenerEvaluacion?id=${idFormulario}`);
+
+        if (!resExamen.ok) {
+          throw new Error('No se pudo cargar la evaluación');
+        }
+
+        const examen = await resExamen.json();
+
+        // Mostrar modal con resultados
+        mostrarModalResultados(examen, resultado);
+
+      } catch (error) {
+        console.error('Error al cargar resultados:', error);
+        document.getElementById("mensaje").textContent = "❌ Error al cargar los resultados del examen";
+      }
+    }
+
+
+    // Función para mostrar el modal con los resultados del examen
+    function mostrarModalResultados(examen, resultado) {
+      // Crear modal si no existe
+      if (!resultadosModal) {
+        crearModalResultados();
+      }
+
+      const contenidoResultados = document.getElementById('contenidoResultados');
+      const respuestasUsuario = resultado.respuestas;
+
+      // Calcular estadísticas
+      let correctas = 0;
+      examen.forEach(pregunta => {
+        const respuestaUsuario = respuestasUsuario[pregunta.id];
+        const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
+        if (respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id) {
+          correctas++;
+        }
+      });
+
+      const total = examen.length;
+
+      // Generar contenido de retroalimentación
+      let retroalimentacionHTML = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h3 style="color: #2c3e50;">📊 Resultados de tu Examen</h3>
+      <p style="font-size: 18px; margin: 10px 0;">
+        <strong>Resumen:</strong> ${correctas} de ${total} preguntas correctas
+      </p>
+    </div>
+    <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+  `;
+
+      // Mostrar cada pregunta con retroalimentación
+      examen.forEach((pregunta, index) => {
+        const respuestaUsuario = respuestasUsuario[pregunta.id];
+        const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
+        const opcionUsuario = pregunta.options.find(opt => opt.id === respuestaUsuario);
+
+        const esCorrecta = respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id;
+
+        retroalimentacionHTML += `
+      <div style="margin-bottom: 20px; padding: 15px; border: 2px solid ${esCorrecta ? '#28a745' : '#dc3545'}; border-radius: 8px; background: #f8f9fa;">
+        <p style="margin: 0 0 10px 0; font-weight: bold; color: #2c3e50;">
+          Pregunta ${index + 1}: ${pregunta.text}
+        </p>
+        <p style="margin: 0 0 8px 0; color: ${esCorrecta ? '#28a745' : '#dc3545'}; font-weight: bold;">
+          ${esCorrecta ? '✅ Correcta' : '❌ Incorrecta'}
+        </p>
+        <p style="margin: 0 0 5px 0; font-size: 14px;">
+          <strong>Tu respuesta:</strong> ${opcionUsuario ? opcionUsuario.text : 'No respondida'}
+        </p>
+        ${!esCorrecta ? `
+          <p style="margin: 0 0 5px 0; font-size: 14px; color: #28a745;">
+            <strong>Respuesta correcta:</strong> ${respuestaCorrecta.text}
+          </p>
+        ` : ''}
+      </div>
+    `;
+      });
+
+      retroalimentacionHTML += '</div>';
+
+      contenidoResultados.innerHTML = retroalimentacionHTML;
+      resultadosModal.style.display = 'block';
+    }
+
+
+    let resultadosModal = null;
+
+    // Crear modal para resultados
+    function crearModalResultados() {
+      resultadosModal = document.createElement('div');
+      resultadosModal.id = 'resultadosModal';
+      resultadosModal.style.cssText = `
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 10000;
+    overflow-y: auto;
+  `;
+
+      const modalContent = document.createElement('div');
+      modalContent.style.cssText = `
+    position: relative;
+    background: white;
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  `;
+
+      modalContent.innerHTML = `
+    <button id="btnCerrarResultados" style="
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #6c757d;
+    ">×</button>
+    <div id="contenidoResultados"></div>
+    <div style="margin-top: 20px; text-align: center;">
+      <button onclick="cerrarModalResultados()" style="
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+      ">Cerrar</button>
+    </div>
+  `;
+
+      resultadosModal.appendChild(modalContent);
+      document.body.appendChild(resultadosModal);
+
+      // Event listeners para cerrar
+      document.getElementById('btnCerrarResultados').addEventListener('click', cerrarModalResultados);
+      resultadosModal.addEventListener('click', (e) => {
+        if (e.target === resultadosModal) {
+          cerrarModalResultados();
+        }
+      });
+    }
+
+    // Función para cerrar el modal de resultados
+    function cerrarModalResultados() {
+      if (resultadosModal) {
+        resultadosModal.style.display = 'none';
+      }
     }
   </script>
 </body>
