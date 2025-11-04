@@ -42,8 +42,15 @@
       font-weight: bold;
     }
 
-    .multiple-choice { background: #e3f2fd; color: #1976d2; }
-    .true-false { background: #f3e5f5; color: #7b1fa2; }
+    .multiple-choice {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .true-false {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
 
     .option-item {
       display: flex;
@@ -66,7 +73,9 @@
       margin-right: 10px;
     }
 
-    .btn-add-question, .btn-add-option, .btn-remove {
+    .btn-add-question,
+    .btn-add-option,
+    .btn-remove {
       padding: 8px 15px;
       margin: 5px;
       border: none;
@@ -75,9 +84,20 @@
       font-size: 14px;
     }
 
-    .btn-add-question { background: #28a745; color: white; }
-    .btn-add-option { background: #17a2b8; color: white; }
-    .btn-remove { background: #dc3545; color: white; }
+    .btn-add-question {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-add-option {
+      background: #17a2b8;
+      color: white;
+    }
+
+    .btn-remove {
+      background: #dc3545;
+      color: white;
+    }
 
     .preview-modal {
       display: none;
@@ -86,7 +106,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       z-index: 1000;
     }
 
@@ -125,32 +145,33 @@
 <body>
   <img src="logo1.png" style="width: 25%;" alt="">
   <h2>Crear nuevo formulario de Asistencia con Evaluación</h2>
-  
+
   <form id="crearFormulario">
     <label>ID del formulario (ej. nombre y apellido de instructor):</label><br>
     <input type="text" id="formId" required><br><br>
-    
+
     <label>Título: (ej. Especialidad de Flores)</label><br>
     <input type="text" id="titulo" required><br><br>
-    
+
     <input type="hidden" id="fechaCierre">
-    
+
     <!-- Sistema de creación de evaluación -->
     <div class="evaluation-creator">
       <h3>📝 Crear Evaluación para esta Especialidad</h3>
       <div id="questionsContainer">
         <!-- Las preguntas se agregarán aquí dinámicamente -->
       </div>
-      
+
       <button type="button" class="btn-add-question" onclick="addQuestion('multiple')">
         ➕ Agregar Pregunta de Opción Múltiple
       </button>
       <button type="button" class="btn-add-question" onclick="addQuestion('truefalse')">
         ➕ Agregar Pregunta Verdadero/Falso
       </button>
-      
+
       <div style="margin-top: 20px;">
-        <button type="button" onclick="previewExam()" style="background: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
+        <button type="button" onclick="previewExam()"
+          style="background: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
           👁️ Previsualizar Examen
         </button>
       </div>
@@ -160,7 +181,7 @@
   </form>
 
   <p id="mensaje"></p>
-  
+
   <button id="btnLimpiarFormularios">🧹 Limpiar formularios vencidos</button>
   <p id="resultadoLimpieza"></p>
 
@@ -185,7 +206,8 @@
     <div class="preview-content">
       <h3>Previsualización del Examen</h3>
       <div id="previewQuestions"></div>
-      <button onclick="closePreview()" style="background: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; margin-top: 15px;">
+      <button onclick="closePreview()"
+        style="background: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; margin-top: 15px;">
         Cerrar
       </button>
     </div>
@@ -209,7 +231,7 @@
         id: questionId,
         type: type,
         text: '',
-        options: type === 'multiple' ? 
+        options: type === 'multiple' ?
           [
             { id: 'opt-' + generateId(), text: '', correct: false },
             { id: 'opt-' + generateId(), text: '', correct: false }
@@ -219,7 +241,7 @@
             { id: 'false-' + generateId(), text: 'Falso', correct: false }
           ]
       };
-      
+
       questions.push(question);
       renderQuestions();
     }
@@ -427,7 +449,7 @@
       // Generar ID único para el formulario
       const idPalabras = formId.split(/\s+/).filter(Boolean);
       const normalizedFormId = idPalabras.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join("");
-      
+
       let id = normalizedFormId + "-" + generarIdAlfanumerico();
 
       function generarIdAlfanumerico() {
@@ -447,9 +469,9 @@
         const response = await fetch("/api/guardarFormulario", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            id, 
-            titulo, 
+          body: JSON.stringify({
+            id,
+            titulo,
             fechaCierre: fechaCierre,
             evaluation: questions.length > 0 ? questions : null
           })
