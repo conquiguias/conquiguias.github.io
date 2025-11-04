@@ -8,5 +8,11 @@
     "fecha": "2025-11-04T01:30:04.205Z",
     "visitanteId": "5569ee6a-aab6-458a-94c6-0592ee4175f1",
     "asistenciaNumero": 1
+  },
+  {
+    "fecha": "2025-11-04T01:30:22.804Z",
+    "visitanteId": "5569ee6a-aab6-458a-94c6-0592ee4175f1",
+    "asistenciaNumero": 2,
+    "id": "Flores-HNXSWU"
   }
 ]
