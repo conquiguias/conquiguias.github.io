@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administración - Sistema de Evaluaciones</title>
+  <style>
+    /* Estilos para el sistema de evaluación */
+    .evaluation-creator {
+      background: #f8f9fa;
+      border: 2px dashed #dee2e6;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .evaluation-creator h3 {
+      color: #495057;
+      margin-bottom: 15px;
+    }
+
+    .question-item {
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      position: relative;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .question-type {
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .multiple-choice {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .true-false {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      padding: 8px;
+      background: #f8f9fa;
+      border-radius: 5px;
+    }
+
+    .option-item input[type="text"] {
+      flex: 1;
+      margin: 0 10px;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+    }
+
+    .option-item input[type="radio"] {
+      margin-right: 10px;
+    }
+
+    .btn-add-question,
+    .btn-add-option,
+    .btn-remove {
+      padding: 8px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-add-question {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-add-option {
+      background: #17a2b8;
+      color: white;
+    }
+
+    .btn-remove {
+      background: #dc3545;
+      color: white;
+    }
+
+    .preview-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .preview-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .exam-question {
+      margin: 15px 0;
+      padding: 15px;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+    }
+
+    .error-message {
+      color: #dc3545;
+      background: #f8d7da;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+
+<body>
+  <img src="logo1.png" style="width: 25%;" alt="">
+  <h2>Crear nuevo formulario de Asistencia con Evaluación</h2>
+
+  <form id="crearFormulario">
+    <label>ID del formulario (ej. nombre y apellido de instructor):</label><br>
+    <input type="text" id="formId" required><br><br>
+
+    <label>Título: (ej. Especialidad de Flores)</label><br>
+    <input type="text" id="titulo" required><br><br>
+
+    <input type="hidden" id="fechaCierre">
+
+    <!-- Sistema de creación de evaluación -->
+    <div class="evaluation-creator">
+      <h3>📝 Crear Evaluación para esta Especialidad</h3>
+      <div id="questionsContainer">
+        <!-- Las preguntas se agregarán aquí dinámicamente -->
+      </div>
+
+      <button type="button" class="btn-add-question" onclick="addQuestion('multiple')">
+        ➕ Agregar Pregunta de Opción Múltiple
+      </button>
+      <button type="button" class="btn-add-question" onclick="addQuestion('truefalse')">
+        ➕ Agregar Pregunta Verdadero/Falso
+      </button>
+
+      <div style="margin-top: 20px;">
+        <button type="button" onclick="previewExam()"
+          style="background: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
+          👁️ Previsualizar Examen
+        </button>
+      </div>
+    </div>
+
+    <button type="submit">Crear Formulario con Evaluación</button>
+  </form>
+
+  <p id="mensaje"></p>
+
+  <button id="btnLimpiarFormularios">🧹 Limpiar formularios vencidos</button>
+  <p id="resultadoLimpieza"></p>
+
+  <h3>📋 Formularios creados:</h3>
+  <table id="tablaFormularios" border="1" style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Fecha de cierre</th>
+        <th>Creado</th>
+        <th>Acción</th>
+        <th>Evaluación</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Modal para previsualizar examen -->
+  <div id="previewModal" class="preview-modal">
+    <div class="preview-content">
+      <h3>Previsualización del Examen</h3>
+      <div id="previewQuestions"></div>
+      <button onclick="closePreview()"
+        style="background: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; margin-top: 15px;">
+        Cerrar
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const baseURL = location.origin;
+    let questions = [];
+    let questionCounter = 0;
+    let optionCounter = 0;
+
+    // Función para generar IDs únicos
+    function generateId() {
+      return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Función para agregar pregunta
+    function addQuestion(type) {
+      const questionId = 'q-' + generateId();
+      const question = {
+        id: questionId,
+        type: type,
+        text: '',
+        options: type === 'multiple' ?
+          [
+            { id: 'opt-' + generateId(), text: '', correct: false },
+            { id: 'opt-' + generateId(), text: '', correct: false }
+          ] :
+          [
+            { id: 'true-' + generateId(), text: 'Verdadero', correct: false },
+            { id: 'false-' + generateId(), text: 'Falso', correct: false }
+          ]
+      };
+
+      questions.push(question);
+      renderQuestions();
+    }
+
+    // Función para renderizar preguntas
+    function renderQuestions() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+
+      if (questions.length === 0) {
+        container.innerHTML = '<p style="color: #6c757d; text-align: center;">No hay preguntas agregadas aún.</p>';
+        return;
+      }
+
+      questions.forEach((question, index) => {
+        const questionHtml = `
+          <div class="question-item" data-question-id="${question.id}">
+            <div class="question-header">
+              <strong>Pregunta ${index + 1}</strong>
+              <span class="question-type ${question.type === 'multiple' ? 'multiple-choice' : 'true-false'}">
+                ${question.type === 'multiple' ? 'Opción Múltiple' : 'Verdadero/Falso'}
+              </span>
+            </div>
+            
+            <input type="text" 
+                   placeholder="Escribe la pregunta aquí..." 
+                   value="${question.text}"
+                   oninput="updateQuestionText('${question.id}', this.value)"
+                   style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+            
+            <div class="options-container">
+              ${question.options.map(option => `
+                <div class="option-item">
+                  <input type="radio" 
+                         name="${question.id}" 
+                         ${option.correct ? 'checked' : ''}
+                         onchange="setCorrectAnswer('${question.id}', '${option.id}')">
+                  <input type="text" 
+                         value="${option.text}" 
+                         ${question.type === 'truefalse' ? 'readonly style=\"background: #e9ecef;\"' : ''}
+                         oninput="updateOptionText('${question.id}', '${option.id}', this.value)"
+                         style="flex: 1; padding: 5px; border: 1px solid #ced4da; border-radius: 4px;">
+                  ${question.type === 'multiple' ? `
+                    <button type="button" class="btn-remove" onclick="removeOption('${question.id}', '${option.id}')">❌</button>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+
+            ${question.type === 'multiple' ? `
+              <button type="button" class="btn-add-option" onclick="addOption('${question.id}')">
+                ➕ Agregar Opción
+              </button>
+            ` : ''}
+            
+            <button type="button" class="btn-remove" onclick="removeQuestion('${question.id}')" style="margin-top: 10px;">
+              🗑️ Eliminar Pregunta
+            </button>
+          </div>
+        `;
+        container.innerHTML += questionHtml;
+      });
+    }
+
+    // Funciones para manejar preguntas y opciones
+    function updateQuestionText(questionId, text) {
+      const question = questions.find(q => q.id === questionId);
+      if (question) question.text = text;
+    }
+
+    function updateOptionText(questionId, optionId, text) {
+      const question = questions.find(q => q.id === questionId);
+      if (question) {
+        const option = question.options.find(opt => opt.id === optionId);
+        if (option) option.text = text;
+      }
+    }
+
+    function setCorrectAnswer(questionId, optionId) {
+      const question = questions.find(q => q.id === questionId);
+      if (question) {
+        question.options.forEach(option => {
+          option.correct = option.id === optionId;
+        });
+      }
+    }
+
+    function addOption(questionId) {
+      const question = questions.find(q => q.id === questionId);
+      if (question) {
+        const newOptionId = 'opt-' + generateId();
+        question.options.push({ id: newOptionId, text: '', correct: false });
+        renderQuestions();
+      }
+    }
+
+    function removeOption(questionId, optionId) {
+      const question = questions.find(q => q.id === questionId);
+      if (question && question.options.length > 2) {
+        question.options = question.options.filter(opt => opt.id !== optionId);
+        renderQuestions();
+      } else if (question.options.length <= 2) {
+        alert('Cada pregunta debe tener al menos 2 opciones.');
+      }
+    }
+
+    function removeQuestion(questionId) {
+      if (confirm('¿Estás seguro de que quieres eliminar esta pregunta?')) {
+        questions = questions.filter(q => q.id !== questionId);
+        renderQuestions();
+      }
+    }
+
+    // Previsualización del examen
+    function previewExam() {
+      const previewContainer = document.getElementById('previewQuestions');
+      previewContainer.innerHTML = '';
+
+      if (questions.length === 0) {
+        previewContainer.innerHTML = '<p style="color: #6c757d; text-align: center;">No hay preguntas para mostrar.</p>';
+      } else {
+        questions.forEach((question, index) => {
+          const questionHtml = `
+            <div class="exam-question">
+              <p><strong>Pregunta ${index + 1}:</strong> ${question.text || '[Pregunta sin texto]'}</p>
+              <div>
+                ${question.options.map(option => `
+                  <div style="margin: 5px 0;">
+                    <input type="radio" name="preview_${question.id}" disabled>
+                    <label>${option.text}</label>
+                    ${option.correct ? ' <span style="color: #28a745;">✅ Correcta</span>' : ''}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+          previewContainer.innerHTML += questionHtml;
+        });
+      }
+
+      document.getElementById('previewModal').style.display = 'block';
+    }
+
+    function closePreview() {
+      document.getElementById('previewModal').style.display = 'none';
+    }
+
+    // Validación antes de enviar el formulario
+    document.getElementById("crearFormulario").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      // Validar ID y título
+      const formId = document.getElementById("formId").value.trim();
+      const titulo = document.getElementById("titulo").value.trim();
+
+      if (!formId) {
+        alert('❌ El ID del formulario es obligatorio.');
+        return;
+      }
+
+      if (!titulo) {
+        alert('❌ El título del formulario es obligatorio.');
+        return;
+      }
+
+      // Validar evaluación
+      let isValid = true;
+      let errorMessage = '';
+
+      if (questions.length === 0) {
+        if (!confirm('⚠️ No has creado ninguna pregunta para la evaluación. ¿Deseas continuar sin evaluación?')) {
+          return;
+        }
+      } else {
+        questions.forEach((question, index) => {
+          if (!question.text.trim()) {
+            isValid = false;
+            errorMessage = `La pregunta ${index + 1} no tiene texto.`;
+            return;
+          }
+
+          const hasCorrectAnswer = question.options.some(opt => opt.correct);
+          if (!hasCorrectAnswer) {
+            isValid = false;
+            errorMessage = `La pregunta ${index + 1} no tiene una respuesta correcta seleccionada.`;
+            return;
+          }
+
+          if (question.type === 'multiple') {
+            const emptyOptions = question.options.filter(opt => !opt.text.trim());
+            if (emptyOptions.length > 0) {
+              isValid = false;
+              errorMessage = `La pregunta ${index + 1} tiene opciones vacías.`;
+              return;
+            }
+          }
+        });
+      }
+
+      if (!isValid) {
+        alert('❌ Error en la evaluación: ' + errorMessage);
+        return;
+      }
+
+      // Generar ID único para el formulario
+      const idPalabras = formId.split(/\s+/).filter(Boolean);
+      const normalizedFormId = idPalabras.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join("");
+
+      let id = normalizedFormId + "-" + generarIdAlfanumerico();
+
+      function generarIdAlfanumerico() {
+        const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let id = "";
+        for (let i = 0; i < 6; i++) {
+          id += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+        }
+        return id;
+      }
+
+      const ahora = new Date();
+      const fechaCierre = new Date(ahora.getTime() + 70 * 60 * 1000).toISOString();
+
+      try {
+        // Enviar formulario y evaluación
+        const response = await fetch("/api/guardarFormulario", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id,
+            titulo,
+            fechaCierre: fechaCierre,
+            evaluation: questions.length > 0 ? questions : null
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.ok) {
+          const enlace = `${baseURL}/formulario.html?id=${encodeURIComponent(id)}`;
+          document.getElementById("mensaje").innerHTML = `
+            <div style="color: #28a745; background: #d4edda; padding: 15px; border-radius: 5px; border: 1px solid #c3e6cb;">
+              ✅ Formulario con evaluación creado con éxito.<br>
+              👉 <a href="${enlace}" target="_blank">${enlace}</a>
+              <br><button onclick="navigator.clipboard.writeText('${enlace}')" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 Copiar enlace</button>
+            </div>
+          `;
+          questions = []; // Limpiar preguntas
+          renderQuestions();
+          cargarFormularios();
+        } else {
+          throw new Error(result.error || "Error desconocido al guardar");
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("mensaje").innerHTML = `
+          <div class="error-message">
+            ❌ Error al guardar: ${err.message}
+          </div>
+        `;
+      }
+    });
+
+    // El resto del código existente (cargarFormularios, limpiar formularios, etc.)
+    document.getElementById("btnLimpiarFormularios").addEventListener("click", async () => {
+      const pResultado = document.getElementById("resultadoLimpieza");
+      pResultado.textContent = "Procesando... ⏳";
+
+      try {
+        const res = await fetch("/api/limpiarFormulariosVencidos");
+        const data = await res.json();
+
+        if (res.ok) {
+          pResultado.textContent = `✅ ${data.mensaje}`;
+        } else {
+          pResultado.textContent = `❌ Error: ${data.error}`;
+        }
+      } catch (err) {
+        console.error(err);
+        pResultado.textContent = "❌ Ocurrió un error inesperado al limpiar.";
+      }
+    });
+
+    async function cargarFormularios() {
+      const tabla = document.querySelector("#tablaFormularios tbody");
+      tabla.innerHTML = "<tr><td colspan='7'>Cargando formularios...</td></tr>";
+
+      try {
+        const res = await fetch("/api/listarFormularios");
+        if (!res.ok) throw new Error("No se pudo cargar");
+
+        const data = await res.json();
+        const claves = Object.keys(data);
+
+        if (!claves.length) {
+          tabla.innerHTML = "<tr><td colspan='7'>No hay formularios creados.</td></tr>";
+          return;
+        }
+
+        tabla.innerHTML = "";
+        claves.forEach((id, i) => {
+          const f = data[id];
+          const fila = `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${id}</td>
+              <td>${f.titulo}</td>
+              <td>${new Date(f.fechaCierre).toLocaleString()}</td>
+              <td>${f.creado ? new Date(f.creado).toLocaleString() : '―'}</td>
+              <td>
+                <a href="${baseURL}/formulario.html?id=${id}" target="_blank">
+                  <button>👁 Ver registros</button>
+                </a>
+                <button onclick="navigator.clipboard.writeText('${baseURL}/formulario.html?id=${id}')">📋 Copiar enlace</button>
+              </td>
+              <td>
+                <button onclick="verEvaluacion('${id}')" style="background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                  📊 Ver Evaluación
+                </button>
+              </td>
+            </tr>
+          `;
+          tabla.insertAdjacentHTML("beforeend", fila);
+        });
+      } catch (e) {
+        console.error(e);
+        tabla.innerHTML = "<tr><td colspan='7'>❌ Error al cargar formularios.</td></tr>";
+      }
+    }
+
+    // Función para ver evaluación existente
+    async function verEvaluacion(formId) {
+      try {
+        const res = await fetch(`/api/obtenerEvaluacion?id=${formId}`);
+        if (res.ok) {
+          const evaluacion = await res.json();
+          if (evaluacion && evaluacion.length > 0) {
+            questions = evaluacion;
+            previewExam();
+          } else {
+            alert('Este formulario no tiene evaluación asociada o está vacía.');
+          }
+        } else {
+          const error = await res.json();
+          alert('Este formulario no tiene evaluación asociada. ' + (error.error || ''));
+        }
+      } catch (error) {
+        console.error('Error al obtener evaluación:', error);
+        alert('Error al cargar la evaluación: ' + error.message);
+      }
+    }
+
+    // Ejecutar cuando cargue la página
+    document.addEventListener("DOMContentLoaded", () => {
+      cargarFormularios();
+    });
+  </script>
+</body>
+
+</html>
