@@ -1373,6 +1373,7 @@
     }
 
     // Función para ver detalles después de enviar el examen
+    // Función para ver detalles después de enviar el examen
     function verDetallesResultados() {
       if (!window.examenRecienEnviado) return;
 
@@ -1394,16 +1395,7 @@
       const idFormulario = document.getElementById("idFormulario").value;
 
       try {
-        // Obtener los resultados del examen del usuario
-        const res = await fetch(`/api/obtenerResultadoExamen?id=${idFormulario}&visitanteId=${visitanteId}`);
-
-        if (!res.ok) {
-          throw new Error('No se pudieron cargar los resultados');
-        }
-
-        const resultado = await res.json();
-
-        // Obtener las preguntas del examen para la retroalimentación
+        // Obtener las preguntas del examen
         const resExamen = await fetch(`/api/obtenerEvaluacion?id=${idFormulario}`);
 
         if (!resExamen.ok) {
@@ -1412,16 +1404,46 @@
 
         const examen = await resExamen.json();
 
+        // Obtener el resultado del examen desde los datos ya cargados
+        const resultado = await obtenerResultadoExamenLocal(idFormulario);
+
+        if (!resultado) {
+          document.getElementById("mensaje").textContent = "❌ No se encontraron resultados para tu examen.";
+          return;
+        }
+
         // Mostrar modal con resultados
         mostrarModalResultados(examen, resultado);
 
       } catch (error) {
         console.error('Error al cargar resultados:', error);
-        document.getElementById("mensaje").textContent = "❌ Error al cargar los resultados del examen";
+        document.getElementById("mensaje").textContent = "❌ Error al cargar los resultados del examen: " + error.message;
       }
     }
 
+    // Función para obtener el resultado del examen desde los datos locales
+    async function obtenerResultadoExamenLocal(idFormulario) {
+      try {
+        // Obtener los datos de respuestas que ya están cargados
+        const res = await fetch(`/api/verRespuestas?id=${idFormulario}`);
 
+        if (!res.ok) {
+          return null;
+        }
+
+        const data = await res.json();
+        const resultadosExamen = data.examenes || [];
+
+        // Buscar el resultado del usuario actual
+        return resultadosExamen.find(e => e.visitanteId === visitanteId) || null;
+
+      } catch (error) {
+        console.error('Error al obtener resultado local:', error);
+        return null;
+      }
+    }
+
+    // Función para mostrar el modal con los resultados del examen
     // Función para mostrar el modal con los resultados del examen
     function mostrarModalResultados(examen, resultado) {
       // Crear modal si no existe
@@ -1430,29 +1452,16 @@
       }
 
       const contenidoResultados = document.getElementById('contenidoResultados');
-      const respuestasUsuario = resultado.respuestas;
+      const respuestasUsuario = resultado.respuestas || {};
 
       // Calcular estadísticas
       let correctas = 0;
-      examen.forEach(pregunta => {
-        const respuestaUsuario = respuestasUsuario[pregunta.id];
-        const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
-        if (respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id) {
-          correctas++;
-        }
-      });
-
-      const total = examen.length;
+      let total = examen.length;
 
       // Generar contenido de retroalimentación
       let retroalimentacionHTML = `
     <div style="text-align: center; margin-bottom: 20px;">
       <h3 style="color: #2c3e50;">📊 Resultados de tu Examen</h3>
-      <p style="font-size: 18px; margin: 10px 0;">
-        <strong>Resumen:</strong> ${correctas} de ${total} preguntas correctas
-      </p>
-    </div>
-    <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
   `;
 
       // Mostrar cada pregunta con retroalimentación
@@ -1462,6 +1471,10 @@
         const opcionUsuario = pregunta.options.find(opt => opt.id === respuestaUsuario);
 
         const esCorrecta = respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id;
+
+        if (esCorrecta) {
+          correctas++;
+        }
 
         retroalimentacionHTML += `
       <div style="margin-bottom: 20px; padding: 15px; border: 2px solid ${esCorrecta ? '#28a745' : '#dc3545'}; border-radius: 8px; background: #f8f9fa;">
@@ -1474,7 +1487,7 @@
         <p style="margin: 0 0 5px 0; font-size: 14px;">
           <strong>Tu respuesta:</strong> ${opcionUsuario ? opcionUsuario.text : 'No respondida'}
         </p>
-        ${!esCorrecta ? `
+        ${!esCorrecta && respuestaCorrecta ? `
           <p style="margin: 0 0 5px 0; font-size: 14px; color: #28a745;">
             <strong>Respuesta correcta:</strong> ${respuestaCorrecta.text}
           </p>
@@ -1483,13 +1496,26 @@
     `;
       });
 
-      retroalimentacionHTML += '</div>';
+      // Añadir resumen al inicio
+      retroalimentacionHTML = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h3 style="color: #2c3e50;">📊 Resultados de tu Examen</h3>
+      <p style="font-size: 18px; margin: 10px 0;">
+        <strong>Resumen:</strong> ${correctas} de ${total} preguntas correctas
+      </p>
+    </div>
+    <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+      ${retroalimentacionHTML}
+    </div>
+  `;
 
       contenidoResultados.innerHTML = retroalimentacionHTML;
       resultadosModal.style.display = 'block';
     }
 
 
+
+    // Crear modal para resultados
     let resultadosModal = null;
 
     // Crear modal para resultados
@@ -1564,6 +1590,7 @@
         resultadosModal.style.display = 'none';
       }
     }
+
   </script>
 </body>
 
