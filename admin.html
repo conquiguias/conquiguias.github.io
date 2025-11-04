@@ -85,9 +85,9 @@ document.getElementById("titulo").value = tituloP;
         return id;
       }
 
-       // Calcular la hora de caducidad: ahora + 1 hora
+       // Calcular la hora de caducidad: ahora + 70 minutos (30+20+20)
        const ahora = new Date();
-      const fechaCierre = new Date(ahora.getTime() + 60 * 60 * 1000).toISOString(); // +1 hora en ISO
+      const fechaCierre = new Date(ahora.getTime() + 70 * 60 * 1000).toISOString(); // +70 minutos en ISO
 
       document.getElementById("fechaCierre").value = fechaCierre;
 

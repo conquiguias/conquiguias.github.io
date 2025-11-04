@@ -39,6 +39,18 @@ export default async function handler(req, res) {
     return res.status(409).send("❌ Esta asistencia ya fue registrada");
   }
 
+  // Validar tiempos de asistencia
+  if (asistenciaNumero > 1) {
+    // Verificar que las asistencias anteriores estén completadas
+    const asistenciasAnteriores = registros.filter(r => 
+      r.visitanteId === visitanteId && r.asistenciaNumero < asistenciaNumero
+    );
+    
+    if (asistenciasAnteriores.length < asistenciaNumero - 1) {
+      return res.status(400).send(`❌ Debes completar la asistencia ${asistenciaNumero - 1} antes de registrar la ${asistenciaNumero}`);
+    }
+  }
+
   // Agregar el nuevo registro
   registros.push(nuevoRegistro);
   const contenidoCodificado = Buffer.from(JSON.stringify(registros, null, 2)).toString('base64');
