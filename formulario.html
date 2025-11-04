@@ -12,7 +12,7 @@
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-  
+
     body {
       background-color: #f5f7fa;
       color: #333;
@@ -21,7 +21,7 @@
       max-width: 1200px;
       margin: 0 auto;
     }
-  
+
     /* Encabezado y logo */
     img {
       display: block;
@@ -30,25 +30,26 @@
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-  
-    h2, h3 {
+
+    h2,
+    h3 {
       color: #2c3e50;
       text-align: center;
       margin-bottom: 20px;
       font-weight: 600;
     }
-  
+
     h2 {
       font-size: 28px;
       border-bottom: 2px solid #3498db;
       padding-bottom: 10px;
     }
-  
+
     h3 {
       font-size: 22px;
       margin-top: 30px;
     }
-  
+
     /* Contadores de asistencia */
     #contadores {
       background: white;
@@ -58,7 +59,7 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       border-left: 5px solid #3498db;
     }
-  
+
     #contadores p {
       font-size: 18px;
       margin: 10px 0;
@@ -67,18 +68,18 @@
       background-color: #f8f9fa;
       transition: all 0.3s ease;
     }
-  
+
     #contadores p:hover {
       background-color: #e9ecef;
       transform: translateX(5px);
     }
-  
+
     #contadores span {
       font-weight: bold;
       color: #e74c3c;
       font-size: 20px;
     }
-  
+
     /* Botones de asistencia */
     #botonesAsistencia {
       display: flex;
@@ -87,7 +88,7 @@
       justify-content: center;
       margin: 25px 0;
     }
-  
+
     #botonesAsistencia button {
       padding: 12px 25px;
       font-size: 16px;
@@ -99,34 +100,34 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       min-width: 220px;
     }
-  
+
     #btnPrimeraAsistencia {
       background-color: #3498db;
       color: white;
     }
-  
+
     #btnSegundaAsistencia {
       background-color: #2ecc71;
       color: white;
     }
-  
+
     #btnTerceraAsistencia {
       background-color: #9b59b6;
       color: white;
     }
-  
+
     #botonesAsistencia button:hover:not(:disabled) {
       transform: translateY(-3px);
       box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
     }
-  
+
     #botonesAsistencia button:disabled {
       background-color: #95a5a6;
       cursor: not-allowed;
       opacity: 0.7;
       transform: none;
     }
-  
+
     /* Formulario */
     #formulario {
       background: white;
@@ -136,14 +137,14 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       border-top: 5px solid #2ecc71;
     }
-  
+
     #formulario label {
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
       color: #2c3e50;
     }
-  
+
     #formulario input {
       width: 100%;
       padding: 12px;
@@ -153,13 +154,13 @@
       font-size: 16px;
       transition: border 0.3s ease;
     }
-  
+
     #formulario input:focus {
       border-color: #3498db;
       outline: none;
       box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
     }
-  
+
     #formulario button[type="submit"] {
       background-color: #2ecc71;
       color: white;
@@ -172,12 +173,12 @@
       transition: all 0.3s ease;
       width: 100%;
     }
-  
+
     #formulario button[type="submit"]:hover {
       background-color: #27ae60;
       transform: translateY(-2px);
     }
-  
+
     /* Mensajes */
     #mensaje {
       padding: 15px;
@@ -187,12 +188,12 @@
       text-align: center;
       font-size: 16px;
     }
-  
+
     #mensaje:not(:empty) {
       background-color: #e8f6f3;
       border-left: 5px solid #2ecc71;
     }
-  
+
     /* Contador de recarga */
     #contadorRecarga {
       background-color: #34495e;
@@ -203,12 +204,12 @@
       margin: 10px 0;
       font-weight: 600;
     }
-  
+
     #segundos {
       color: #f39c12;
       font-weight: bold;
     }
-  
+
     /* Tabla de respuestas */
     #tablaRespuestas {
       width: 100%;
@@ -218,35 +219,35 @@
       border-radius: 8px;
       overflow: hidden;
     }
-  
+
     #tablaRespuestas thead {
       background-color: #34495e;
       color: white;
     }
-  
+
     #tablaRespuestas th {
       padding: 15px;
       text-align: left;
       font-weight: 600;
     }
-  
+
     #tablaRespuestas tbody tr {
       border-bottom: 1px solid #ddd;
       transition: background-color 0.3s ease;
     }
-  
+
     #tablaRespuestas tbody tr:nth-child(even) {
       background-color: #f8f9fa;
     }
-  
+
     #tablaRespuestas tbody tr:hover {
       background-color: #e8f4fd;
     }
-  
+
     #tablaRespuestas td {
       padding: 12px 15px;
     }
-  
+
     #tablaRespuestas button {
       background-color: #3498db;
       color: white;
@@ -257,12 +258,12 @@
       font-weight: 600;
       transition: all 0.3s ease;
     }
-  
+
     #tablaRespuestas button:hover {
       background-color: #2980b9;
       transform: translateY(-2px);
     }
-  
+
     /* Información adicional */
     p:last-of-type {
       background-color: #fff9e6;
@@ -272,51 +273,129 @@
       margin: 20px 0;
       font-style: italic;
     }
-  
+
     /* Responsive */
     @media (max-width: 768px) {
       body {
         padding: 10px;
       }
-      
+
       #botonesAsistencia {
         flex-direction: column;
         align-items: center;
       }
-      
+
       #botonesAsistencia button {
         width: 100%;
       }
-      
+
       #tablaRespuestas {
         display: block;
         overflow-x: auto;
       }
-      
+
       #formulario {
         padding: 15px;
       }
     }
-  
+
     /* Animaciones */
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-  
-    #contadores, #formulario, #tablaRespuestas {
+
+    #contadores,
+    #formulario,
+    #tablaRespuestas {
       animation: fadeIn 0.5s ease;
     }
-  
+
     /* Estados especiales */
     .tiempo-agotado {
       color: #e74c3c !important;
       text-decoration: line-through;
     }
-  
+
     .asistencia-completada {
       color: #2ecc71 !important;
       font-weight: bold;
+    }
+
+    /* Estilos para el sistema de evaluación */
+    #examenModal {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .pregunta-examen {
+      transition: all 0.3s ease;
+    }
+
+    .pregunta-examen:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .pregunta-examen h3 {
+      color: #2c3e50;
+      font-size: 1.2em;
+      line-height: 1.4;
+    }
+
+    .opciones label {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .opciones label:hover {
+      border-color: #3498db;
+      background: #e8f4fd !important;
+    }
+
+    .opciones input[type="radio"]:checked+label {
+      background: #d4edda !important;
+      border-color: #28a745 !important;
+      color: #155724;
+    }
+
+    #resultadoExamen {
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive para el modal de examen */
+    @media (max-width: 768px) {
+      #examenModal .modal-content {
+        margin: 20px auto;
+        padding: 20px;
+        width: 95%;
+      }
+
+      .pregunta-examen {
+        padding: 15px;
+      }
+
+      .pregunta-examen h3 {
+        font-size: 1.1em;
+      }
     }
   </style>
 </head>
@@ -324,7 +403,7 @@
 <body>
   <img src="logo1.png" style="width: 25%;" alt="">
   <h2 id="tituloFormulario">Cargando...</h2>
-  
+
   <!-- Contadores para cada asistencia -->
   <div id="contadores">
     <p id="contadorPrimera">⏳ Primera asistencia: <span id="tiempoPrimera">30:00</span></p>
@@ -432,7 +511,7 @@
 
         // Verificar estado de asistencias del usuario
         await verificarEstadoAsistencias(id);
-        
+
         // Iniciar sistema de asistencias
         iniciarSistemaAsistencias();
 
@@ -461,7 +540,7 @@
         if (res.ok) {
           const respuestas = await res.json();
           const misRespuestas = respuestas.filter(r => r.visitanteId === visitanteId);
-          
+
           misRespuestas.forEach(respuesta => {
             if (respuesta.asistenciaNumero === 1) primeraAsistenciaCompletada = true;
             if (respuesta.asistenciaNumero === 2) segundaAsistenciaCompletada = true;
@@ -476,7 +555,7 @@
     // Sistema principal de asistencias
     function iniciarSistemaAsistencias() {
       const ahora = new Date();
-      
+
       // Verificar si el formulario ya expiró
       if (ahora > fechaFinTercera) {
         document.getElementById("mensaje").textContent = "⛔ El formulario ha caducado. No se pueden registrar más asistencias.";
@@ -489,7 +568,7 @@
 
     function configurarPrimeraAsistencia() {
       const ahora = new Date();
-      
+
       // Si ya completó la primera asistencia, pasar a la segunda
       if (primeraAsistenciaCompletada) {
         configurarSegundaAsistencia();
@@ -524,7 +603,7 @@
         clearInterval(intervaloPrimera);
         document.getElementById("contadorPrimera").textContent = "⏰ Tiempo agotado para primera asistencia";
         document.getElementById("btnPrimeraAsistencia").disabled = true;
-        
+
         // Si completó la primera asistencia, pasar a la segunda
         if (primeraAsistenciaCompletada) {
           configurarSegundaAsistencia();
@@ -534,13 +613,13 @@
 
       const minutos = Math.floor((restante / 1000 / 60) % 60);
       const segundos = Math.floor((restante / 1000) % 60);
-      document.getElementById("tiempoPrimera").textContent = 
+      document.getElementById("tiempoPrimera").textContent =
         `${minutos}:${segundos.toString().padStart(2, "0")}`;
     }
 
     function configurarSegundaAsistencia() {
       const ahora = new Date();
-      
+
       // Si ya completó la segunda asistencia, pasar a la tercera
       if (segundaAsistenciaCompletada) {
         configurarTerceraAsistencia();
@@ -576,7 +655,7 @@
 
       document.getElementById("btnSegundaAsistencia").addEventListener("click", async () => {
         const ahora = new Date();
-        
+
         // Verificar que esté en el tiempo correcto para la segunda asistencia
         if (ahora < fechaFinPrimera) {
           document.getElementById("mensaje").textContent = "❌ Aún no es tiempo para la segunda asistencia";
@@ -622,7 +701,7 @@
         clearInterval(intervaloSegunda);
         document.getElementById("contadorSegunda").textContent = "⏰ Tiempo agotado para segunda asistencia";
         document.getElementById("btnSegundaAsistencia").disabled = true;
-        
+
         // Si completó la segunda asistencia, pasar a la tercera
         if (segundaAsistenciaCompletada) {
           configurarTerceraAsistencia();
@@ -632,9 +711,9 @@
 
       const minutos = Math.floor((restante / 1000 / 60) % 60);
       const segundos = Math.floor((restante / 1000) % 60);
-      document.getElementById("tiempoSegunda").textContent = 
+      document.getElementById("tiempoSegunda").textContent =
         `${minutos}:${segundos.toString().padStart(2, "0")}`;
-        
+
       // Activar el botón solo cuando haya pasado el tiempo de la primera asistencia
       if (ahora >= fechaFinPrimera) {
         document.getElementById("btnSegundaAsistencia").disabled = false;
@@ -643,7 +722,7 @@
 
     function configurarTerceraAsistencia() {
       const ahora = new Date();
-      
+
       // Si ya completó la tercera asistencia, mostrar mensaje
       if (terceraAsistenciaCompletada) {
         document.getElementById("mensaje").textContent = "✅ ¡Completaste todas las asistencias!";
@@ -679,7 +758,7 @@
 
       document.getElementById("btnTerceraAsistencia").addEventListener("click", async () => {
         const ahora = new Date();
-        
+
         // Verificar que esté en el tiempo correcto para la tercera asistencia
         if (ahora < fechaFinSegunda) {
           document.getElementById("mensaje").textContent = "❌ Aún no es tiempo para la tercera asistencia";
@@ -729,9 +808,9 @@
 
       const minutos = Math.floor((restante / 1000 / 60) % 60);
       const segundos = Math.floor((restante / 1000) % 60);
-      document.getElementById("tiempoTercera").textContent = 
+      document.getElementById("tiempoTercera").textContent =
         `${minutos}:${segundos.toString().padStart(2, "0")}`;
-        
+
       // Activar el botón solo cuando haya pasado el tiempo de la segunda asistencia
       if (ahora >= fechaFinSegunda) {
         document.getElementById("btnTerceraAsistencia").disabled = false;
@@ -739,6 +818,7 @@
     }
 
     // Mostrar respuestas del formulario en la tabla
+    // Mostrar respuestas del formulario en la tabla (versión actualizada)
     async function cargarRespuestas(idFormulario) {
       const tablaBody = document.querySelector("#tablaRespuestas tbody");
       tablaBody.innerHTML = "<tr><td colspan='10'>Cargando respuestas...</td></tr>";
@@ -750,7 +830,9 @@
           return;
         }
 
-        const respuestas = await res.json();
+        const data = await res.json();
+        const respuestas = data.asistencias || [];
+        const resultadosExamen = data.examenes || [];
 
         if (!respuestas.length) {
           tablaBody.innerHTML = "<tr><td colspan='10'>No hay respuestas aún.</td></tr>";
@@ -772,13 +854,20 @@
               asistencias: []
             };
           }
-          
+
           if (r.asistenciaNumero) {
             respuestasAgrupadas[r.visitanteId].asistencias.push(r.asistenciaNumero);
             respuestasAgrupadas[r.visitanteId].maxAsistencia = Math.max(
-              respuestasAgrupadas[r.visitanteId].maxAsistencia, 
+              respuestasAgrupadas[r.visitanteId].maxAsistencia,
               r.asistenciaNumero
             );
+          }
+        });
+
+        // Combinar con resultados de examen
+        resultadosExamen.forEach(resultado => {
+          if (respuestasAgrupadas[resultado.visitanteId]) {
+            respuestasAgrupadas[resultado.visitanteId].examen = resultado;
           }
         });
 
@@ -786,24 +875,27 @@
         Object.values(respuestasAgrupadas).forEach((r, index) => {
           const asistioCompleto = r.maxAsistencia >= 3 ? "SÍ" : "NO";
           const puedeExamen = r.maxAsistencia >= 3;
+          const puntajeExamen = r.examen ? `${r.examen.puntaje.toFixed(1)}%` : 'N/A';
+
           const fila = `
-            <tr>
-              <td>${index + 1}</td>
-              <td>${r.nombre}</td>
-              <td>${r.correo}</td>
-              <td>${r.edad}</td>
-              <td>${r.telefono}</td>
-              <td>${r.asociacion}</td>
-              <td>${new Date(r.fecha).toLocaleString()}</td>
-              <td>${r.maxAsistencia}</td>
-              <td>${asistioCompleto}</td>
-              <td>
-                ${puedeExamen 
-                  ? '<button onclick="iniciarExamen()">Hacer Examen</button>' 
-                  : 'No puede hacer Examen'}
-              </td>
-            </tr>
-          `;
+        <tr>
+          <td>${index + 1}</td>
+          <td>${r.nombre}</td>
+          <td>${r.correo}</td>
+          <td>${r.edad}</td>
+          <td>${r.telefono}</td>
+          <td>${r.asociacion}</td>
+          <td>${new Date(r.fecha).toLocaleString()}</td>
+          <td>${r.maxAsistencia}</td>
+          <td>${asistioCompleto}</td>
+          <td>
+            ${puedeExamen
+              ? `<button onclick="iniciarExamen()">Hacer Examen</button>
+                 ${r.examen ? `<br><small>Nota: ${puntajeExamen}</small>` : ''}`
+              : 'No puede hacer Examen'}
+          </td>
+        </tr>
+      `;
           tablaBody.insertAdjacentHTML("beforeend", fila);
         });
 
@@ -811,11 +903,6 @@
         tablaBody.innerHTML = "<tr><td colspan='10'>Error al cargar respuestas.</td></tr>";
         console.error(error);
       }
-    }
-
-    function iniciarExamen() {
-      alert("Función de examen será implementada próximamente");
-      // Aquí irá la lógica del examen
     }
 
     document.getElementById("formulario").addEventListener("submit", async function (e) {
@@ -845,10 +932,10 @@
           this.reset();
           this.style.display = "none";
           primeraAsistenciaCompletada = true;
-          
+
           // Limpiar intervalo de primera asistencia
           if (intervaloPrimera) clearInterval(intervaloPrimera);
-          
+
           // Configurar segunda asistencia (pero el botón estará desactivado hasta que pase el tiempo)
           configurarSegundaAsistencia();
           cargarRespuestas(datos.id);
@@ -860,7 +947,282 @@
         document.getElementById("mensaje").textContent = "❌ Error de conexión al guardar";
       }
     });
-    //
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ========== SISTEMA DE EVALUACIÓN ==========
+
+    let examenModal = null;
+    let examenActual = null;
+
+    // Función mejorada para iniciar examen
+    function iniciarExamen() {
+      const idFormulario = document.getElementById("idFormulario").value;
+
+      // Crear modal de examen si no existe
+      if (!examenModal) {
+        crearModalExamen();
+      }
+
+      // Cargar evaluación
+      cargarEvaluacion(idFormulario);
+    }
+
+    // Crear modal para el examen
+    function crearModalExamen() {
+      examenModal = document.createElement('div');
+      examenModal.id = 'examenModal';
+      examenModal.style.cssText = `
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 10000;
+    overflow-y: auto;
+  `;
+
+      const modalContent = document.createElement('div');
+      modalContent.style.cssText = `
+    position: relative;
+    background: white;
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  `;
+
+      modalContent.innerHTML = `
+    <h2 style="color: #2c3e50; margin-bottom: 20px; text-align: center;">📝 Examen de Especialidad</h2>
+    <div id="examenContent"></div>
+    <div style="margin-top: 30px; text-align: center;">
+      <button id="btnEnviarExamen" style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 0 10px;
+      ">✅ Enviar Examen</button>
+      <button id="btnCerrarExamen" style="
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 0 10px;
+      ">❌ Cancelar</button>
+    </div>
+    <div id="resultadoExamen" style="margin-top: 20px; display: none;"></div>
+  `;
+
+      examenModal.appendChild(modalContent);
+      document.body.appendChild(examenModal);
+
+      // Event listeners
+      document.getElementById('btnCerrarExamen').addEventListener('click', cerrarExamen);
+      document.getElementById('btnEnviarExamen').addEventListener('click', enviarExamen);
+    }
+
+    // Cargar evaluación desde el backend
+    async function cargarEvaluacion(idFormulario) {
+      try {
+        const res = await fetch(`/api/obtenerEvaluacion?id=${idFormulario}`);
+        if (!res.ok) {
+          throw new Error('No se pudo cargar la evaluación');
+        }
+
+        examenActual = await res.json();
+        mostrarExamen(examenActual);
+        examenModal.style.display = 'block';
+
+      } catch (error) {
+        console.error('Error al cargar evaluación:', error);
+        alert('❌ No se pudo cargar el examen. Intente más tarde.');
+      }
+    }
+
+    // Mostrar examen en el modal
+    function mostrarExamen(evaluacion) {
+      const examenContent = document.getElementById('examenContent');
+      examenContent.innerHTML = '';
+
+      if (!evaluacion || evaluacion.length === 0) {
+        examenContent.innerHTML = '<p>No hay preguntas disponibles para este examen.</p>';
+        return;
+      }
+
+      evaluacion.forEach((pregunta, index) => {
+        const preguntaDiv = document.createElement('div');
+        preguntaDiv.className = 'pregunta-examen';
+        preguntaDiv.style.cssText = `
+      margin-bottom: 25px;
+      padding: 20px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      background: #f8f9fa;
+    `;
+
+        preguntaDiv.innerHTML = `
+      <h3 style="color: #2c3e50; margin-bottom: 15px;">Pregunta ${index + 1}: ${pregunta.text}</h3>
+      <div class="opciones" data-pregunta-id="${pregunta.id}">
+        ${pregunta.options.map((opcion, optIndex) => `
+          <label style="display: block; margin: 10px 0; padding: 10px; background: white; border-radius: 5px; cursor: pointer;">
+            <input type="radio" 
+                   name="pregunta_${pregunta.id}" 
+                   value="${opcion.id}"
+                   style="margin-right: 10px;">
+            ${String.fromCharCode(65 + optIndex)}) ${opcion.text}
+          </label>
+        `).join('')}
+      </div>
+    `;
+
+        examenContent.appendChild(preguntaDiv);
+      });
+    }
+
+    // Cerrar modal de examen
+    function cerrarExamen() {
+      if (examenModal) {
+        examenModal.style.display = 'none';
+        document.getElementById('resultadoExamen').style.display = 'none';
+        document.getElementById('btnEnviarExamen').style.display = 'block';
+      }
+    }
+
+    // Enviar examen y calificar
+    async function enviarExamen() {
+      if (!examenActual) return;
+
+      const respuestas = {};
+      let todasRespondidas = true;
+
+      // Recopilar respuestas
+      examenActual.forEach(pregunta => {
+        const opcionSeleccionada = document.querySelector(`input[name="pregunta_${pregunta.id}"]:checked`);
+
+        if (opcionSeleccionada) {
+          respuestas[pregunta.id] = opcionSeleccionada.value;
+        } else {
+          todasRespondidas = false;
+        }
+      });
+
+      if (!todasRespondidas) {
+        alert('❌ Por favor responde todas las preguntas antes de enviar el examen.');
+        return;
+      }
+
+      // Calificar examen
+      let puntaje = 0;
+      examenActual.forEach(pregunta => {
+        const respuestaUsuario = respuestas[pregunta.id];
+        const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
+
+        if (respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id) {
+          puntaje++;
+        }
+      });
+
+      const porcentaje = (puntaje / examenActual.length) * 100;
+
+      // Guardar resultado
+      try {
+        const res = await fetch('/api/guardarResultadoExamen', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: document.getElementById("idFormulario").value,
+            visitanteId: visitanteId,
+            respuestas: respuestas,
+            puntaje: porcentaje
+          })
+        });
+
+        const resultado = await res.json();
+
+        if (res.ok) {
+          mostrarResultadoExamen(porcentaje, puntaje, examenActual.length);
+        } else {
+          alert('❌ Error al guardar el resultado: ' + resultado.error);
+        }
+      } catch (error) {
+        console.error('Error al enviar examen:', error);
+        alert('❌ Error de conexión al enviar el examen.');
+      }
+    }
+
+    // Mostrar resultado del examen
+    function mostrarResultadoExamen(porcentaje, correctas, total) {
+      const resultadoDiv = document.getElementById('resultadoExamen');
+      const btnEnviar = document.getElementById('btnEnviarExamen');
+
+      btnEnviar.style.display = 'none';
+
+      let mensaje = '';
+      let color = '';
+
+      if (porcentaje >= 70) {
+        mensaje = '🎉 ¡Felicidades! Has aprobado el examen.';
+        color = '#28a745';
+      } else {
+        mensaje = '📚 Necesitas estudiar más. Inténtalo de nuevo.';
+        color = '#dc3545';
+      }
+
+      resultadoDiv.innerHTML = `
+    <div style="text-align: center; padding: 20px; background: ${color}15; border-radius: 10px; border-left: 5px solid ${color};">
+      <h3 style="color: ${color};">${mensaje}</h3>
+      <p style="font-size: 18px; margin: 10px 0;">
+        <strong>Puntuación:</strong> ${correctas}/${total} (${porcentaje.toFixed(1)}%)
+      </p>
+      <p style="color: #6c757d; margin-top: 15px;">
+        Tu resultado ha sido guardado. Puedes cerrar esta ventana.
+      </p>
+      <button onclick="cerrarExamen()" style="
+        background: ${color};
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+      ">Cerrar</button>
+    </div>
+  `;
+
+      resultadoDiv.style.display = 'block';
+
+      // Deshabilitar todas las opciones
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.disabled = true;
+      });
+    }
   </script>
 </body>
+
 </html>
