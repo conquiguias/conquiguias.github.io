@@ -863,65 +863,70 @@
     }
 
     // Mostrar respuestas del formulario en la tabla
-    async function cargarRespuestas(idFormulario) {
-      const tablaBody = document.querySelector("#tablaRespuestas tbody");
-      tablaBody.innerHTML = "<tr><td colspan='10'>Cargando respuestas...</td></tr>";
+    // Mostrar respuestas del formulario en la tabla
+async function cargarRespuestas(idFormulario) {
+  const tablaBody = document.querySelector("#tablaRespuestas tbody");
+  tablaBody.innerHTML = "<tr><td colspan='10'>Cargando respuestas...</td></tr>";
 
-      try {
-        const res = await fetch(`/api/verRespuestas?id=${idFormulario}`);
-        if (!res.ok) {
-          tablaBody.innerHTML = "<tr><td colspan='10'>No hay respuestas aún.</td></tr>";
-          return;
-        }
+  try {
+    const res = await fetch(`/api/verRespuestas?id=${idFormulario}`);
+    if (!res.ok) {
+      tablaBody.innerHTML = "<tr><td colspan='10'>No hay respuestas aún.</td></tr>";
+      return;
+    }
 
-        const data = await res.json();
-        const respuestas = data.asistencias || [];
-        const resultadosExamen = data.examenes || [];
+    const data = await res.json();
+    const respuestas = data.asistencias || [];
+    const resultadosExamen = data.examenes || [];
 
-        if (!respuestas.length) {
-          tablaBody.innerHTML = "<tr><td colspan='10'>No hay respuestas aún.</td></tr>";
-          return;
-        }
+    if (!respuestas.length) {
+      tablaBody.innerHTML = "<tr><td colspan='10'>No hay respuestas aún.</td></tr>";
+      return;
+    }
 
-        // Agrupar respuestas por visitanteId
-        const respuestasAgrupadas = {};
-        respuestas.forEach(r => {
-          if (!respuestasAgrupadas[r.visitanteId]) {
-            respuestasAgrupadas[r.visitanteId] = {
-              nombre: r.nombre || 'N/A',
-              correo: r.correo || 'N/A',
-              edad: r.edad || 'N/A',
-              telefono: r.telefono || 'N/A',
-              asociacion: r.asociacion || 'N/A',
-              fecha: r.fecha,
-              maxAsistencia: 0,
-              asistencias: []
-            };
-          }
+    // Agrupar respuestas por visitanteId
+    const respuestasAgrupadas = {};
+    respuestas.forEach(r => {
+      if (!respuestasAgrupadas[r.visitanteId]) {
+        respuestasAgrupadas[r.visitanteId] = {
+          nombre: r.nombre || 'N/A',
+          correo: r.correo || 'N/A',
+          edad: r.edad || 'N/A',
+          telefono: r.telefono || 'N/A',
+          asociacion: r.asociacion || 'N/A',
+          fecha: r.fecha,
+          maxAsistencia: 0,
+          asistencias: [],
+          visitanteId: r.visitanteId // ← AÑADIR ESTO
+        };
+      }
 
-          if (r.asistenciaNumero) {
-            respuestasAgrupadas[r.visitanteId].asistencias.push(r.asistenciaNumero);
-            respuestasAgrupadas[r.visitanteId].maxAsistencia = Math.max(
-              respuestasAgrupadas[r.visitanteId].maxAsistencia,
-              r.asistenciaNumero
-            );
-          }
-        });
+      if (r.asistenciaNumero) {
+        respuestasAgrupadas[r.visitanteId].asistencias.push(r.asistenciaNumero);
+        respuestasAgrupadas[r.visitanteId].maxAsistencia = Math.max(
+          respuestasAgrupadas[r.visitanteId].maxAsistencia,
+          r.asistenciaNumero
+        );
+      }
+    });
 
-        // Combinar con resultados de examen
-        resultadosExamen.forEach(resultado => {
-          if (respuestasAgrupadas[resultado.visitanteId]) {
-            respuestasAgrupadas[resultado.visitanteId].examen = resultado;
-          }
-        });
+    // Combinar con resultados de examen
+    resultadosExamen.forEach(resultado => {
+      if (respuestasAgrupadas[resultado.visitanteId]) {
+        respuestasAgrupadas[resultado.visitanteId].examen = resultado;
+      }
+    });
 
-        tablaBody.innerHTML = "";
-        Object.values(respuestasAgrupadas).forEach((r, index) => {
-          const asistioCompleto = r.maxAsistencia >= 3 ? "SÍ" : "NO";
-          const puedeExamen = r.maxAsistencia >= 3;
-          const puntajeExamen = r.examen ? `${r.examen.puntaje.toFixed(1)}%` : 'N/A';
+    tablaBody.innerHTML = "";
+    Object.values(respuestasAgrupadas).forEach((r, index) => {
+      const asistioCompleto = r.maxAsistencia >= 3 ? "SÍ" : "NO";
+      const puedeExamen = r.maxAsistencia >= 3;
+      const puntajeExamen = r.examen ? `${r.examen.puntaje.toFixed(1)}%` : 'N/A';
+      
+      // VERIFICAR SI ES EL USUARIO ACTUAL
+      const esUsuarioActual = r.visitanteId === visitanteId;
 
-          const fila = `
+      const fila = `
         <tr>
           <td>${index + 1}</td>
           <td>${r.nombre}</td>
@@ -933,21 +938,28 @@
           <td>${r.maxAsistencia}</td>
           <td>${asistioCompleto}</td>
           <td>
-            ${puedeExamen
-              ? `<button onclick="iniciarExamen()">Hacer Examen</button>
-                 ${r.examen ? `<br><small>Nota: ${puntajeExamen}</small>` : ''}`
-              : 'No puede hacer Examen'}
+            ${esUsuarioActual && puedeExamen
+              ? (r.examen 
+                  ? `✅ Examen completado<br><small>Nota: ${puntajeExamen}</small>`
+                  : `<button onclick="iniciarExamen()">Hacer Examen</button>`)
+              : (esUsuarioActual 
+                  ? '⏳ Complete las 3 asistencias'
+                  : (r.examen ? `Nota: ${puntajeExamen}` : 'N/A'))}
           </td>
         </tr>
       `;
-          tablaBody.insertAdjacentHTML("beforeend", fila);
-        });
+      tablaBody.insertAdjacentHTML("beforeend", fila);
+    });
 
-      } catch (error) {
-        tablaBody.innerHTML = "<tr><td colspan='10'>Error al cargar respuestas.</td></tr>";
-        console.error(error);
-      }
-    }
+  } catch (error) {
+    tablaBody.innerHTML = "<tr><td colspan='10'>Error al cargar respuestas.</td></tr>";
+    console.error(error);
+  }
+}
+
+
+
+
 
     document.getElementById("formulario").addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -999,17 +1011,52 @@
     let examenActual = null;
 
     // Función mejorada para iniciar examen
-    function iniciarExamen() {
-      const idFormulario = document.getElementById("idFormulario").value;
+    // Función mejorada para iniciar examen
+async function iniciarExamen() {
+  const idFormulario = document.getElementById("idFormulario").value;
 
-      // Crear modal de examen si no existe
-      if (!examenModal) {
-        crearModalExamen();
+  // VERIFICAR PRIMERO QUE EL USUARIO TENGA DERECHO AL EXAMEN
+  try {
+    const res = await fetch(`/api/verRespuestas?id=${idFormulario}`);
+    if (res.ok) {
+      const data = await res.json();
+      const respuestas = data.asistencias || [];
+      
+      // Buscar las respuestas del usuario actual
+      const misRespuestas = respuestas.filter(r => r.visitanteId === visitanteId);
+      const maxAsistencia = Math.max(...misRespuestas.map(r => r.asistenciaNumero || 0));
+      
+      if (maxAsistencia < 3) {
+        document.getElementById("mensaje").textContent = "❌ Debes completar las 3 asistencias antes de hacer el examen";
+        return;
       }
 
-      // Cargar evaluación
-      cargarEvaluacion(idFormulario);
+      // Verificar si ya hizo el examen
+      const resultadosExamen = data.examenes || [];
+      const miExamen = resultadosExamen.find(e => e.visitanteId === visitanteId);
+      
+      if (miExamen) {
+        document.getElementById("mensaje").textContent = "✅ Ya completaste el examen. Nota: " + miExamen.puntaje.toFixed(1) + "%";
+        return;
+      }
+
+    } else {
+      document.getElementById("mensaje").textContent = "❌ Error al verificar estado del examen";
+      return;
     }
+  } catch (error) {
+    document.getElementById("mensaje").textContent = "❌ Error de conexión al verificar examen";
+    return;
+  }
+
+  // Si pasa todas las verificaciones, crear modal de examen
+  if (!examenModal) {
+    crearModalExamen();
+  }
+
+  // Cargar evaluación
+  cargarEvaluacion(idFormulario);
+}
 
     // Crear modal para el examen
     function crearModalExamen() {
@@ -1154,66 +1201,67 @@
     }
 
     // Enviar examen y calificar
-    async function enviarExamen() {
-      if (!examenActual) return;
+    // Enviar examen y calificar
+async function enviarExamen() {
+  if (!examenActual) return;
 
-      const respuestas = {};
-      let todasRespondidas = true;
+  const respuestas = {};
+  let todasRespondidas = true;
 
-      // Recopilar respuestas
-      examenActual.forEach(pregunta => {
-        const opcionSeleccionada = document.querySelector(`input[name="pregunta_${pregunta.id}"]:checked`);
+  // Recopilar respuestas
+  examenActual.forEach(pregunta => {
+    const opcionSeleccionada = document.querySelector(`input[name="pregunta_${pregunta.id}"]:checked`);
 
-        if (opcionSeleccionada) {
-          respuestas[pregunta.id] = opcionSeleccionada.value;
-        } else {
-          todasRespondidas = false;
-        }
-      });
-
-      if (!todasRespondidas) {
-        alert('❌ Por favor responde todas las preguntas antes de enviar el examen.');
-        return;
-      }
-
-      // Calificar examen
-      let puntaje = 0;
-      examenActual.forEach(pregunta => {
-        const respuestaUsuario = respuestas[pregunta.id];
-        const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
-
-        if (respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id) {
-          puntaje++;
-        }
-      });
-
-      const porcentaje = (puntaje / examenActual.length) * 100;
-
-      // Guardar resultado
-      try {
-        const res = await fetch('/api/guardarResultadoExamen', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: document.getElementById("idFormulario").value,
-            visitanteId: visitanteId,
-            respuestas: respuestas,
-            puntaje: porcentaje
-          })
-        });
-
-        const resultado = await res.json();
-
-        if (res.ok) {
-          mostrarResultadoExamen(porcentaje, puntaje, examenActual.length);
-        } else {
-          alert('❌ Error al guardar el resultado: ' + resultado.error);
-        }
-      } catch (error) {
-        console.error('Error al enviar examen:', error);
-        alert('❌ Error de conexión al enviar el examen.');
-      }
+    if (opcionSeleccionada) {
+      respuestas[pregunta.id] = opcionSeleccionada.value;
+    } else {
+      todasRespondidas = false;
     }
+  });
+
+  if (!todasRespondidas) {
+    alert('❌ Por favor responde todas las preguntas antes de enviar el examen.');
+    return;
+  }
+
+  // Mostrar loading
+  const btnEnviar = document.getElementById('btnEnviarExamen');
+  const textoOriginal = btnEnviar.textContent;
+  btnEnviar.innerHTML = 'Enviando... <div class="loading" style="display: inline-block; margin-left: 10px;"></div>';
+  btnEnviar.disabled = true;
+
+  try {
+    const res = await fetch('/api/guardarResultadoExamen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: document.getElementById("idFormulario").value,
+        visitanteId: visitanteId,
+        respuestas: respuestas,
+        puntaje: porcentaje
+      })
+    });
+
+    if (res.ok) {
+      mostrarResultadoExamen(porcentaje, puntaje, examenActual.length);
+      // Recargar la tabla para actualizar el estado
+      setTimeout(() => {
+        cargarRespuestas(document.getElementById("idFormulario").value);
+      }, 2000);
+    } else {
+      const errorData = await res.json();
+      alert('❌ Error al guardar el resultado: ' + (errorData.error || 'Error desconocido'));
+      btnEnviar.textContent = textoOriginal;
+      btnEnviar.disabled = false;
+    }
+  } catch (error) {
+    console.error('Error al enviar examen:', error);
+    alert('❌ Error de conexión al enviar el examen.');
+    btnEnviar.textContent = textoOriginal;
+    btnEnviar.disabled = false;
+  }
+}
+
 
     // Mostrar resultado del examen
     function mostrarResultadoExamen(porcentaje, correctas, total) {
