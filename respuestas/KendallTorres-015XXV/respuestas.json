@@ -20,5 +20,15 @@
     "visitanteId": "394348e0-576c-4d2b-be0b-e218a43970dd",
     "asistenciaNumero": 3,
     "id": "KendallTorres-015XXV"
+  },
+  {
+    "nombre": "Kendall Torres Báez",
+    "correo": "prueba1@gmail.com",
+    "edad": "24",
+    "telefono": "63160345",
+    "asociacion": "ADS",
+    "fecha": "2025-11-04T01:17:11.590Z",
+    "visitanteId": "5569ee6a-aab6-458a-94c6-0592ee4175f1",
+    "asistenciaNumero": 1
   }
 ]
