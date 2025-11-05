@@ -483,6 +483,7 @@
     <button id="menuClubes">Clubes</button>
     <button id="menuEspecialidades">Especialidades Storage</button>
     <button id="menuPerfil">Perfil</button>
+    <button id="menuCertificaciones">Certificaciones</button>
     <button id="logoutBtn">Cerrar sesión</button>
   </div>
 
@@ -568,6 +569,46 @@
         <button type="submit" class="saveBtn">Guardar cambios</button>
       </form>
     </div>
+    
+    <!-- 🔹 NUEVA SECCIÓN: CERTIFICACIONES -->
+    <div id="certificacionesSection" class="card hidden">
+      <h2>📜 Mis Certificaciones de Especialidades</h2>
+      <p>Aquí puedes ver todas las especialidades en las que has participado, validadas con tu correo electrónico.</p>
+      
+      <div id="certificacionesLoading" style="text-align: center; padding: 20px;">
+        <div class="loading" style="display: inline-block;"></div>
+        <p>Cargando tus certificaciones...</p>
+      </div>
+      
+      <div id="certificacionesContent" style="display: none;">
+        <div id="certificacionesContadores">
+          <p>Total de especialidades: <span id="totalEspecialidades">0</span></p>
+          <p>Especialidades completadas: <span id="especialidadesCompletadas">0</span></p>
+        </div>
+        
+        <table id="tablaCertificaciones" border="1" style="border-collapse: collapse; width: 100%; margin-top: 20px;">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Especialidad</th>
+              <th>Fecha de Participación</th>
+              <th>Asistencias Completadas</th>
+              <th>Examen Realizado</th>
+              <th>Calificación</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoTablaCertificaciones">
+            <!-- Las filas se llenarán dinámicamente -->
+          </tbody>
+        </table>
+        
+        <div id="sinCertificaciones" style="display: none; text-align: center; padding: 30px; color: #666;">
+          <h3>📝 Aún no tienes certificaciones</h3>
+          <p>Participa en especialidades para ver tus certificaciones aquí.</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- 🔹 Visor PDF modal -->
@@ -622,6 +663,7 @@
     const menuInicio = document.getElementById("menuInicio");
     const menuPerfil = document.getElementById("menuPerfil");
     const menuEspecialidades = document.getElementById("menuEspecialidades");
+    const menuCertificaciones = document.getElementById("menuCertificaciones");
     const logoutBtn = document.getElementById("logoutBtn");
     const editForm = document.getElementById("editForm");
     const fotoInput = document.getElementById("foto");
@@ -639,6 +681,15 @@
     const subirArchivoBtn = document.getElementById("subirArchivoBtn");
     const listaArchivos = document.getElementById("listaArchivos");
     const cerrarEspecialidadBtn = document.getElementById("cerrarEspecialidad");
+
+    // Elementos de Certificaciones
+    const certificacionesSection = document.getElementById("certificacionesSection");
+    const certificacionesLoading = document.getElementById("certificacionesLoading");
+    const certificacionesContent = document.getElementById("certificacionesContent");
+    const sinCertificaciones = document.getElementById("sinCertificaciones");
+    const cuerpoTablaCertificaciones = document.getElementById("cuerpoTablaCertificaciones");
+    const totalEspecialidades = document.getElementById("totalEspecialidades");
+    const especialidadesCompletadas = document.getElementById("especialidadesCompletadas");
 
     let especialidadSeleccionada = "";
     let currentUserId = null;
@@ -690,6 +741,10 @@
     // 🔹 Navegación
     menuInicio.addEventListener("click", () => mostrarSeccion(inicioSection, menuInicio));
     menuPerfil.addEventListener("click", () => mostrarSeccion(perfilSection, menuPerfil));
+    menuCertificaciones.addEventListener("click", () => {
+      mostrarSeccion(certificacionesSection, menuCertificaciones);
+      cargarCertificaciones();
+    });
 
     // 🔹 Menú Especialidades con bloqueo si no es autorizado
     menuEspecialidades.addEventListener("click", () => {
@@ -928,8 +983,8 @@
     });
 
     function mostrarSeccion(seccion, botonActivo) {
-      [inicioSection, perfilSection, especialidadesSection, clubesSection].forEach(sec => sec.classList.add("hidden"));
-      [menuInicio, menuPerfil, menuEspecialidades, menuClubes].forEach(btn => btn.classList.remove("active"));
+      [inicioSection, perfilSection, especialidadesSection, clubesSection, certificacionesSection].forEach(sec => sec.classList.add("hidden"));
+      [menuInicio, menuPerfil, menuEspecialidades, menuClubes, menuCertificaciones].forEach(btn => btn.classList.remove("active"));
 
       seccion.classList.remove("hidden");
       botonActivo.classList.add("active");
@@ -1123,6 +1178,262 @@ clubBtns.forEach(btn => {
 
   </script>
 
+  <!-- 🔹 NUEVA SECCIÓN: CERTIFICACIONES - ESTILOS Y SCRIPT -->
+  <style>
+    /* Estilos para la sección de certificaciones */
+    #certificacionesSection {
+      animation: fadeIn 0.5s ease;
+    }
+    
+    #certificacionesContadores {
+      background: #e8f4fd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+    
+    #certificacionesContadores p {
+      margin: 5px 0;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    #certificacionesContadores span {
+      color: #e74c3c;
+      font-size: 18px;
+    }
+    
+    #tablaCertificaciones {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    #tablaCertificaciones thead {
+      background: #34495e;
+      color: white;
+    }
+    
+    #tablaCertificaciones th {
+      padding: 12px 15px;
+      text-align: left;
+      font-weight: 600;
+    }
+    
+    #tablaCertificaciones tbody tr {
+      border-bottom: 1px solid #ddd;
+      transition: background-color 0.3s ease;
+    }
+    
+    #tablaCertificaciones tbody tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    
+    #tablaCertificaciones tbody tr:hover {
+      background-color: #e8f4fd;
+    }
+    
+    #tablaCertificaciones td {
+      padding: 10px 15px;
+    }
+    
+    .estado-completado {
+      color: #27ae60;
+      font-weight: bold;
+    }
+    
+    .estado-pendiente {
+      color: #e67e22;
+      font-weight: bold;
+    }
+    
+    .estado-incompleto {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    
+    .calificacion-aprobada {
+      color: #27ae60;
+      font-weight: bold;
+    }
+    
+    .calificacion-reprobada {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+
+  <script>
+    // Función para cargar las certificaciones del usuario
+    async function cargarCertificaciones() {
+      // Mostrar loading
+      certificacionesLoading.style.display = "block";
+      certificacionesContent.style.display = "none";
+      sinCertificaciones.style.display = "none";
+      
+      try {
+        // Obtener el usuario actual
+        const user = auth.currentUser;
+        if (!user || !user.email) {
+          throw new Error("No se pudo obtener la información del usuario");
+        }
+        
+        const userEmail = user.email;
+        
+        // Obtener todos los formularios
+        const formulariosRes = await fetch("/api/listarFormularios");
+        if (!formulariosRes.ok) {
+          throw new Error("No se pudieron cargar los formularios");
+        }
+        
+        const formularios = await formulariosRes.json();
+        const formulariosIds = Object.keys(formularios);
+        
+        // Array para almacenar las certificaciones
+        const certificaciones = [];
+        
+        // Para cada formulario, buscar si el usuario participó
+        for (const formularioId of formulariosIds) {
+          try {
+            const respuestasRes = await fetch(`/api/verRespuestas?id=${formularioId}`);
+            if (respuestasRes.ok) {
+              const data = await respuestasRes.json();
+              const respuestas = data.asistencias || [];
+              const examenes = data.examenes || [];
+              
+              // Buscar respuestas del usuario por correo
+              const respuestasUsuario = respuestas.filter(r => r.correo === userEmail);
+              
+              if (respuestasUsuario.length > 0) {
+                // Encontrar el examen del usuario si existe
+                const examenUsuario = examenes.find(e => {
+                  // Buscar por visitanteId si está disponible
+                  const respuestaUsuario = respuestasUsuario.find(r => r.visitanteId === e.visitanteId);
+                  return respuestaUsuario !== undefined;
+                });
+                
+                // Determinar estado
+                const maxAsistencia = Math.max(...respuestasUsuario.map(r => r.asistenciaNumero || 0));
+                const completado = maxAsistencia >= 3;
+                const examenRealizado = examenUsuario !== undefined;
+                const calificacion = examenRealizado ? examenUsuario.puntaje : null;
+                
+                // Obtener la fecha más reciente
+                const fechaMasReciente = new Date(Math.max(...respuestasUsuario.map(r => new Date(r.fecha))));
+                
+                certificaciones.push({
+                  formularioId: formularioId,
+                  titulo: formularios[formularioId].titulo,
+                  fecha: fechaMasReciente,
+                  asistenciasCompletadas: maxAsistencia,
+                  examenRealizado: examenRealizado,
+                  calificacion: calificacion,
+                  completado: completado
+                });
+              }
+            }
+          } catch (error) {
+            console.error(`Error al cargar respuestas para ${formularioId}:`, error);
+          }
+        }
+        
+        // Actualizar la interfaz con las certificaciones
+        actualizarInterfazCertificaciones(certificaciones);
+        
+      } catch (error) {
+        console.error("Error al cargar certificaciones:", error);
+        mostrarMensaje("error", "Error al cargar certificaciones", "No se pudieron cargar tus certificaciones. Intenta nuevamente.");
+        
+        // Mostrar estado de error
+        certificacionesLoading.style.display = "none";
+        sinCertificaciones.style.display = "block";
+        sinCertificaciones.innerHTML = `
+          <h3>❌ Error al cargar certificaciones</h3>
+          <p>No se pudieron cargar tus certificaciones. Intenta nuevamente.</p>
+        `;
+      }
+    }
+    
+    // Función para actualizar la interfaz con las certificaciones
+    function actualizarInterfazCertificaciones(certificaciones) {
+      // Ocultar loading
+      certificacionesLoading.style.display = "none";
+      
+      if (certificaciones.length === 0) {
+        sinCertificaciones.style.display = "block";
+        certificacionesContent.style.display = "none";
+        return;
+      }
+      
+      // Mostrar contenido
+      sinCertificaciones.style.display = "none";
+      certificacionesContent.style.display = "block";
+      
+      // Actualizar contadores
+      totalEspecialidades.textContent = certificaciones.length;
+      const completadas = certificaciones.filter(c => c.completado).length;
+      especialidadesCompletadas.textContent = completadas;
+      
+      // Limpiar tabla
+      cuerpoTablaCertificaciones.innerHTML = "";
+      
+      // Ordenar certificaciones por fecha (más reciente primero)
+      certificaciones.sort((a, b) => b.fecha - a.fecha);
+      
+      // Llenar tabla
+      certificaciones.forEach((cert, index) => {
+        const fila = document.createElement("tr");
+        
+        // Determinar clases de estado y calificación
+        const estadoClase = cert.completado ? "estado-completado" : "estado-pendiente";
+        const estadoTexto = cert.completado ? "Completado" : "En progreso";
+        
+        let calificacionTexto = "No realizado";
+        let calificacionClase = "";
+        
+        if (cert.examenRealizado) {
+          calificacionClase = cert.calificacion >= 70 ? "calificacion-aprobada" : "calificacion-reprobada";
+          calificacionTexto = `${cert.calificacion.toFixed(1)}%`;
+        }
+        
+        fila.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${cert.titulo}</td>
+          <td>${cert.fecha.toLocaleDateString()}</td>
+          <td>${cert.asistenciasCompletadas}/3</td>
+          <td>${cert.examenRealizado ? "Sí" : "No"}</td>
+          <td class="${calificacionClase}">${calificacionTexto}</td>
+          <td class="${estadoClase}">${estadoTexto}</td>
+        `;
+        
+        cuerpoTablaCertificaciones.appendChild(fila);
+      });
+    }
+  </script>
 
 </body>
 
