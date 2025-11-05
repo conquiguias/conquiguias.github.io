@@ -42,5 +42,13 @@
     "tieneEvaluacion": true,
     "imagenEspecialidad": "https://raw.githubusercontent.com/proyectoja/asistencia-especialidades/main/images/especialidades/sss.png",
     "imagenFirma": null
+  },
+  "InstructorPrueba-OR54ZY": {
+    "titulo": "sss",
+    "fechaCierre": "2025-11-05T06:57:30.472Z",
+    "creado": "2025-11-05T05:47:31.365Z",
+    "tieneEvaluacion": false,
+    "imagenEspecialidad": "https://raw.githubusercontent.com/proyectoja/asistencia-especialidades/main/images/especialidades/sss.png",
+    "imagenFirma": null
   }
 }
