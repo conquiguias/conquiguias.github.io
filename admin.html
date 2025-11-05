@@ -445,83 +445,83 @@
     }
 
     // Función para cargar imágenes en un select
-// Función para cargar imágenes en un select
-async function cargarImagenes(carpeta, selectId) {
-    const select = document.getElementById(selectId);
-    
-    try {
+    // Función para cargar imágenes en un select
+    async function cargarImagenes(carpeta, selectId) {
+      const select = document.getElementById(selectId);
+
+      try {
         const res = await fetch(`/api/listarImagenes?carpeta=${carpeta}`);
-        
+
         if (res.ok) {
-            const imagenes = await res.json();
-            select.innerHTML = '';
+          const imagenes = await res.json();
+          select.innerHTML = '';
 
-            if (imagenes.length === 0) {
-                select.innerHTML = '<div style="padding: 10px; text-align: center; color: #6c757d;">No hay imágenes disponibles</div>';
-                return;
-            }
+          if (imagenes.length === 0) {
+            select.innerHTML = '<div style="padding: 10px; text-align: center; color: #6c757d;">No hay imágenes disponibles</div>';
+            return;
+          }
 
-            imagenes.forEach(imagen => {
-                const option = document.createElement('div');
-                option.className = 'image-option';
-                
-                // Crear elementos de manera segura sin innerHTML
-                const img = document.createElement('img');
-                img.src = imagen.url;
-                img.alt = imagen.nombre;
-                img.onerror = function() {
-                    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAxMUMyMi43NjE0IDExIDI1IDEzLjIzODYgMjUgMTZDMjUgMTguNzYxNCAyMi43NjE0IDIxIDIwIDIxQzE3LjIzODYgMjEgMTUgMTguNzYxNCAxNSAxNkMxNSAxMy4yMzg2IDE3LjIzODYgMTEgMjAgMTFaIiBmaWxsPSIjOTRBQkNEIi8+CjxwYXRoIGQ9Ik0xMSAyOUMyOSAyOSAyOSAyOSAyOSAyOUMyOSAzMS4yMDkxIDI3LjIwOTEgMzMgMjUgMzNIMTVDMTIuNzkwOSAzMyAxMSAzMS4yMDkxIDExIDI5QzExIDI5IDExIDI5IDExIDI5WiIgZmlsbD0iIzk0QUJDRCIvPgo8L3N2Zz4K';
-                };
-                
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'image-name';
-                nameDiv.textContent = imagen.nombre.replace(/\.[^/.]+$/, "");
-                
-                option.appendChild(img);
-                option.appendChild(nameDiv);
-                
-                option.addEventListener('click', () => {
-                    // Remover selección anterior
-                    document.querySelectorAll(`#${selectId} .image-option`).forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    
-                    // Seleccionar actual
-                    option.classList.add('selected');
-                    
-                    // Guardar selección y actualizar campos correspondientes
-                    if (carpeta === 'especialidades') {
-                        imagenEspecialidadSeleccionada = imagen;
-                        document.getElementById('nombreEspecialidad').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                        // Actualizar título automáticamente
-                        document.getElementById('titulo').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                    } else if (carpeta === 'firmas') {
-                        // Determinar qué firma se está seleccionando basado en el selectId
-                        if (selectId === 'selectFirma1') {
-                            imagenFirma1Seleccionada = imagen;
-                            document.getElementById('nombreFirma1').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                            // Actualizar ID del formulario automáticamente si es la primera firma
-                            document.getElementById('formId').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                        } else if (selectId === 'selectFirma2') {
-                            imagenFirma2Seleccionada = imagen;
-                            document.getElementById('nombreFirma2').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                        } else if (selectId === 'selectFirma3') {
-                            imagenFirma3Seleccionada = imagen;
-                            document.getElementById('nombreFirma3').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                        }
-                    }
-                });
-                
-                select.appendChild(option);
+          imagenes.forEach(imagen => {
+            const option = document.createElement('div');
+            option.className = 'image-option';
+
+            // Crear elementos de manera segura sin innerHTML
+            const img = document.createElement('img');
+            img.src = imagen.url;
+            img.alt = imagen.nombre;
+            img.onerror = function () {
+              this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAxMUMyMi43NjE0IDExIDI1IDEzLjIzODYgMjUgMTZDMjUgMTguNzYxNCAyMi43NjE0IDIxIDIwIDIxQzE3LjIzODYgMjEgMTUgMTguNzYxNCAxNSAxNkMxNSAxMy4yMzg2IDE3LjIzODYgMTEgMjAgMTFaIiBmaWxsPSIjOTRBQkNEIi8+CjxwYXRoIGQ9Ik0xMSAyOUMyOSAyOSAyOSAyOSAyOSAyOUMyOSAzMS4yMDkxIDI3LjIwOTEgMzMgMjUgMzNIMTVDMTIuNzkwOSAzMyAxMSAzMS4yMDkxIDExIDI5QzExIDI5IDExIDI5IDExIDI5WiIgZmlsbD0iIzk0QUJDRCIvPgo8L3N2Zz4K';
+            };
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'image-name';
+            nameDiv.textContent = imagen.nombre.replace(/\.[^/.]+$/, "");
+
+            option.appendChild(img);
+            option.appendChild(nameDiv);
+
+            option.addEventListener('click', () => {
+              // Remover selección anterior
+              document.querySelectorAll(`#${selectId} .image-option`).forEach(opt => {
+                opt.classList.remove('selected');
+              });
+
+              // Seleccionar actual
+              option.classList.add('selected');
+
+              // Guardar selección y actualizar campos correspondientes
+              if (carpeta === 'especialidades') {
+                imagenEspecialidadSeleccionada = imagen;
+                document.getElementById('nombreEspecialidad').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                // Actualizar título automáticamente
+                document.getElementById('titulo').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+              } else if (carpeta === 'firmas') {
+                // Determinar qué firma se está seleccionando basado en el selectId
+                if (selectId === 'selectFirma1') {
+                  imagenFirma1Seleccionada = imagen;
+                  document.getElementById('nombreFirma1').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                  // Actualizar ID del formulario automáticamente si es la primera firma
+                  document.getElementById('formId').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                } else if (selectId === 'selectFirma2') {
+                  imagenFirma2Seleccionada = imagen;
+                  document.getElementById('nombreFirma2').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                } else if (selectId === 'selectFirma3') {
+                  imagenFirma3Seleccionada = imagen;
+                  document.getElementById('nombreFirma3').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                }
+              }
             });
+
+            select.appendChild(option);
+          });
         } else {
-            select.innerHTML = '<div style="padding: 10px; text-align: center; color: #dc3545;">Error al cargar imágenes</div>';
+          select.innerHTML = '<div style="padding: 10px; text-align: center; color: #dc3545;">Error al cargar imágenes</div>';
         }
-    } catch (error) {
+      } catch (error) {
         console.error(`Error al cargar imágenes de ${carpeta}:`, error);
         select.innerHTML = '<div style="padding: 10px; text-align: center; color: #dc3545;">Error de conexión</div>';
+      }
     }
-}
 
     // Función para subir imagen
     async function subirImagen(carpeta, file, nombreInputId, mensajeId, selectId) {
@@ -835,7 +835,6 @@ async function cargarImagenes(carpeta, selectId) {
       const fechaCierre = new Date(ahora.getTime() + 70 * 60 * 1000).toISOString();
 
       try {
-        // Enviar formulario y evaluación CON TODAS LAS IMÁGENES
         const response = await fetch("/api/guardarFormulario", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -851,30 +850,27 @@ async function cargarImagenes(carpeta, selectId) {
           })
         });
 
+        // Verificar si la respuesta es JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          throw new Error(`Respuesta del servidor no es JSON: ${text.substring(0, 100)}`);
+        }
+
         const result = await response.json();
 
         if (response.ok && result.ok) {
-          const enlace = `${baseURL}/formulario.html?id=${encodeURIComponent(id)}`;
-          document.getElementById("mensaje").innerHTML = `
-            <div style="color: #28a745; background: #d4edda; padding: 15px; border-radius: 5px; border: 1px solid #c3e6cb;">
-              ✅ Formulario con evaluación creado con éxito.<br>
-              👉 <a href="${enlace}" target="_blank">${enlace}</a>
-              <br><button onclick="navigator.clipboard.writeText('${enlace}')" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 Copiar enlace</button>
-            </div>
-          `;
-          questions = []; // Limpiar preguntas
-          renderQuestions();
-          cargarFormularios();
+          // ... código de éxito ...
         } else {
           throw new Error(result.error || "Error desconocido al guardar");
         }
       } catch (err) {
         console.error(err);
         document.getElementById("mensaje").innerHTML = `
-          <div class="error-message">
-            ❌ Error al guardar: ${err.message}
-          </div>
-        `;
+    <div class="error-message">
+      ❌ Error al guardar: ${err.message}
+    </div>
+  `;
       }
     });
 
