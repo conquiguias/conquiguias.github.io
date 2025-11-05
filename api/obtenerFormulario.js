@@ -34,7 +34,9 @@ export default async function handler(req, res) {
       ...formulario, 
       estado,
       imagenEspecialidad: formulario.imagenEspecialidad || null,
-      imagenFirma: formulario.imagenFirma || null
+      imagenFirma1: formulario.imagenFirma1 || null,
+      imagenFirma2: formulario.imagenFirma2 || null,
+      imagenFirma3: formulario.imagenFirma3 || null
     });
 
   } catch (err) {
