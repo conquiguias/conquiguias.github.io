@@ -70,5 +70,15 @@
     "imagenFirma1": "https://raw.githubusercontent.com/proyectoja/asistencia-especialidades/main/images/firmas/Instructor%20prueba.png",
     "imagenFirma2": "https://raw.githubusercontent.com/proyectoja/asistencia-especialidades/main/images/firmas/coordinador%20prueba.jpg",
     "imagenFirma3": "https://raw.githubusercontent.com/proyectoja/asistencia-especialidades/main/images/firmas/diacono%20prueba.jpg"
+  },
+  "CoordinadorPrueba-HW2GZS": {
+    "titulo": "sss",
+    "fechaCierre": "2025-11-05T07:38:18.022Z",
+    "creado": "2025-11-05T06:28:18.894Z",
+    "tieneEvaluacion": false,
+    "imagenEspecialidad": "https://raw.githubusercontent.com/proyectoja/asistencia-especialidades/main/images/especialidades/sss.png",
+    "imagenFirma1": "https://raw.githubusercontent.com/proyectoja/asistencia-especialidades/main/images/firmas/coordinador%20prueba.jpg",
+    "imagenFirma2": "https://raw.githubusercontent.com/proyectoja/asistencia-especialidades/main/images/firmas/coordinador%20prueba.jpg",
+    "imagenFirma3": "https://raw.githubusercontent.com/proyectoja/asistencia-especialidades/main/images/firmas/diacono%20prueba.jpg"
   }
 }
