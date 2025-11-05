@@ -163,7 +163,8 @@
     .selector-container {
       display: flex;
       gap: 10px;
-      align-items: center;
+      align-items: flex-start;
+      /* Cambiado a flex-start para mejor alineación */
     }
 
     .custom-select {
@@ -172,28 +173,32 @@
       border: 2px solid #bdc3c7;
       border-radius: 5px;
       background: white;
-      max-height: 200px;
+      max-height: 220px;
+      /* Altura para exactamente 3 imágenes */
+      min-height: 220px;
+      /* Para mantener consistencia cuando hay pocas imágenes */
       overflow-y: auto;
+      /* Scroll vertical cuando hay más de 3 */
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      /* Espacio entre items */
     }
 
     .image-option {
       display: flex;
       align-items: center;
       padding: 8px;
-      margin: 5px 0;
+      margin: 0;
+      /* Quitamos el margin vertical ya que usamos gap en el contenedor */
       border: 1px solid #ecf0f1;
       border-radius: 5px;
       cursor: pointer;
       transition: background 0.3s;
-    }
-
-    .image-option:hover {
-      background: #f8f9fa;
-    }
-
-    .image-option.selected {
-      background: #d4edda;
-      border-color: #28a745;
+      min-height: 60px;
+      /* Altura mínima para cada opción */
+      flex-shrink: 0;
+      /* Evita que se encogan las opciones */
     }
 
     .image-option img {
@@ -203,11 +208,17 @@
       margin-right: 10px;
       border: 1px solid #ddd;
       border-radius: 3px;
+      flex-shrink: 0;
+      /* Evita que la imagen se deforme */
     }
 
     .image-name {
       font-size: 14px;
       color: #2c3e50;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
     }
 
     .upload-section {
@@ -266,7 +277,7 @@
     <!-- Selector de Imágenes -->
     <div class="image-selector">
       <h3>🖼️ Selección de Imágenes para el Formulario</h3>
-      
+
       <!-- Selector de Especialidad -->
       <div class="selector-group">
         <label>Especialidad:</label>
@@ -282,8 +293,9 @@
           </button>
         </div>
         <div class="upload-section">
-          <input type="text" id="nombreEspecialidad" placeholder="Nombre para la especialidad (ej: Especialidad De Flores)" 
-                 class="upload-input" style="width: 100%; padding: 8px;">
+          <input type="text" id="nombreEspecialidad"
+            placeholder="Nombre para la especialidad (ej: Especialidad De Flores)" class="upload-input"
+            style="width: 100%; padding: 8px;">
           <div id="mensajeEspecialidad" style="margin-top: 5px; font-size: 12px;"></div>
         </div>
       </div>
@@ -291,7 +303,7 @@
       <!-- Selector de Firmas -->
       <div class="firma-group">
         <h4>Firmas Requeridas:</h4>
-        
+
         <!-- Firma 1 - Instructor -->
         <div class="selector-group">
           <label>Firma del Instructor:</label>
@@ -307,8 +319,8 @@
             </button>
           </div>
           <div class="upload-section">
-            <input type="text" id="nombreFirma1" placeholder="Nombre para la firma del instructor (ej: Nombre Apellido)" 
-                   class="upload-input" style="width: 100%; padding: 8px;">
+            <input type="text" id="nombreFirma1" placeholder="Nombre para la firma del instructor (ej: Nombre Apellido)"
+              class="upload-input" style="width: 100%; padding: 8px;">
             <div id="mensajeFirma1" style="margin-top: 5px; font-size: 12px;"></div>
           </div>
         </div>
@@ -328,8 +340,8 @@
             </button>
           </div>
           <div class="upload-section">
-            <input type="text" id="nombreFirma2" placeholder="Nombre para la firma 2" 
-                   class="upload-input" style="width: 100%; padding: 8px;">
+            <input type="text" id="nombreFirma2" placeholder="Nombre para la firma 2" class="upload-input"
+              style="width: 100%; padding: 8px;">
             <div id="mensajeFirma2" style="margin-top: 5px; font-size: 12px;"></div>
           </div>
         </div>
@@ -349,8 +361,8 @@
             </button>
           </div>
           <div class="upload-section">
-            <input type="text" id="nombreFirma3" placeholder="Nombre para la firma 3" 
-                   class="upload-input" style="width: 100%; padding: 8px;">
+            <input type="text" id="nombreFirma3" placeholder="Nombre para la firma 3" class="upload-input"
+              style="width: 100%; padding: 8px;">
             <div id="mensajeFirma3" style="margin-top: 5px; font-size: 12px;"></div>
           </div>
         </div>
@@ -433,77 +445,89 @@
     }
 
     // Función para cargar imágenes en un select
-    async function cargarImagenes(carpeta, selectId) {
-      const select = document.getElementById(selectId);
-      
-      try {
+// Función para cargar imágenes en un select
+async function cargarImagenes(carpeta, selectId) {
+    const select = document.getElementById(selectId);
+    
+    try {
         const res = await fetch(`/api/listarImagenes?carpeta=${carpeta}`);
         
         if (res.ok) {
-          const imagenes = await res.json();
-          select.innerHTML = '';
+            const imagenes = await res.json();
+            select.innerHTML = '';
 
-          if (imagenes.length === 0) {
-            select.innerHTML = '<div style="padding: 10px; text-align: center; color: #6c757d;">No hay imágenes disponibles</div>';
-            return;
-          }
+            if (imagenes.length === 0) {
+                select.innerHTML = '<div style="padding: 10px; text-align: center; color: #6c757d;">No hay imágenes disponibles</div>';
+                return;
+            }
 
-          imagenes.forEach(imagen => {
-            const option = document.createElement('div');
-            option.className = 'image-option';
-            option.innerHTML = `
-              <img src="${imagen.url}" alt="${imagen.nombre}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAxMUMyMi43NjE0IDExIDI1IDEzLjIzODYgMjUgMTZDMjUgMTguNzYxNCAyMi43NjE0IDIxIDIwIDIxQzE3LjIzODYgMjEgMTUgMTguNzYxNCAxNSAxNkMxNSAxMy4yMzg2IDE3LjIzODYgMTEgMjAgMTFaIiBmaWxsPSIjOTRBQkNEIi8+CjxwYXRoIGQ9Ik0xMSAyOUMyOSAyOSAyOSAyOSAyOSAyOUMyOSAzMS4yMDkxIDI3LjIwOTEgMzMgMjUgMzNIMTVDMTIuNzkwOSAzMyAxMSAzMS4yMDkxIDExIDI5QzExIDI5IDExIDI5IDExIDI5WiIgZmlsbD0iIzk0QUJDRCIvPgo8L3N2Zz4K'">
-              <div class="image-name">${imagen.nombre.replace(/\.[^/.]+$/, "")}</div>
-            `;
-            
-            option.addEventListener('click', () => {
-              // Remover selección anterior
-              document.querySelectorAll(`#${selectId} .image-option`).forEach(opt => {
-                opt.classList.remove('selected');
-              });
-              
-              // Seleccionar actual
-              option.classList.add('selected');
-              
-              // Guardar selección y actualizar campos correspondientes
-              if (carpeta === 'especialidades') {
-                imagenEspecialidadSeleccionada = imagen;
-                document.getElementById('nombreEspecialidad').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                // Actualizar título automáticamente
-                document.getElementById('titulo').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-              } else if (carpeta === 'firmas') {
-                // Determinar qué firma se está seleccionando basado en el selectId
-                if (selectId === 'selectFirma1') {
-                  imagenFirma1Seleccionada = imagen;
-                  document.getElementById('nombreFirma1').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                  // Actualizar ID del formulario automáticamente si es la primera firma
-                  document.getElementById('formId').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                } else if (selectId === 'selectFirma2') {
-                  imagenFirma2Seleccionada = imagen;
-                  document.getElementById('nombreFirma2').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                } else if (selectId === 'selectFirma3') {
-                  imagenFirma3Seleccionada = imagen;
-                  document.getElementById('nombreFirma3').value = imagen.nombre.replace(/\.[^/.]+$/, "");
-                }
-              }
+            imagenes.forEach(imagen => {
+                const option = document.createElement('div');
+                option.className = 'image-option';
+                
+                // Crear elementos de manera segura sin innerHTML
+                const img = document.createElement('img');
+                img.src = imagen.url;
+                img.alt = imagen.nombre;
+                img.onerror = function() {
+                    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAxMUMyMi43NjE0IDExIDI1IDEzLjIzODYgMjUgMTZDMjUgMTguNzYxNCAyMi43NjE0IDIxIDIwIDIxQzE3LjIzODYgMjEgMTUgMTguNzYxNCAxNSAxNkMxNSAxMy4yMzg2IDE3LjIzODYgMTEgMjAgMTFaIiBmaWxsPSIjOTRBQkNEIi8+CjxwYXRoIGQ9Ik0xMSAyOUMyOSAyOSAyOSAyOSAyOSAyOUMyOSAzMS4yMDkxIDI3LjIwOTEgMzMgMjUgMzNIMTVDMTIuNzkwOSAzMyAxMSAzMS4yMDkxIDExIDI5QzExIDI5IDExIDI5IDExIDI5WiIgZmlsbD0iIzk0QUJDRCIvPgo8L3N2Zz4K';
+                };
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'image-name';
+                nameDiv.textContent = imagen.nombre.replace(/\.[^/.]+$/, "");
+                
+                option.appendChild(img);
+                option.appendChild(nameDiv);
+                
+                option.addEventListener('click', () => {
+                    // Remover selección anterior
+                    document.querySelectorAll(`#${selectId} .image-option`).forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Seleccionar actual
+                    option.classList.add('selected');
+                    
+                    // Guardar selección y actualizar campos correspondientes
+                    if (carpeta === 'especialidades') {
+                        imagenEspecialidadSeleccionada = imagen;
+                        document.getElementById('nombreEspecialidad').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                        // Actualizar título automáticamente
+                        document.getElementById('titulo').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                    } else if (carpeta === 'firmas') {
+                        // Determinar qué firma se está seleccionando basado en el selectId
+                        if (selectId === 'selectFirma1') {
+                            imagenFirma1Seleccionada = imagen;
+                            document.getElementById('nombreFirma1').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                            // Actualizar ID del formulario automáticamente si es la primera firma
+                            document.getElementById('formId').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                        } else if (selectId === 'selectFirma2') {
+                            imagenFirma2Seleccionada = imagen;
+                            document.getElementById('nombreFirma2').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                        } else if (selectId === 'selectFirma3') {
+                            imagenFirma3Seleccionada = imagen;
+                            document.getElementById('nombreFirma3').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                        }
+                    }
+                });
+                
+                select.appendChild(option);
             });
-            
-            select.appendChild(option);
-          });
         } else {
-          select.innerHTML = '<div style="padding: 10px; text-align: center; color: #dc3545;">Error al cargar imágenes</div>';
+            select.innerHTML = '<div style="padding: 10px; text-align: center; color: #dc3545;">Error al cargar imágenes</div>';
         }
-      } catch (error) {
+    } catch (error) {
         console.error(`Error al cargar imágenes de ${carpeta}:`, error);
         select.innerHTML = '<div style="padding: 10px; text-align: center; color: #dc3545;">Error de conexión</div>';
-      }
     }
+}
 
     // Función para subir imagen
     async function subirImagen(carpeta, file, nombreInputId, mensajeId, selectId) {
       const nombreInput = document.getElementById(nombreInputId);
       const mensaje = document.getElementById(mensajeId);
-      
+
       if (!file) {
         mensaje.innerHTML = '❌ No se seleccionó ningún archivo';
         return;
@@ -528,11 +552,11 @@
 
       // Convertir a base64
       const reader = new FileReader();
-      reader.onload = async function(e) {
+      reader.onload = async function (e) {
         const contenidoBase64 = e.target.result.split(',')[1]; // Remover el prefijo data:image/...;base64,
-        
+
         mensaje.innerHTML = '⏳ Subiendo imagen...';
-        
+
         try {
           const res = await fetch('/api/subirImagen', {
             method: 'POST',
@@ -549,7 +573,7 @@
           if (res.ok) {
             mensaje.innerHTML = '✅ Imagen subida correctamente';
             nombreInput.value = '';
-            
+
             // Recargar el select correspondiente inmediatamente
             cargarImagenes(carpeta, selectId);
           } else {
@@ -560,7 +584,7 @@
           mensaje.innerHTML = '❌ Error de conexión';
         }
       };
-      
+
       reader.readAsDataURL(file);
     }
 
@@ -950,20 +974,20 @@
       cargarImagenes('firmas', 'selectFirma1');
       cargarImagenes('firmas', 'selectFirma2');
       cargarImagenes('firmas', 'selectFirma3');
-      
+
       // Configurar eventos para subir imágenes
       document.getElementById('uploadEspecialidad').addEventListener('change', (e) => {
         subirImagen('especialidades', e.target.files[0], 'nombreEspecialidad', 'mensajeEspecialidad', 'selectEspecialidad');
       });
-      
+
       document.getElementById('uploadFirma1').addEventListener('change', (e) => {
         subirImagen('firmas', e.target.files[0], 'nombreFirma1', 'mensajeFirma1', 'selectFirma1');
       });
-      
+
       document.getElementById('uploadFirma2').addEventListener('change', (e) => {
         subirImagen('firmas', e.target.files[0], 'nombreFirma2', 'mensajeFirma2', 'selectFirma2');
       });
-      
+
       document.getElementById('uploadFirma3').addEventListener('change', (e) => {
         subirImagen('firmas', e.target.files[0], 'nombreFirma3', 'mensajeFirma3', 'selectFirma3');
       });
