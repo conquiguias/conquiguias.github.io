@@ -471,6 +471,112 @@
       background: #fff;
       border-radius: 0 4px 4px 0;
     }
+
+    /* Estilos para la sección de certificaciones */
+    #certificacionesSection {
+      animation: fadeIn 0.5s ease;
+    }
+    
+    #certificacionesContadores {
+      background: #e8f4fd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+    
+    #certificacionesContadores p {
+      margin: 5px 0;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    #certificacionesContadores span {
+      color: #e74c3c;
+      font-size: 18px;
+    }
+    
+    #tablaCertificaciones {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    #tablaCertificaciones thead {
+      background: #34495e;
+      color: white;
+    }
+    
+    #tablaCertificaciones th {
+      padding: 12px 15px;
+      text-align: left;
+      font-weight: 600;
+    }
+    
+    #tablaCertificaciones tbody tr {
+      border-bottom: 1px solid #ddd;
+      transition: background-color 0.3s ease;
+    }
+    
+    #tablaCertificaciones tbody tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    
+    #tablaCertificaciones tbody tr:hover {
+      background-color: #e8f4fd;
+    }
+    
+    #tablaCertificaciones td {
+      padding: 10px 15px;
+    }
+    
+    .estado-completado {
+      color: #27ae60;
+      font-weight: bold;
+    }
+    
+    .estado-pendiente {
+      color: #e67e22;
+      font-weight: bold;
+    }
+    
+    .estado-incompleto {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    
+    .calificacion-aprobada {
+      color: #27ae60;
+      font-weight: bold;
+    }
+    
+    .calificacion-reprobada {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 
@@ -707,15 +813,11 @@
         "kendall.torres.17@gmail.com"
       ];
 
-
-
       // Dentro del onAuthStateChanged (después de obtener el usuario)
       if (user) {
         const email = user.email;
         puedeEntrarEspecialidades = correosAutorizados.includes(email);
       }
-
-
 
       if (!user) { window.location.href = "index.html"; return; }
       currentUserId = user.uid;
@@ -757,7 +859,6 @@
       cargarEspecialidadesFijas();
     });
 
-
     // 🔹 Foto de perfil
     fotoInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -767,8 +868,6 @@
         reader.readAsDataURL(file);
       }
     });
-
-
 
     // 🔹 Guardar perfil (versión con eliminación de foto anterior)
     editForm.addEventListener("submit", async (e) => {
@@ -824,8 +923,6 @@
         mostrarMensaje("error", "❌ Error al actualizar", "");
       }
     });
-
-
 
     logoutBtn.addEventListener("click", async () => {
       await signOut(auth);
@@ -975,8 +1072,6 @@
       }
     });
 
-
-
     cerrarEspecialidadBtn.addEventListener("click", () => {
       archivosContainer.classList.add("hidden");
       especialidadSeleccionada = "";
@@ -989,7 +1084,6 @@
       seccion.classList.remove("hidden");
       botonActivo.classList.add("active");
     }
-
 
     ////////////////////////////////////////////
     // 🔹 VISOR PDF
@@ -1016,13 +1110,12 @@
 
     ////////////////////////////////////////
     /**
- * 🔹 Mostrar mensaje dinámico
- * @param {string} tipo - "info" | "error" | "confirm"
- * @param {string} titulo - Texto del título
- * @param {string} mensaje - Texto del cuerpo
- * @param {function} onConfirm - (Opcional) callback si se presiona "Aceptar" en tipo confirm
- */
-
+     * 🔹 Mostrar mensaje dinámico
+     * @param {string} tipo - "info" | "error" | "confirm"
+     * @param {string} titulo - Texto del título
+     * @param {string} mensaje - Texto del cuerpo
+     * @param {function} onConfirm - (Opcional) callback si se presiona "Aceptar" en tipo confirm
+     */
     function mostrarMensaje(tipo, titulo, mensaje, onConfirm = null) {
       const modal = document.getElementById("mensajeModal");
       const tituloEl = document.getElementById("mensajeTitulo");
@@ -1060,234 +1153,118 @@
     });
     ///////////////////////////////////////////
 
-
-
     const clubBtns = document.querySelectorAll(".clubBtn");
     const clubesPanel = document.getElementById("clubesPanel");
 
-
-    // Datos de Conquistadores
     // Datos de cada club
-const clubesData = {
-  aventureros: {
-    niveles: ["Amigo", "Compañero", "Explorador"],
-    carpetas: ["Voto y Ley", "Bandera de Aventureros", "Himno del Club"]
-  },
-  conquistadores: {
-    niveles: ["Amigo", "Compañero", "Explorador", "Orientador", "Viajero", "Guía"],
-    carpetas: [
-      "Voto y Ley",
-      "Especialidades Ja",
-      "Bandera de Conquistadores",
-      "Himno del Conquistador",
-      "Manual de Nudos",
-      "Formularios y Permisos",
-      "Manual del Uniforme",
-      "Uso del Hacha y Cuchillo",
-      "Registros",
-      "Guía para el Director",
-      "Guía Rápida para el Director del Club de Conquistadores",
-      "Logos e Imágenes",
-      "Lista de Especialidades para Cada Nivel Progresivo"
-    ]
-  },
-  guias: {
-    niveles: ["Explorador", "Guía", "Coordinador"],
-    carpetas: ["Voto y Ley", "Manual de Guías", "Registros"]
-  }
-};
+    const clubesData = {
+      aventureros: {
+        niveles: ["Amigo", "Compañero", "Explorador"],
+        carpetas: ["Voto y Ley", "Bandera de Aventureros", "Himno del Club"]
+      },
+      conquistadores: {
+        niveles: ["Amigo", "Compañero", "Explorador", "Orientador", "Viajero", "Guía"],
+        carpetas: [
+          "Voto y Ley",
+          "Especialidades Ja",
+          "Bandera de Conquistadores",
+          "Himno del Conquistador",
+          "Manual de Nudos",
+          "Formularios y Permisos",
+          "Manual del Uniforme",
+          "Uso del Hacha y Cuchillo",
+          "Registros",
+          "Guía para el Director",
+          "Guía Rápida para el Director del Club de Conquistadores",
+          "Logos e Imágenes",
+          "Lista de Especialidades para Cada Nivel Progresivo"
+        ]
+      },
+      guias: {
+        niveles: ["Explorador", "Guía", "Coordinador"],
+        carpetas: ["Voto y Ley", "Manual de Guías", "Registros"]
+      }
+    };
 
-// Click en club
-clubBtns.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const clubKey = btn.dataset.club;
+    // Click en club
+    clubBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const clubKey = btn.dataset.club;
 
-    // Limpiar panel
-    clubesPanel.innerHTML = "";
+        // Limpiar panel
+        clubesPanel.innerHTML = "";
 
-    const clubData = clubesData[clubKey] || { niveles: [], carpetas: [] };
+        const clubData = clubesData[clubKey] || { niveles: [], carpetas: [] };
 
-    const clubContainer = document.createElement("div");
-    clubContainer.dataset.panel = clubKey;
+        const clubContainer = document.createElement("div");
+        clubContainer.dataset.panel = clubKey;
 
-    // 🔹 Niveles
-    if (clubData.niveles.length > 0) {
-      const nivelesContainer = document.createElement("div");
-      nivelesContainer.style.display = "grid";
-      nivelesContainer.style.gridTemplateColumns = "repeat(3, 1fr)";
-      nivelesContainer.style.gap = "10px";
-      nivelesContainer.style.marginBottom = "15px";
+        // 🔹 Niveles
+        if (clubData.niveles.length > 0) {
+          const nivelesContainer = document.createElement("div");
+          nivelesContainer.style.display = "grid";
+          nivelesContainer.style.gridTemplateColumns = "repeat(3, 1fr)";
+          nivelesContainer.style.gap = "10px";
+          nivelesContainer.style.marginBottom = "15px";
 
-      const nivelesContenidoContainer = document.createElement("div");
+          const nivelesContenidoContainer = document.createElement("div");
 
-      clubData.niveles.forEach(nivel => {
-        const btnNivel = document.createElement("div");
-        btnNivel.classList.add("carpeta-item");
-        btnNivel.textContent = nivel;
+          clubData.niveles.forEach(nivel => {
+            const btnNivel = document.createElement("div");
+            btnNivel.classList.add("carpeta-item");
+            btnNivel.textContent = nivel;
 
-        const contenido = document.createElement("div");
-        contenido.classList.add("hidden");
-        contenido.style.marginTop = "5px";
-        contenido.textContent = "Contenido de " + nivel;
+            const contenido = document.createElement("div");
+            contenido.classList.add("hidden");
+            contenido.style.marginTop = "5px";
+            contenido.textContent = "Contenido de " + nivel;
 
-        btnNivel.addEventListener("click", () => {
-          contenido.classList.toggle("hidden");
-        });
+            btnNivel.addEventListener("click", () => {
+              contenido.classList.toggle("hidden");
+            });
 
-        nivelesContainer.appendChild(btnNivel);
-        nivelesContenidoContainer.appendChild(contenido);
+            nivelesContainer.appendChild(btnNivel);
+            nivelesContenidoContainer.appendChild(contenido);
+          });
+
+          clubContainer.appendChild(nivelesContainer);
+          clubContainer.appendChild(nivelesContenidoContainer);
+        }
+
+        // 🔹 Carpetas
+        if (clubData.carpetas.length > 0) {
+          const carpetasContainer = document.createElement("div");
+          clubData.carpetas.forEach(carpetaName => {
+            const carpeta = document.createElement("div");
+            carpeta.classList.add("carpeta-item");
+            carpeta.textContent = carpetaName;
+
+            const contenido = document.createElement("div");
+            contenido.classList.add("hidden");
+            contenido.style.marginLeft = "20px";
+            contenido.style.marginBottom = "5px";
+
+            const archivo = document.createElement("div");
+            archivo.textContent = "Contenido de " + carpetaName;
+            contenido.appendChild(archivo);
+
+            carpeta.addEventListener("click", () => {
+              contenido.classList.toggle("hidden");
+            });
+
+            carpetasContainer.appendChild(carpeta);
+            carpetasContainer.appendChild(contenido);
+          });
+
+          clubContainer.appendChild(carpetasContainer);
+        }
+
+        clubesPanel.appendChild(clubContainer);
       });
+    });
 
-      clubContainer.appendChild(nivelesContainer);
-      clubContainer.appendChild(nivelesContenidoContainer);
-    }
+    // 🔹 NUEVAS FUNCIONES PARA CERTIFICACIONES - DENTRO DEL MÓDULO
 
-    // 🔹 Carpetas
-    if (clubData.carpetas.length > 0) {
-      const carpetasContainer = document.createElement("div");
-      clubData.carpetas.forEach(carpetaName => {
-        const carpeta = document.createElement("div");
-        carpeta.classList.add("carpeta-item");
-        carpeta.textContent = carpetaName;
-
-        const contenido = document.createElement("div");
-        contenido.classList.add("hidden");
-        contenido.style.marginLeft = "20px";
-        contenido.style.marginBottom = "5px";
-
-        const archivo = document.createElement("div");
-        archivo.textContent = "Contenido de " + carpetaName;
-        contenido.appendChild(archivo);
-
-        carpeta.addEventListener("click", () => {
-          contenido.classList.toggle("hidden");
-        });
-
-        carpetasContainer.appendChild(carpeta);
-        carpetasContainer.appendChild(contenido);
-      });
-
-      clubContainer.appendChild(carpetasContainer);
-    }
-
-    clubesPanel.appendChild(clubContainer);
-  });
-});
-
-
-
-  </script>
-
-  <!-- 🔹 NUEVA SECCIÓN: CERTIFICACIONES - ESTILOS Y SCRIPT -->
-  <style>
-    /* Estilos para la sección de certificaciones */
-    #certificacionesSection {
-      animation: fadeIn 0.5s ease;
-    }
-    
-    #certificacionesContadores {
-      background: #e8f4fd;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-    }
-    
-    #certificacionesContadores p {
-      margin: 5px 0;
-      font-weight: bold;
-      color: #2c3e50;
-    }
-    
-    #certificacionesContadores span {
-      color: #e74c3c;
-      font-size: 18px;
-    }
-    
-    #tablaCertificaciones {
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    #tablaCertificaciones thead {
-      background: #34495e;
-      color: white;
-    }
-    
-    #tablaCertificaciones th {
-      padding: 12px 15px;
-      text-align: left;
-      font-weight: 600;
-    }
-    
-    #tablaCertificaciones tbody tr {
-      border-bottom: 1px solid #ddd;
-      transition: background-color 0.3s ease;
-    }
-    
-    #tablaCertificaciones tbody tr:nth-child(even) {
-      background-color: #f8f9fa;
-    }
-    
-    #tablaCertificaciones tbody tr:hover {
-      background-color: #e8f4fd;
-    }
-    
-    #tablaCertificaciones td {
-      padding: 10px 15px;
-    }
-    
-    .estado-completado {
-      color: #27ae60;
-      font-weight: bold;
-    }
-    
-    .estado-pendiente {
-      color: #e67e22;
-      font-weight: bold;
-    }
-    
-    .estado-incompleto {
-      color: #e74c3c;
-      font-weight: bold;
-    }
-    
-    .calificacion-aprobada {
-      color: #27ae60;
-      font-weight: bold;
-    }
-    
-    .calificacion-reprobada {
-      color: #e74c3c;
-      font-weight: bold;
-    }
-    
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #3498db;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
-
-  <script>
     // Función para cargar las certificaciones del usuario
     async function cargarCertificaciones() {
       // Mostrar loading
@@ -1433,6 +1410,7 @@ clubBtns.forEach(btn => {
         cuerpoTablaCertificaciones.appendChild(fila);
       });
     }
+
   </script>
 
 </body>
