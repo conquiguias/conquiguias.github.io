@@ -1,219 +1,38 @@
 {
-  "JuanCarlos-GXHO68": {
-    "titulo": "Especialidad Prueba",
-    "fechaCierre": "2025-07-08T04:53:21.009Z",
-    "creado": "2025-07-08T03:53:22.435Z"
-  },
-  "RamonVentura-0J9I6L": {
-    "titulo": "Especialidad Prevención Acoso 1",
-    "fechaCierre": "2025-07-30T01:35:54.355Z",
-    "creado": "2025-07-30T00:35:58.852Z"
-  },
   "RamónVentura2-EDZL8X": {
     "titulo": "Especialidad Prevención Acoso 1",
     "fechaCierre": "2025-07-30T03:31:30.734Z",
-    "creado": "2025-07-30T02:31:31.799Z"
+    "creado": "2025-07-30T02:31:31.799Z",
+    "tieneEvaluacion": false
   },
   "RamonVentura-M81G3E": {
     "titulo": "Especialidad De Mariposas",
     "fechaCierre": "2025-09-26T02:56:19.495Z",
-    "creado": "2025-09-26T01:56:23.383Z"
+    "creado": "2025-09-26T01:56:23.383Z",
+    "tieneEvaluacion": false
   },
   "JoseDaniel-N7Y4NA": {
     "titulo": "Especialidad De Corazón Y Circulación",
     "fechaCierre": "2025-10-01T02:40:01.990Z",
-    "creado": "2025-10-01T01:40:08.532Z"
+    "creado": "2025-10-01T01:40:08.532Z",
+    "tieneEvaluacion": false
   },
   "GaldinoEnriquez-7YCPZ3": {
     "titulo": "Especialidad De Conciencia De Discapacidad",
     "fechaCierre": "2025-10-10T02:57:32.025Z",
-    "creado": "2025-10-10T01:57:34.067Z"
+    "creado": "2025-10-10T01:57:34.067Z",
+    "tieneEvaluacion": false
   },
   "SergioLopez-KJEC6T": {
     "titulo": "Especialidad Evangelismo Personal",
     "fechaCierre": "2025-10-21T03:31:38.765Z",
-    "creado": "2025-10-21T02:31:41.197Z"
+    "creado": "2025-10-21T02:31:41.197Z",
+    "tieneEvaluacion": false
   },
   "RamonVentura-YEV139": {
     "titulo": "Especialidad Patriarcas De La Biblia",
     "fechaCierre": "2025-10-25T03:54:00.187Z",
-    "creado": "2025-10-25T02:54:02.456Z"
-  },
-  "JuanCarlos-KTSO2T": {
-    "titulo": "Prueba 1",
-    "fechaCierre": "2025-11-03T18:40:24.777Z",
-    "creado": "2025-11-03T17:40:25.346Z"
-  },
-  "JuanCarlos-G9R1NQ": {
-    "titulo": "P",
-    "fechaCierre": "2025-11-03T18:54:34.155Z",
-    "creado": "2025-11-03T17:54:34.578Z"
-  },
-  "Juancarlos-OMFBF4": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-03T19:12:00.875Z",
-    "creado": "2025-11-03T18:12:01.460Z"
-  },
-  "Juancarlos-2HIHVB": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-03T19:25:06.788Z",
-    "creado": "2025-11-03T18:25:07.547Z"
-  },
-  "Juancarlos-46E66L": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-03T19:29:21.829Z",
-    "creado": "2025-11-03T18:29:22.391Z"
-  },
-  "Juancarlos-5DMOP1": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-03T19:34:49.118Z",
-    "creado": "2025-11-03T18:34:49.503Z"
-  },
-  "Juancarlos-GNMV80": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-03T19:37:36.182Z",
-    "creado": "2025-11-03T18:37:36.839Z"
-  },
-  "Juancarlos-YX7TZS": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-03T19:40:55.582Z",
-    "creado": "2025-11-03T18:40:56.074Z"
-  },
-  "Juancarlos-CGHSDP": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-03T20:23:07.434Z",
-    "creado": "2025-11-03T19:23:07.822Z"
-  },
-  "Juancarlos-JEZKOV": {
-    "titulo": "Películas",
-    "fechaCierre": "2025-11-03T21:01:18.743Z",
-    "creado": "2025-11-03T20:01:19.728Z"
-  },
-  "Juancarlos-IZXMMR": {
-    "titulo": "Películas",
-    "fechaCierre": "2025-11-03T21:08:34.631Z",
-    "creado": "2025-11-03T20:08:35.266Z"
-  },
-  "Juancarlosuifi-HX1LW7": {
-    "titulo": "Películas",
-    "fechaCierre": "2025-11-03T21:21:49.904Z",
-    "creado": "2025-11-03T20:21:50.604Z"
-  },
-  "Juancarlosuifi-TMYAC3": {
-    "titulo": "Películas",
-    "fechaCierre": "2025-11-03T21:28:06.200Z",
-    "creado": "2025-11-03T20:28:06.791Z"
-  },
-  "Flores-YMTA3J": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-03T21:32:42.938Z",
-    "creado": "2025-11-03T20:32:43.363Z"
-  },
-  "Flores-2VY5LB": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-03T21:36:14.730Z",
-    "creado": "2025-11-03T20:36:15.224Z"
-  },
-  "KendallTorres-015XXV": {
-    "titulo": "Proyecto Ja",
-    "fechaCierre": "2025-11-04T01:51:18.583Z",
-    "creado": "2025-11-04T00:51:19.187Z"
-  },
-  "Flores-HNXSWU": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-04T02:39:26.907Z",
-    "creado": "2025-11-04T01:29:27.972Z"
-  },
-  "Flores-BMQ78W": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-04T03:13:14.917Z",
-    "creado": "2025-11-04T02:03:15.942Z"
-  },
-  "Flores-TYWYA1": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-04T04:06:44.579Z",
-    "creado": "2025-11-04T02:56:45.213Z"
-  },
-  "Flores-52R60I": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-04T06:40:02.246Z",
-    "creado": "2025-11-04T05:30:03.155Z"
-  },
-  "Flores-55ZOZ5": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-04T06:42:28.417Z",
-    "creado": "2025-11-04T05:32:29.430Z"
-  },
-  "Flores-43DQJB": {
-    "titulo": "Películas",
-    "fechaCierre": "2025-11-04T07:49:21.211Z",
-    "creado": "2025-11-04T06:39:22.957Z",
-    "tieneEvaluacion": true
-  },
-  "Flores-MZMQSQ": {
-    "titulo": "Películas",
-    "fechaCierre": "2025-11-04T07:49:32.288Z",
-    "creado": "2025-11-04T06:39:32.887Z",
-    "tieneEvaluacion": true
-  },
-  "Flores-3WQ469": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-04T07:50:20.610Z",
-    "creado": "2025-11-04T06:40:21.566Z",
-    "tieneEvaluacion": true
-  },
-  "KendallTorres-3L1E9M": {
-    "titulo": "Preguntas Personales Prueba",
-    "fechaCierre": "2025-11-04T07:53:38.300Z",
-    "creado": "2025-11-04T06:43:39.301Z",
-    "tieneEvaluacion": true
-  },
-  "Kendalltorres-M1C0MS": {
-    "titulo": "Preguntas Personales Prueba",
-    "fechaCierre": "2025-11-04T07:53:56.920Z",
-    "creado": "2025-11-04T06:43:57.949Z",
-    "tieneEvaluacion": true
-  },
-  "Flores-SVKWNV": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-04T08:07:26.000Z",
-    "creado": "2025-11-04T06:57:26.846Z",
-    "tieneEvaluacion": true
-  },
-  "Flores-4TLA5R": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-04T08:41:30.203Z",
-    "creado": "2025-11-04T07:31:30.891Z",
-    "tieneEvaluacion": true
-  },
-  "Flores-Y2QHHF": {
-    "titulo": "Inicio2",
-    "fechaCierre": "2025-11-04T19:13:26.914Z",
-    "creado": "2025-11-04T18:03:29.016Z",
-    "tieneEvaluacion": true
-  },
-  "Flores-D9ZZ3X": {
-    "titulo": "Inicio",
-    "fechaCierre": "2025-11-04T19:14:13.057Z",
-    "creado": "2025-11-04T18:04:14.775Z",
-    "tieneEvaluacion": true
-  },
-  "JuanCarlos-6GKRKR": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-04T19:48:37.968Z",
-    "creado": "2025-11-04T18:38:39.786Z",
-    "tieneEvaluacion": true
-  },
-  "JuanCarlos-H0MJ1P": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-04T20:21:54.194Z",
-    "creado": "2025-11-04T19:11:56.339Z",
-    "tieneEvaluacion": true
-  },
-  "JuanCarlos-5ZZV0B": {
-    "titulo": "Películas | Latino",
-    "fechaCierre": "2025-11-04T23:53:02.958Z",
-    "creado": "2025-11-04T22:43:03.630Z",
-    "tieneEvaluacion": true
+    "creado": "2025-10-25T02:54:02.456Z",
+    "tieneEvaluacion": false
   }
 }

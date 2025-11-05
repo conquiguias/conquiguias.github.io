@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).send("Método no permitido");
 
-  const { id, titulo, fechaCierre, evaluation } = req.body;
+  const { id, titulo, fechaCierre, evaluation, imagenEspecialidad, imagenFirma } = req.body;
 
   const archivoFormularios = `data/formularios.json`;
   const repo = "proyectoja/asistencia-especialidades";
@@ -30,12 +30,14 @@ export default async function handler(req, res) {
       return res.status(409).json({ error: `El formulario con ID '${id}' ya existe.` });
     }
 
-    // ✅ Agregar nuevo formulario
+    // ✅ Agregar nuevo formulario CON IMÁGENES
     data[id] = {
       titulo,
       fechaCierre,
       creado: new Date().toISOString(),
-      tieneEvaluacion: !!evaluation
+      tieneEvaluacion: !!evaluation,
+      imagenEspecialidad: imagenEspecialidad || null,
+      imagenFirma: imagenFirma || null
     };
 
     const nuevoContenido = Buffer.from(JSON.stringify(data, null, 2)).toString("base64");
@@ -81,11 +83,9 @@ export default async function handler(req, res) {
 
         if (!guardarEvaluacion.ok) {
           console.warn("Formulario creado pero no se pudo guardar la evaluación");
-          // No fallamos aquí, solo registramos el warning
         }
       } catch (evalError) {
         console.warn("Error al guardar evaluación:", evalError);
-        // No fallamos el proceso principal por un error en la evaluación
       }
     }
 

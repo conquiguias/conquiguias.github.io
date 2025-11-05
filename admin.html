@@ -139,6 +139,101 @@
       margin: 10px 0;
       border: 1px solid #f5c6cb;
     }
+
+    /* Estilos para selectores de imágenes */
+    .image-selector {
+      background: #e8f4fd;
+      border: 2px solid #3498db;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .selector-group {
+      margin: 15px 0;
+    }
+
+    .selector-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .selector-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .custom-select {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #bdc3c7;
+      border-radius: 5px;
+      background: white;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .image-option {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ecf0f1;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .image-option:hover {
+      background: #f8f9fa;
+    }
+
+    .image-option.selected {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+
+    .image-option img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      margin-right: 10px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+    }
+
+    .image-name {
+      font-size: 14px;
+      color: #2c3e50;
+    }
+
+    .upload-section {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 5px;
+    }
+
+    .upload-input {
+      margin: 5px 0;
+    }
+
+    .upload-btn {
+      background: #17a2b8;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .upload-btn:hover {
+      background: #138496;
+    }
   </style>
 </head>
 
@@ -154,6 +249,53 @@
     <input type="text" id="titulo" required><br><br>
 
     <input type="hidden" id="fechaCierre">
+
+    <!-- Selector de Imágenes -->
+    <div class="image-selector">
+      <h3>🖼️ Selección de Imágenes para el Formulario</h3>
+      
+      <!-- Selector de Especialidad -->
+      <div class="selector-group">
+        <label>Especialidad:</label>
+        <div class="selector-container">
+          <div class="custom-select" id="selectEspecialidad">
+            <div style="padding: 10px; text-align: center; color: #6c757d;">
+              Cargando especialidades...
+            </div>
+          </div>
+          <input type="file" id="uploadEspecialidad" accept="image/*" style="display: none;">
+          <button type="button" class="upload-btn" onclick="document.getElementById('uploadEspecialidad').click()">
+            📤 Subir Nueva
+          </button>
+        </div>
+        <div class="upload-section">
+          <input type="text" id="nombreEspecialidad" placeholder="Nombre para la especialidad (ej: Especialidad De Flores)" 
+                 class="upload-input" style="width: 100%; padding: 8px;">
+          <div id="mensajeEspecialidad" style="margin-top: 5px; font-size: 12px;"></div>
+        </div>
+      </div>
+
+      <!-- Selector de Firma -->
+      <div class="selector-group">
+        <label>Firma del Instructor:</label>
+        <div class="selector-container">
+          <div class="custom-select" id="selectFirma">
+            <div style="padding: 10px; text-align: center; color: #6c757d;">
+              Cargando firmas...
+            </div>
+          </div>
+          <input type="file" id="uploadFirma" accept="image/*" style="display: none;">
+          <button type="button" class="upload-btn" onclick="document.getElementById('uploadFirma').click()">
+            📤 Subir Nueva
+          </button>
+        </div>
+        <div class="upload-section">
+          <input type="text" id="nombreFirma" placeholder="Nombre para la firma (ej: Nombre Apellido)" 
+                 class="upload-input" style="width: 100%; padding: 8px;">
+          <div id="mensajeFirma" style="margin-top: 5px; font-size: 12px;"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- Sistema de creación de evaluación -->
     <div class="evaluation-creator">
@@ -219,9 +361,136 @@
     let questionCounter = 0;
     let optionCounter = 0;
 
+    // Variables globales para las imágenes seleccionadas
+    let imagenEspecialidadSeleccionada = null;
+    let imagenFirmaSeleccionada = null;
+
     // Función para generar IDs únicos
     function generateId() {
       return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Función para cargar imágenes en un select
+    async function cargarImagenes(carpeta, selectId) {
+      const select = document.getElementById(selectId);
+      
+      try {
+        const res = await fetch(`/api/listarImagenes?carpeta=${carpeta}`);
+        
+        if (res.ok) {
+          const imagenes = await res.json();
+          select.innerHTML = '';
+
+          if (imagenes.length === 0) {
+            select.innerHTML = '<div style="padding: 10px; text-align: center; color: #6c757d;">No hay imágenes disponibles</div>';
+            return;
+          }
+
+          imagenes.forEach(imagen => {
+            const option = document.createElement('div');
+            option.className = 'image-option';
+            option.innerHTML = `
+              <img src="${imagen.url}" alt="${imagen.nombre}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAxMUMyMi43NjE0IDExIDI1IDEzLjIzODYgMjUgMTZDMjUgMTguNzYxNCAyMi43NjE0IDIxIDIwIDIxQzE3LjIzODYgMjEgMTUgMTguNzYxNCAxNSAxNkMxNSAxMy4yMzg2IDE3LjIzODYgMTEgMjAgMTFaIiBmaWxsPSIjOTRBQkNEIi8+CjxwYXRoIGQ9Ik0xMSAyOUMyOSAyOSAyOSAyOSAyOSAyOUMyOSAzMS4yMDkxIDI3LjIwOTEgMzMgMjUgMzNIMTVDMTIuNzkwOSAzMyAxMSAzMS4yMDkxIDExIDI5QzExIDI5IDExIDI5IDExIDI5WiIgZmlsbD0iIzk0QUJDRCIvPgo8L3N2Zz4K'">
+              <div class="image-name">${imagen.nombre.replace(/\.[^/.]+$/, "")}</div>
+            `;
+            
+            option.addEventListener('click', () => {
+              // Remover selección anterior
+              document.querySelectorAll(`#${selectId} .image-option`).forEach(opt => {
+                opt.classList.remove('selected');
+              });
+              
+              // Seleccionar actual
+              option.classList.add('selected');
+              
+              // Guardar selección
+              if (carpeta === 'especialidades') {
+                imagenEspecialidadSeleccionada = imagen;
+                document.getElementById('nombreEspecialidad').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                // Actualizar título automáticamente
+                document.getElementById('titulo').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+              } else {
+                imagenFirmaSeleccionada = imagen;
+                document.getElementById('nombreFirma').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+                // Actualizar ID del formulario automáticamente
+                document.getElementById('formId').value = imagen.nombre.replace(/\.[^/.]+$/, "");
+              }
+            });
+            
+            select.appendChild(option);
+          });
+        } else {
+          select.innerHTML = '<div style="padding: 10px; text-align: center; color: #dc3545;">Error al cargar imágenes</div>';
+        }
+      } catch (error) {
+        console.error(`Error al cargar imágenes de ${carpeta}:`, error);
+        select.innerHTML = '<div style="padding: 10px; text-align: center; color: #dc3545;">Error de conexión</div>';
+      }
+    }
+
+    // Función para subir imagen
+    async function subirImagen(carpeta, file, nombreInputId, mensajeId) {
+      const nombreInput = document.getElementById(nombreInputId);
+      const mensaje = document.getElementById(mensajeId);
+      
+      if (!file) {
+        mensaje.innerHTML = '❌ No se seleccionó ningún archivo';
+        return;
+      }
+
+      const nombrePersonalizado = nombreInput.value.trim();
+      if (!nombrePersonalizado) {
+        mensaje.innerHTML = '❌ Ingresa un nombre para la imagen';
+        return;
+      }
+
+      // Validar formato de archivo
+      const formatosPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+      if (!formatosPermitidos.includes(file.type)) {
+        mensaje.innerHTML = '❌ Formato no válido. Use JPEG, PNG, GIF, BMP o WebP';
+        return;
+      }
+
+      // Obtener extensión del archivo original
+      const extension = file.name.split('.').pop();
+      const nombreArchivo = `${nombrePersonalizado}.${extension}`;
+
+      // Convertir a base64
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const contenidoBase64 = e.target.result.split(',')[1]; // Remover el prefijo data:image/...;base64,
+        
+        mensaje.innerHTML = '⏳ Subiendo imagen...';
+        
+        try {
+          const res = await fetch('/api/subirImagen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              carpeta,
+              nombre: nombreArchivo,
+              contenido: contenidoBase64
+            })
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            mensaje.innerHTML = '✅ Imagen subida correctamente';
+            nombreInput.value = '';
+            
+            // Recargar el select
+            cargarImagenes(carpeta, carpeta === 'especialidades' ? 'selectEspecialidad' : 'selectFirma');
+          } else {
+            mensaje.innerHTML = `❌ ${data.error}`;
+          }
+        } catch (error) {
+          console.error('Error al subir imagen:', error);
+          mensaje.innerHTML = '❌ Error de conexión';
+        }
+      };
+      
+      reader.readAsDataURL(file);
     }
 
     // Función para agregar pregunta
@@ -393,6 +662,12 @@
     document.getElementById("crearFormulario").addEventListener("submit", async function (e) {
       e.preventDefault();
 
+      // Validar que se hayan seleccionado imágenes
+      if (!imagenEspecialidadSeleccionada || !imagenFirmaSeleccionada) {
+        alert('❌ Debes seleccionar una especialidad y una firma.');
+        return;
+      }
+
       // Validar ID y título
       const formId = document.getElementById("formId").value.trim();
       const titulo = document.getElementById("titulo").value.trim();
@@ -465,7 +740,7 @@
       const fechaCierre = new Date(ahora.getTime() + 70 * 60 * 1000).toISOString();
 
       try {
-        // Enviar formulario y evaluación
+        // Enviar formulario y evaluación CON IMÁGENES
         const response = await fetch("/api/guardarFormulario", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -473,7 +748,9 @@
             id,
             titulo,
             fechaCierre: fechaCierre,
-            evaluation: questions.length > 0 ? questions : null
+            evaluation: questions.length > 0 ? questions : null,
+            imagenEspecialidad: imagenEspecialidadSeleccionada.url,
+            imagenFirma: imagenFirmaSeleccionada.url
           })
         });
 
@@ -596,6 +873,17 @@
     // Ejecutar cuando cargue la página
     document.addEventListener("DOMContentLoaded", () => {
       cargarFormularios();
+      cargarImagenes('especialidades', 'selectEspecialidad');
+      cargarImagenes('firmas', 'selectFirma');
+      
+      // Configurar eventos para subir imágenes
+      document.getElementById('uploadEspecialidad').addEventListener('change', (e) => {
+        subirImagen('especialidades', e.target.files[0], 'nombreEspecialidad', 'mensajeEspecialidad');
+      });
+      
+      document.getElementById('uploadFirma').addEventListener('change', (e) => {
+        subirImagen('firmas', e.target.files[0], 'nombreFirma', 'mensajeFirma');
+      });
     });
   </script>
 </body>
