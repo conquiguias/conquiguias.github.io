@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   if (!id) return res.status(400).json({ error: "ID no especificado" });
 
   const archivo = `respuestas/${id}/respuestas.json`;
-  const repo = "proyectoja/asistencia-especialidades";
+  const repo = "conquiguias/conquiguias";
 
   try {
     const respuesta = await fetch(`https://api.github.com/repos/${repo}/contents/${archivo}`, {

@@ -5,7 +5,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Carpeta no válida" });
     }
   
-    const repo = "proyectoja/asistencia-especialidades";
+    const repo = "conquiguias/conquiguias";
     const ruta = `images/${carpeta}`;
   
     try {

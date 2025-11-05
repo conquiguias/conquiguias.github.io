@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-    const repo = "proyectoja/asistencia-especialidades";
+    const repo = "conquiguias/conquiguias";
     const archivo = `data/formularios.json`;
   
     try {

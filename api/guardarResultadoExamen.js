@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     const fecha = new Date().toISOString();
   
     const archivo = `evaluaciones/${id}/resultados.json`;
-    const repo = "proyectoja/asistencia-especialidades";
+    const repo = "conquiguias/conquiguias";
   
     // Leer el archivo actual desde GitHub
     const respuesta = await fetch(`https://api.github.com/repos/${repo}/contents/${archivo}`, {

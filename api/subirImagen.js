@@ -7,7 +7,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Datos incompletos" });
     }
   
-    const repo = "proyectoja/asistencia-especialidades";
+    const repo = "conquiguias/conquiguias";
     const archivo = `images/${carpeta}/${nombre}`;
   
     try {
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         res.status(200).json({ 
           ok: true, 
           message: "✅ Imagen subida correctamente",
-          url: `https://asistencia-especialidades.vercel.app/images/${carpeta}/${nombre}`
+          url: `https://conquiguias.vercel.app/images/${carpeta}/${nombre}`
         });
       } else {
         const error = await guardar.json();

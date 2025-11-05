@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     const { id, evaluation } = req.body;
   
     const archivo = `evaluaciones/${id}/evaluacion.json`;
-    const repo = "proyectoja/asistencia-especialidades";
+    const repo = "conquiguias/conquiguias";
   
     try {
       // Convertir evaluación a base64

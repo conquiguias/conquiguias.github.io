@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     }
 
     const archivoFormularios = `data/formularios.json`;
-    const repo = "proyectoja/asistencia-especialidades";
+    const repo = "conquiguias/conquiguias";
 
     if (!process.env.GITHUB_TOKEN) {
       return res.status(500).json({ error: "Token de GitHub no configurado" });
