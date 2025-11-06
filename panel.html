@@ -719,6 +719,8 @@
     #sidebar button {
         padding: 10px 15px;
         margin: 0;
+        margin-left: 5px;
+        margin-right: 5px;
         text-align: center;
         flex-shrink: 0;
         border-radius: 6px;
@@ -734,7 +736,7 @@
 
     /* Botón de salir fijo a la derecha */
     #sidebar #logoutBtn {
-        margin-left: auto;
+        margin-left: 10px;
         flex-shrink: 0;
         position: sticky;
         right: 0;
@@ -870,16 +872,7 @@
         display: none;
     }
     
-    /* Efecto visual para indicar que hay más contenido */
-    #sidebar {
-        mask-image: linear-gradient(
-            to right,
-            transparent,
-            black 20px,
-            black calc(100% - 60px),
-            transparent
-        );
-    }
+
 }
   </style>
 </head>
