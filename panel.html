@@ -1626,7 +1626,9 @@
           }
         });
 
+        // Calcular si aprobó
         const porcentaje = (correctas / total) * 100;
+        const aprobado = porcentaje >= 70;
 
         let contenidoHTML = `
         <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
@@ -1681,6 +1683,11 @@
 
             <!-- Botones de acción -->
             <div style="margin-top: 30px; text-align: center; padding: 20px; background: #ecf0f1; border-radius: 10px;">
+        `;
+
+        // Mostrar botón de impresión SOLO si aprobó
+        if (aprobado) {
+          contenidoHTML += `
                 <button id="btnImprimirExamen" style="
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
@@ -1692,7 +1699,19 @@
                     cursor: pointer;
                     margin: 0 10px;
                 ">🖨️ Imprimir Examen y Certificación</button>
+            `;
+        } else {
+          contenidoHTML += `
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                    <p style="margin: 0; color: #856404; font-size: 14px;">
+                        ⚠️ <strong>No aprobado:</strong> Has completado el examen pero no alcanzaste la calificación mínima para obtener el certificado. 
+                        Contacta al instructor para más información.
+                    </p>
+                </div>
+            `;
+        }
 
+        contenidoHTML += `
                 <button id="btnImprimirCertificacion" style="
                     background: #6c757d;
                     color: white;
@@ -1710,10 +1729,12 @@
         certContainer.innerHTML = contenidoHTML;
         modal.style.display = 'flex';
 
-        // Configurar event listeners para los botones
-        document.getElementById('btnImprimirExamen').addEventListener('click', () => {
-          imprimirExamenCompleto(examen, resultado, formulario);
-        });
+        // Configurar event listeners para los botones SOLO si aprobó
+        if (aprobado) {
+          document.getElementById('btnImprimirExamen').addEventListener('click', () => {
+            imprimirExamenCompleto(examen, resultado, formulario);
+          });
+        }
 
         document.getElementById('btnImprimirCertificacion').addEventListener('click', () => {
           mostrarMensaje("info", "Próximamente", "La funcionalidad de impresión de certificación estará disponible pronto.");
