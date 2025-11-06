@@ -1577,20 +1577,388 @@
             calificacionTexto = `${cert.calificacion.toFixed(1)}%`;
           }
 
+          // En la función actualizarInterfazCertificaciones, modifica el thead y las filas:
           fila.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${cert.titulo}</td>
-            <td>${cert.fecha.toLocaleDateString()}</td>
-            <td>${cert.asistenciasCompletadas}/3</td>
-            <td>${cert.examenRealizado ? "Sí" : "No"}</td>
-            <td class="${calificacionClase}">${calificacionTexto}</td>
-            <td class="${cert.estadoClase}">${cert.estado}</td>
-        `;
+    <td>${index + 1}</td>
+    <td>${cert.titulo}</td>
+    <td>${cert.fecha.toLocaleDateString()}</td>
+    <td>${cert.asistenciasCompletadas}/3</td>
+    <td>${cert.examenRealizado ? "Sí" : "No"}</td>
+    <td class="${calificacionClase}">${calificacionTexto}</td>
+    <td class="${cert.estadoClase}">${cert.estado}</td>
+    <td>
+        ${cert.examenRealizado ?
+              `<button onclick="verCertificacionCompleta('${cert.formularioId}', '${cert.visitanteId}')" 
+                     style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+                Ver Certificación
+            </button>`
+              : 'No disponible'
+            }
+    </td>
+`;
 
           cuerpoTablaCertificaciones.appendChild(fila);
         });
       }
 
+
+
+
+      // 🔹 FUNCIONES PARA CERTIFICACIÓN COMPLETA
+
+      async function verCertificacionCompleta(formularioId, visitanteId) {
+        try {
+          // Obtener la evaluación (preguntas)
+          const resExamen = await fetch(`/api/obtenerEvaluacion?id=${formularioId}`);
+          if (!resExamen.ok) {
+            throw new Error('No se pudo cargar la evaluación');
+          }
+          const examen = await resExamen.json();
+
+          // Obtener el resultado del examen
+          const resResultados = await fetch(`/api/verRespuestas?id=${formularioId}`);
+          if (!resResultados.ok) {
+            throw new Error('No se pudo cargar los resultados');
+          }
+          const data = await resResultados.json();
+          const resultadosExamen = data.examenes || [];
+          const resultado = resultadosExamen.find(e => e.visitanteId === visitanteId);
+
+          if (!resultado) {
+            mostrarMensaje("error", "Error", "No se encontraron resultados para este examen.");
+            return;
+          }
+
+          // Obtener información del formulario para el título
+          const resFormulario = await fetch(`/api/obtenerFormulario?id=${formularioId}`);
+          if (!resFormulario.ok) {
+            throw new Error('No se pudo cargar la información del formulario');
+          }
+          const formulario = await resFormulario.json();
+
+          // Mostrar en el modal extendido
+          mostrarCertificacionCompleta(examen, resultado, formulario);
+
+        } catch (error) {
+          console.error('Error al cargar certificación completa:', error);
+          mostrarMensaje("error", "Error", "No se pudo cargar la certificación: " + error.message);
+        }
+      }
+
+      function mostrarCertificacionCompleta(examen, resultado, formulario) {
+        // Usar el modal del visor PDF pero con contenido personalizado
+        const modal = document.getElementById('pdfViewerModal');
+        const pdfFrame = document.getElementById('pdfFrame');
+
+        // Ocultar el iframe y mostrar nuestro contenido personalizado
+        pdfFrame.style.display = 'none';
+
+        // Crear contenedor para la certificación si no existe
+        let certContainer = modal.querySelector('#certificacionContainer');
+        if (!certContainer) {
+          certContainer = document.createElement('div');
+          certContainer.id = 'certificacionContainer';
+          certContainer.style.cssText = `
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+        `;
+          modal.querySelector('.pdf-viewer-content').appendChild(certContainer);
+        }
+
+        certContainer.style.display = 'block';
+
+        // Generar el contenido de la certificación
+        const respuestasUsuario = resultado.respuestas || {};
+        let correctas = 0;
+        let total = examen.length;
+
+        // Calcular estadísticas
+        examen.forEach(pregunta => {
+          const respuestaUsuario = respuestasUsuario[pregunta.id];
+          const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
+          if (respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id) {
+            correctas++;
+          }
+        });
+
+        const porcentaje = (correctas / total) * 100;
+
+        let contenidoHTML = `
+        <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <!-- Encabezado -->
+            <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #2c3e50; padding-bottom: 20px;">
+                <h1 style="color: #2c3e50; margin-bottom: 10px; font-size: 36px;">Conquiguias World</h1>
+                <h2 style="color: #34495e; margin-bottom: 20px;">${formulario.titulo}</h2>
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px;">
+                    <h3 style="margin: 0 0 10px 0;">Resultados del Examen</h3>
+                    <p style="margin: 5px 0; font-size: 18px;">
+                        <strong>Resumen:</strong> ${correctas} de ${total} preguntas correctas (${porcentaje.toFixed(1)}%)
+                    </p>
+                    <p style="margin: 5px 0; font-size: 16px;">
+                        <strong>Estado:</strong> ${porcentaje >= 70 ? '✅ Aprobado' : '❌ Reprobado'}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Preguntas y respuestas -->
+            <div style="margin-bottom: 30px;">
+    `;
+
+        // Agregar cada pregunta con retroalimentación
+        examen.forEach((pregunta, index) => {
+          const respuestaUsuario = respuestasUsuario[pregunta.id];
+          const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
+          const opcionUsuario = pregunta.options.find(opt => opt.id === respuestaUsuario);
+          const esCorrecta = respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id;
+
+          contenidoHTML += `
+            <div style="margin-bottom: 25px; padding: 20px; border: 2px solid ${esCorrecta ? '#28a745' : '#dc3545'}; border-radius: 10px; background: #f8f9fa;">
+                <p style="margin: 0 0 15px 0; font-weight: bold; color: #2c3e50; font-size: 16px;">
+                    Pregunta ${index + 1}: ${pregunta.text}
+                </p>
+                <p style="margin: 0 0 10px 0; color: ${esCorrecta ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                    ${esCorrecta ? '✅ Correcta' : '❌ Incorrecta'}
+                </p>
+                <p style="margin: 0 0 8px 0; font-size: 14px;">
+                    <strong>Tu respuesta:</strong> ${opcionUsuario ? opcionUsuario.text : 'No respondida'}
+                </p>
+                ${!esCorrecta && respuestaCorrecta ? `
+                    <p style="margin: 0 0 5px 0; font-size: 14px; color: #28a745;">
+                        <strong>Respuesta correcta:</strong> ${respuestaCorrecta.text}
+                    </p>
+                ` : ''}
+            </div>
+        `;
+        });
+
+        contenidoHTML += `
+            </div>
+
+            <!-- Firmas (si están disponibles en el formulario) -->
+            <div style="margin-top: 40px; border-top: 2px solid #bdc3c7; padding-top: 20px;">
+                <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                    ${formulario.imagenFirma1 ? `
+                        <div style="text-align: center; flex: 1; min-width: 200px; margin: 10px;">
+                            <img src="${formulario.imagenFirma1}" style="max-width: 150px; max-height: 80px; margin-bottom: 10px;">
+                            <p style="margin: 0; border-top: 1px solid #7f8c8d; padding-top: 5px;">Firma del Instructor</p>
+                        </div>
+                    ` : ''}
+                    ${formulario.imagenFirma2 ? `
+                        <div style="text-align: center; flex: 1; min-width: 200px; margin: 10px;">
+                            <img src="${formulario.imagenFirma2}" style="max-width: 150px; max-height: 80px; margin-bottom: 10px;">
+                            <p style="margin: 0; border-top: 1px solid #7f8c8d; padding-top: 5px;">Firma del Director</p>
+                        </div>
+                    ` : ''}
+                    ${formulario.imagenFirma3 ? `
+                        <div style="text-align: center; flex: 1; min-width: 200px; margin: 10px;">
+                            <img src="${formulario.imagenFirma3}" style="max-width: 150px; max-height: 80px; margin-bottom: 10px;">
+                            <p style="margin: 0; border-top: 1px solid #7f8c8d; padding-top: 5px;">Firma del Coordinador</p>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div style="margin-top: 30px; text-align: center; padding: 20px; background: #ecf0f1; border-radius: 10px;">
+                <button id="btnImprimirExamen" style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 12px 25px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin: 0 10px;
+                ">🖨️ Imprimir Examen</button>
+
+                <button id="btnImprimirCertificacion" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 12px 25px;
+                    font-size: 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin: 0 10px;
+                ">📜 Imprimir Certificación (Próximamente)</button>
+            </div>
+        </div>
+    `;
+
+        certContainer.innerHTML = contenidoHTML;
+        modal.style.display = 'flex';
+
+        // Configurar event listeners para los botones
+        document.getElementById('btnImprimirExamen').addEventListener('click', () => {
+          imprimirExamenCompleto(examen, resultado, formulario);
+        });
+
+        document.getElementById('btnImprimirCertificacion').addEventListener('click', () => {
+          mostrarMensaje("info", "Próximamente", "La funcionalidad de impresión de certificación estará disponible pronto.");
+        });
+      }
+
+      function imprimirExamenCompleto(examen, resultado, formulario) {
+        const btnImprimir = document.getElementById('btnImprimirExamen');
+        const textoOriginal = btnImprimir.innerHTML;
+
+        // Mostrar loading
+        btnImprimir.innerHTML = '⏳ Generando PDF...';
+        btnImprimir.disabled = true;
+
+        // Simular generación de PDF (por ahora solo imprimir)
+        setTimeout(() => {
+          // Crear ventana de impresión
+          const ventanaImpresion = window.open('', '_blank');
+          const respuestasUsuario = resultado.respuestas || {};
+
+          let contenidoImpresion = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Examen - ${formulario.titulo}</title>
+                <style>
+                    body { 
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                        margin: 40px; 
+                        color: #333;
+                    }
+                    .header { 
+                        text-align: center; 
+                        margin-bottom: 30px;
+                        border-bottom: 3px solid #2c3e50;
+                        padding-bottom: 20px;
+                    }
+                    .pregunta { 
+                        margin-bottom: 25px; 
+                        padding: 15px;
+                        border-left: 4px solid #3498db;
+                        background: #f8f9fa;
+                    }
+                    .correcta { border-left-color: #28a745; }
+                    .incorrecta { border-left-color: #dc3545; }
+                    .firmas { 
+                        margin-top: 50px; 
+                        display: flex; 
+                        justify-content: space-between;
+                        border-top: 2px solid #bdc3c7;
+                        padding-top: 20px;
+                    }
+                    .firma { text-align: center; }
+                    .firma img { max-width: 150px; max-height: 80px; }
+                    @media print {
+                        body { margin: 20px; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1 style="color: #2c3e50; margin-bottom: 10px;">Conquiguias World</h1>
+                    <h2 style="color: #34495e;">${formulario.titulo}</h2>
+                </div>
+        `;
+
+          // Agregar preguntas
+          examen.forEach((pregunta, index) => {
+            const respuestaUsuario = respuestasUsuario[pregunta.id];
+            const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
+            const opcionUsuario = pregunta.options.find(opt => opt.id === respuestaUsuario);
+            const esCorrecta = respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id;
+
+            contenidoImpresion += `
+                <div class="pregunta ${esCorrecta ? 'correcta' : 'incorrecta'}">
+                    <p><strong>Pregunta ${index + 1}:</strong> ${pregunta.text}</p>
+                    <p><strong>Tu respuesta:</strong> ${opcionUsuario ? opcionUsuario.text : 'No respondida'}</p>
+                    ${!esCorrecta && respuestaCorrecta ?
+                `<p><strong>Respuesta correcta:</strong> ${respuestaCorrecta.text}</p>` : ''}
+                    <p><strong>Resultado:</strong> ${esCorrecta ? '✅ Correcta' : '❌ Incorrecta'}</p>
+                </div>
+            `;
+          });
+
+          // Agregar firmas
+          contenidoImpresion += `
+            <div class="firmas">
+                ${formulario.imagenFirma1 ? `
+                    <div class="firma">
+                        <img src="${formulario.imagenFirma1}" alt="Firma Instructor">
+                        <p>Firma del Instructor</p>
+                    </div>
+                ` : ''}
+                ${formulario.imagenFirma2 ? `
+                    <div class="firma">
+                        <img src="${formulario.imagenFirma2}" alt="Firma Director">
+                        <p>Firma del Director</p>
+                    </div>
+                ` : ''}
+                ${formulario.imagenFirma3 ? `
+                    <div class="firma">
+                        <img src="${formulario.imagenFirma3}" alt="Firma Coordinador">
+                        <p>Firma del Coordinador</p>
+                    </div>
+                ` : ''}
+            </div>
+            <div class="no-print" style="text-align: center; margin-top: 30px;">
+                <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Imprimir
+                </button>
+                <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                    Cerrar
+                </button>
+            </div>
+            </body>
+            </html>
+        `;
+
+          ventanaImpresion.document.write(contenidoImpresion);
+          ventanaImpresion.document.close();
+
+          // Restaurar botón
+          btnImprimir.innerHTML = textoOriginal;
+          btnImprimir.disabled = false;
+
+        }, 1000);
+      }
+
+      // 🔹 MODIFICAR EL CIERRE DEL MODAL PARA LIMPIAR EL CONTENIDO
+      // Reemplaza el event listener existente del cierre del modal con este:
+      cerrarPDF.addEventListener('click', () => {
+        pdfViewerModal.style.display = "none";
+        pdfFrame.src = "";
+
+        // Ocultar y limpiar el contenedor de certificación
+        const certContainer = document.getElementById('certificacionContainer');
+        if (certContainer) {
+          certContainer.style.display = 'none';
+          certContainer.innerHTML = '';
+        }
+
+        // Mostrar el iframe nuevamente
+        pdfFrame.style.display = 'block';
+      });
+
+      // También modifica el event listener del clic fuera del modal:
+      pdfViewerModal.addEventListener('click', (e) => {
+        if (e.target === pdfViewerModal) {
+          pdfViewerModal.style.display = "none";
+          pdfFrame.src = "";
+
+          // Ocultar y limpiar el contenedor de certificación
+          const certContainer = document.getElementById('certificacionContainer');
+          if (certContainer) {
+            certContainer.style.display = 'none';
+            certContainer.innerHTML = '';
+          }
+
+          // Mostrar el iframe nuevamente
+          pdfFrame.style.display = 'block';
+        }
+      });
     </script>
 
 </body>
