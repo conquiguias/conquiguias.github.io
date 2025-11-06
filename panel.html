@@ -635,6 +635,360 @@
       overflow-y: auto;
       position: relative;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* ============================================
+   RESPONSIVE DESIGN - LAPTOP, TABLET, MÓVIL
+   ============================================ */
+
+/* 🔹 LAPTOP (1024px - 1440px) */
+@media (max-width: 1440px) {
+    #mainContent {
+        padding: 20px;
+    }
+    
+    .card {
+        max-width: 90%;
+        margin: 15px auto;
+        padding: 20px;
+    }
+}
+
+/* 🔹 TABLET (768px - 1023px) */
+@media (max-width: 1023px) {
+    body {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    #sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 15px 0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #sidebar h2 {
+        margin-bottom: 0;
+        margin-right: 20px;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+
+    #sidebar button {
+        padding: 10px 15px;
+        margin: 0 5px;
+        text-align: center;
+        flex-shrink: 0;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    #sidebar #logoutBtn {
+        margin-top: 0;
+        margin-left: auto;
+    }
+
+    #mainContent {
+        padding: 15px;
+        margin-top: 0;
+    }
+
+    .card {
+        max-width: 95%;
+        margin: 10px auto;
+        padding: 15px;
+    }
+
+    /* Header del usuario en tablet */
+    #userHeader {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-bottom: 20px;
+        justify-content: center;
+        width: 100%;
+        border-radius: 12px;
+    }
+}
+
+/* 🔹 MÓVIL GRANDE (576px - 767px) */
+@media (max-width: 767px) {
+    #sidebar {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    #sidebar h2 {
+        width: 100%;
+        text-align: center;
+        margin-right: 0;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    #sidebar button {
+        padding: 8px 12px;
+        font-size: 13px;
+        margin: 2px;
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    #sidebar #logoutBtn {
+        margin-left: 0;
+        flex: none;
+        min-width: 140px;
+    }
+
+    #mainContent {
+        padding: 10px;
+    }
+
+    .card {
+        max-width: 100%;
+        margin: 8px 0;
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    /* Ajustes para formularios en móvil */
+    input, select {
+        padding: 10px;
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+
+    button.saveBtn, button#crearEspecialidad, button#subirArchivoBtn {
+        padding: 12px;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    /* Clubes en móvil */
+    #clubesContainer {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .clubBtn {
+        width: 100%;
+        padding: 12px;
+    }
+
+    .niveles {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    /* Certificaciones en móvil */
+    .card-certificaciones {
+        padding: 15px;
+        margin: 8px 0 !important;
+    }
+
+    #certificacionesContadores {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    #tablaCertificaciones {
+        min-width: 600px;
+        font-size: 12px;
+    }
+
+    #tablaCertificaciones th,
+    #tablaCertificaciones td {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    #tablaCertificaciones button {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+}
+
+/* 🔹 MÓVIL PEQUEÑO (375px - 575px) */
+@media (max-width: 575px) {
+    #sidebar {
+        padding: 8px 5px;
+    }
+
+    #sidebar button {
+        padding: 6px 8px;
+        font-size: 12px;
+        min-width: 100px;
+        margin: 1px;
+    }
+
+    #sidebar #logoutBtn {
+        min-width: 120px;
+    }
+
+    #mainContent {
+        padding: 8px;
+    }
+
+    .card {
+        padding: 10px;
+        margin: 5px 0;
+    }
+
+    h1 {
+        font-size: 24px !important;
+    }
+
+    h2 {
+        font-size: 20px !important;
+    }
+
+    h3 {
+        font-size: 18px !important;
+    }
+
+    h4 {
+        font-size: 16px !important;
+    }
+
+    /* Perfil en móvil pequeño */
+    #preview {
+        width: 150px !important;
+        height: 150px !important;
+    }
+
+    /* Especialidades Storage en móvil */
+    #listaEspecialidades li {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    .archivo-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .archivo-item > div {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    /* Modal de mensajes en móvil */
+    .mensaje-content {
+        padding: 20px;
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+
+    /* Visor PDF en móvil */
+    .pdf-viewer-content {
+        width: 95%;
+        height: 95%;
+    }
+}
+
+/* 🔹 MÓVIL MUY PEQUEÑO (hasta 374px) */
+@media (max-width: 374px) {
+    #sidebar button {
+        font-size: 11px;
+        padding: 5px 6px;
+        min-width: 90px;
+    }
+
+    #sidebar #logoutBtn {
+        min-width: 100px;
+    }
+
+    #mainContent {
+        padding: 5px;
+    }
+
+    .card {
+        padding: 8px;
+    }
+
+    #tablaCertificaciones {
+        min-width: 500px;
+    }
+
+    #tablaCertificaciones th,
+    #tablaCertificaciones td {
+        padding: 4px 6px;
+        font-size: 10px;
+    }
+}
+
+/* 🔹 MEJORAS GENERALES DE USABILIDAD */
+@media (max-width: 1023px) {
+    /* Mejorar contraste y tamaño de texto */
+    body {
+        font-size: 14px;
+    }
+    
+    /* Botones más grandes para touch */
+    button, .carpeta-item, .archivo-item {
+        min-height: 44px; /* Tamaño mínimo recomendado para touch */
+    }
+    
+    /* Espaciado mejorado para touch */
+    input, select, button {
+        margin: 10px 0;
+    }
+    
+    /* Ocultar elementos menos importantes en móvil */
+    .hidden-on-mobile {
+        display: none !important;
+    }
+}
+
+/* 🔹 ORIENTACIÓN HORIZONTAL EN MÓVIL */
+@media (max-width: 767px) and (orientation: landscape) {
+    #sidebar {
+        flex-wrap: nowrap;
+        padding: 5px;
+    }
+    
+    #sidebar button {
+        min-width: auto;
+        flex: 1;
+    }
+    
+    .card {
+        padding: 10px;
+    }
+}
+
+/* 🔹 ALTA DENSIDAD DE PIXELES */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    button, input, select {
+        border-width: 0.5px;
+    }
+}
   </style>
 </head>
 
