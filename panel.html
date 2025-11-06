@@ -457,7 +457,7 @@
     #certificacionesSection {
       animation: fadeIn 0.5s ease;
     }
-    
+
     #certificacionesContadores {
       background: #e8f4fd;
       border-radius: 8px;
@@ -467,78 +467,78 @@
       justify-content: space-around;
       flex-wrap: wrap;
     }
-    
+
     #certificacionesContadores p {
       margin: 5px 0;
       font-weight: bold;
       color: #2c3e50;
     }
-    
+
     #certificacionesContadores span {
       color: #e74c3c;
       font-size: 18px;
     }
-    
+
     #tablaCertificaciones {
       background: white;
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
+
     #tablaCertificaciones thead {
       background: #34495e;
       color: white;
     }
-    
+
     #tablaCertificaciones th {
       padding: 12px 15px;
       text-align: left;
       font-weight: 600;
     }
-    
+
     #tablaCertificaciones tbody tr {
       border-bottom: 1px solid #ddd;
       transition: background-color 0.3s ease;
     }
-    
+
     #tablaCertificaciones tbody tr:nth-child(even) {
       background-color: #f8f9fa;
     }
-    
+
     #tablaCertificaciones tbody tr:hover {
       background-color: #e8f4fd;
     }
-    
+
     #tablaCertificaciones td {
       padding: 10px 15px;
     }
-    
+
     .estado-completado {
       color: #27ae60;
       font-weight: bold;
     }
-    
+
     .estado-pendiente {
       color: #e67e22;
       font-weight: bold;
     }
-    
+
     .estado-incompleto {
       color: #e74c3c;
       font-weight: bold;
     }
-    
+
     .calificacion-aprobada {
       color: #27ae60;
       font-weight: bold;
     }
-    
+
     .calificacion-reprobada {
       color: #e74c3c;
       font-weight: bold;
     }
-    
+
     .loading {
       display: inline-block;
       width: 20px;
@@ -548,54 +548,67 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-    
+
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
-    
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+
     /* Header fijo con información del usuario */
-#userHeader {
-  position: fixed;
-  top: 20px;
-  right: 30px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 10px 20px;
-  border-radius: 50px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
+    #userHeader {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px 20px;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
 
-#userHeader img {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #1976d2;
-}
+    #userHeader img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #1976d2;
+    }
 
-#userHeader span {
-  font-weight: 600;
-  color: #2c3e50;
-  font-size: 16px;
-}
+    #userHeader span {
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 16px;
+    }
 
-/* Ajustar el contenido principal para el header fijo */
-#mainContent {
-  flex: 1;
-  padding: 25px;
-  overflow-y: auto;
-  position: relative;
-}
+    /* Ajustar el contenido principal para el header fijo */
+    #mainContent {
+      flex: 1;
+      padding: 25px;
+      overflow-y: auto;
+      position: relative;
+    }
   </style>
 </head>
 
@@ -615,16 +628,16 @@
   <!-- Contenido principal -->
   <div id="mainContent">
     <!-- Header fijo con información del usuario -->
-<div id="userHeader">
-  <img id="headerUserPhoto" src="https://dummyimage.com/45x45/ccc/fff">
-  <span id="headerUserName">Cargando...</span>
-</div>
+    <div id="userHeader">
+      <img id="headerUserPhoto" src="https://dummyimage.com/45x45/ccc/fff">
+      <span id="headerUserName">Cargando...</span>
+    </div>
 
     <!-- Inicio -->
-<div id="inicioSection" class="card">
-  <h2>Bienvenido</h2>
-  <p>Selecciona una opción del menú para comenzar.</p>
-</div>
+    <div id="inicioSection" class="card">
+      <h2>Bienvenido</h2>
+      <p>Selecciona una opción del menú para comenzar.</p>
+    </div>
 
     <!-- Sección Clubes -->
     <div id="clubesSection" class="card hidden">
@@ -699,23 +712,23 @@
         <button type="submit" class="saveBtn">Guardar cambios</button>
       </form>
     </div>
-    
+
     <!-- 🔹 NUEVA SECCIÓN: CERTIFICACIONES -->
     <div id="certificacionesSection" class="card hidden">
       <h2>📜 Mis Certificaciones de Especialidades</h2>
       <p>Aquí puedes ver todas las especialidades en las que has participado, validadas con tu correo electrónico.</p>
-      
+
       <div id="certificacionesLoading" style="text-align: center; padding: 20px;">
         <div class="loading" style="display: inline-block;"></div>
         <p>Cargando tus certificaciones...</p>
       </div>
-      
+
       <div id="certificacionesContent" style="display: none;">
         <div id="certificacionesContadores">
           <p>Total de especialidades: <span id="totalEspecialidades">0</span></p>
           <p>Especialidades completadas: <span id="especialidadesCompletadas">0</span></p>
         </div>
-        
+
         <table id="tablaCertificaciones" border="1" style="border-collapse: collapse; width: 100%; margin-top: 20px;">
           <thead>
             <tr>
@@ -732,7 +745,7 @@
             <!-- Las filas se llenarán dinámicamente -->
           </tbody>
         </table>
-        
+
         <div id="sinCertificaciones" style="display: none; text-align: center; padding: 30px; color: #666;">
           <h3>📝 Aún no tienes certificaciones</h3>
           <p>Participa en especialidades para ver tus certificaciones aquí.</p>
@@ -831,27 +844,14 @@
 
     // 🔹 Detectar usuario logueado
     onAuthStateChanged(auth, async (user) => {
-      // Actualizar header del usuario
-const headerUserPhoto = document.getElementById("headerUserPhoto");
-const headerUserName = document.getElementById("headerUserName");
-
-if (docSnap.exists()) {
-  const data = docSnap.data();
-  currentPhotoURL = data.fotoURL || placeholderURL;
-  
-  // Actualizar header
-  headerUserPhoto.src = currentPhotoURL;
-  headerUserName.textContent = `${data.nombre} ${data.apellido}`;
-  
-  // Quitar el contenido antiguo del inicio
-  inicioNombre.textContent = "Bienvenido";
-  inicioFoto.style.display = "none"; // Ocultar la foto grande
-}
-
       // 🔒 Lista de correos permitidos para entrar a Especialidades
       const correosAutorizados = [
         "kendall.torres.17@gmail.com"
       ];
+
+      // Obtener elementos del header
+      const headerUserPhoto = document.getElementById("headerUserPhoto");
+      const headerUserName = document.getElementById("headerUserName");
 
       // Dentro del onAuthStateChanged (después de obtener el usuario)
       if (user) {
@@ -859,16 +859,29 @@ if (docSnap.exists()) {
         puedeEntrarEspecialidades = correosAutorizados.includes(email);
       }
 
-      if (!user) { window.location.href = "index.html"; return; }
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+
       currentUserId = user.uid;
 
       const docRef = doc(db, "usuarios", currentUserId);
       const docSnap = await getDoc(docRef);
+
       if (docSnap.exists()) {
         const data = docSnap.data();
         currentPhotoURL = data.fotoURL || placeholderURL;
-        inicioNombre.textContent = `${data.nombre} ${data.apellido}`;
-        inicioFoto.src = currentPhotoURL;
+
+        // Actualizar header del usuario
+        headerUserPhoto.src = currentPhotoURL;
+        headerUserName.textContent = `${data.nombre} ${data.apellido}`;
+
+        // Quitar el contenido antiguo del inicio
+        inicioNombre.textContent = "Bienvenido";
+        inicioFoto.style.display = "none"; // Ocultar la foto grande
+
+        // Actualizar el resto de los campos
         nombreInput.value = data.nombre;
         apellidoInput.value = data.apellido;
         edadInput.value = data.edad;
@@ -1311,28 +1324,28 @@ if (docSnap.exists()) {
       certificacionesLoading.style.display = "block";
       certificacionesContent.style.display = "none";
       sinCertificaciones.style.display = "none";
-      
+
       try {
         // Obtener el usuario actual
         const user = auth.currentUser;
         if (!user || !user.email) {
           throw new Error("No se pudo obtener la información del usuario");
         }
-        
+
         const userEmail = user.email;
-        
+
         // Obtener todos los formularios
         const formulariosRes = await fetch("/api/listarFormularios");
         if (!formulariosRes.ok) {
           throw new Error("No se pudieron cargar los formularios");
         }
-        
+
         const formularios = await formulariosRes.json();
         const formulariosIds = Object.keys(formularios);
-        
+
         // Array para almacenar las certificaciones
         const certificaciones = [];
-        
+
         // Para cada formulario, buscar si el usuario participó
         for (const formularioId of formulariosIds) {
           try {
@@ -1341,10 +1354,10 @@ if (docSnap.exists()) {
               const data = await respuestasRes.json();
               const respuestas = data.asistencias || [];
               const examenes = data.examenes || [];
-              
+
               // Buscar respuestas del usuario por correo
               const respuestasUsuario = respuestas.filter(r => r.correo === userEmail);
-              
+
               if (respuestasUsuario.length > 0) {
                 // Encontrar el examen del usuario si existe
                 const examenUsuario = examenes.find(e => {
@@ -1352,16 +1365,16 @@ if (docSnap.exists()) {
                   const respuestaUsuario = respuestasUsuario.find(r => r.visitanteId === e.visitanteId);
                   return respuestaUsuario !== undefined;
                 });
-                
+
                 // Determinar estado
                 const maxAsistencia = Math.max(...respuestasUsuario.map(r => r.asistenciaNumero || 0));
                 const completado = maxAsistencia >= 3;
                 const examenRealizado = examenUsuario !== undefined;
                 const calificacion = examenRealizado ? examenUsuario.puntaje : null;
-                
+
                 // Obtener la fecha más reciente
                 const fechaMasReciente = new Date(Math.max(...respuestasUsuario.map(r => new Date(r.fecha))));
-                
+
                 certificaciones.push({
                   formularioId: formularioId,
                   titulo: formularios[formularioId].titulo,
@@ -1377,14 +1390,14 @@ if (docSnap.exists()) {
             console.error(`Error al cargar respuestas para ${formularioId}:`, error);
           }
         }
-        
+
         // Actualizar la interfaz con las certificaciones
         actualizarInterfazCertificaciones(certificaciones);
-        
+
       } catch (error) {
         console.error("Error al cargar certificaciones:", error);
         mostrarMensaje("error", "Error al cargar certificaciones", "No se pudieron cargar tus certificaciones. Intenta nuevamente.");
-        
+
         // Mostrar estado de error
         certificacionesLoading.style.display = "none";
         sinCertificaciones.style.display = "block";
@@ -1394,49 +1407,49 @@ if (docSnap.exists()) {
         `;
       }
     }
-    
+
     // Función para actualizar la interfaz con las certificaciones
     function actualizarInterfazCertificaciones(certificaciones) {
       // Ocultar loading
       certificacionesLoading.style.display = "none";
-      
+
       if (certificaciones.length === 0) {
         sinCertificaciones.style.display = "block";
         certificacionesContent.style.display = "none";
         return;
       }
-      
+
       // Mostrar contenido
       sinCertificaciones.style.display = "none";
       certificacionesContent.style.display = "block";
-      
+
       // Actualizar contadores
       totalEspecialidades.textContent = certificaciones.length;
       const completadas = certificaciones.filter(c => c.completado).length;
       especialidadesCompletadas.textContent = completadas;
-      
+
       // Limpiar tabla
       cuerpoTablaCertificaciones.innerHTML = "";
-      
+
       // Ordenar certificaciones por fecha (más reciente primero)
       certificaciones.sort((a, b) => b.fecha - a.fecha);
-      
+
       // Llenar tabla
       certificaciones.forEach((cert, index) => {
         const fila = document.createElement("tr");
-        
+
         // Determinar clases de estado y calificación
         const estadoClase = cert.completado ? "estado-completado" : "estado-pendiente";
         const estadoTexto = cert.completado ? "Completado" : "En progreso";
-        
+
         let calificacionTexto = "No realizado";
         let calificacionClase = "";
-        
+
         if (cert.examenRealizado) {
           calificacionClase = cert.calificacion >= 70 ? "calificacion-aprobada" : "calificacion-reprobada";
           calificacionTexto = `${cert.calificacion.toFixed(1)}%`;
         }
-        
+
         fila.innerHTML = `
           <td>${index + 1}</td>
           <td>${cert.titulo}</td>
@@ -1446,7 +1459,7 @@ if (docSnap.exists()) {
           <td class="${calificacionClase}">${calificacionTexto}</td>
           <td class="${estadoClase}">${estadoTexto}</td>
         `;
-        
+
         cuerpoTablaCertificaciones.appendChild(fila);
       });
     }
