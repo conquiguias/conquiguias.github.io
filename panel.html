@@ -2004,91 +2004,88 @@
 
       // Función para actualizar la interfaz con las certificaciones
       // Función para actualizar la interfaz con las certificaciones
-      // Función para actualizar la interfaz con las certificaciones
-      function actualizarInterfazCertificaciones(certificaciones) {
-        // Ocultar loading
-        certificacionesLoading.style.display = "none";
+function actualizarInterfazCertificaciones(certificaciones) {
+    // Ocultar loading
+    certificacionesLoading.style.display = "none";
 
-        if (certificaciones.length === 0) {
-          sinCertificaciones.style.display = "block";
-          certificacionesContent.style.display = "none";
-          return;
-        }
+    if (certificaciones.length === 0) {
+        sinCertificaciones.style.display = "block";
+        certificacionesContent.style.display = "none";
+        return;
+    }
 
-        // Mostrar contenido
-        sinCertificaciones.style.display = "none";
-        certificacionesContent.style.display = "block";
+    // Mostrar contenido
+    sinCertificaciones.style.display = "none";
+    certificacionesContent.style.display = "block";
 
-        // Agrupar certificaciones por formularioId para evitar duplicados
-        const certificacionesAgrupadas = {};
-        certificaciones.forEach(cert => {
-          if (!certificacionesAgrupadas[cert.formularioId]) {
+    // Agrupar certificaciones por formularioId para evitar duplicados
+    const certificacionesAgrupadas = {};
+    certificaciones.forEach(cert => {
+        if (!certificacionesAgrupadas[cert.formularioId]) {
             certificacionesAgrupadas[cert.formularioId] = [];
-          }
-          certificacionesAgrupadas[cert.formularioId].push(cert);
-        });
+        }
+        certificacionesAgrupadas[cert.formularioId].push(cert);
+    });
 
-        // Tomar la mejor certificación de cada formulario (la que tenga más asistencias completadas)
-        const certificacionesUnicas = [];
-        Object.values(certificacionesAgrupadas).forEach(grupo => {
-          // Ordenar por asistencias completadas (mayor a menor) y luego por fecha (más reciente primero)
-          grupo.sort((a, b) => {
+    // Tomar la mejor certificación de cada formulario (la que tenga más asistencias completadas)
+    const certificacionesUnicas = [];
+    Object.values(certificacionesAgrupadas).forEach(grupo => {
+        // Ordenar por asistencias completadas (mayor a menor) y luego por fecha (más reciente primero)
+        grupo.sort((a, b) => {
             if (b.asistenciasCompletadas !== a.asistenciasCompletadas) {
-              return b.asistenciasCompletadas - a.asistenciasCompletadas;
+                return b.asistenciasCompletadas - a.asistenciasCompletadas;
             }
             return new Date(b.fecha) - new Date(a.fecha);
-          });
-          // Tomar la primera (mejor) certificación del grupo
-          certificacionesUnicas.push(grupo[0]);
         });
+        // Tomar la primera (mejor) certificación del grupo
+        certificacionesUnicas.push(grupo[0]);
+    });
 
-        // Actualizar contadores
-        const completadas = certificacionesUnicas.filter(c => c.estado === "Completado").length;
-        totalEspecialidades.textContent = certificacionesUnicas.length;
-        especialidadesCompletadas.textContent = completadas;
+    // Actualizar contadores
+    const completadas = certificacionesUnicas.filter(c => c.estado === "Completado").length;
+    totalEspecialidades.textContent = certificacionesUnicas.length;
+    especialidadesCompletadas.textContent = completadas;
 
-        // Limpiar tabla
-        cuerpoTablaCertificaciones.innerHTML = "";
+    // Limpiar tabla
+    cuerpoTablaCertificaciones.innerHTML = "";
 
-        // Ordenar certificaciones por fecha (más reciente primero)
-        certificacionesUnicas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    // Ordenar certificaciones por fecha (más reciente primero)
+    certificacionesUnicas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-        // Llenar tabla
-        certificacionesUnicas.forEach((cert, index) => {
-          const fila = document.createElement("tr");
+    // Llenar tabla
+    certificacionesUnicas.forEach((cert, index) => {
+        const fila = document.createElement("tr");
 
-          let calificacionTexto = "No realizado";
-          let calificacionClase = "";
+        let calificacionTexto = "No realizado";
+        let calificacionClase = "";
 
-          if (cert.examenRealizado) {
+        if (cert.examenRealizado) {
             calificacionClase = cert.aprobado ? "calificacion-aprobada" : "calificacion-reprobada";
             calificacionTexto = `${cert.calificacion.toFixed(1)}%`;
-          }
+        }
 
+        fila.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${cert.titulo}</td>
+            <td>${cert.fecha.toLocaleDateString()}</td>
+            <td>${cert.asistenciasCompletadas}/3</td>
+            <td>${cert.examenRealizado ? "Sí" : "No"}</td>
+            <td class="${calificacionClase}">${calificacionTexto}</td>
+            <td class="${cert.estadoClase}">${cert.estado}</td>
+            <td>
+                ${cert.examenRealizado ? 
+                    `<button onclick="verCertificacionCompleta('${cert.formularioId}', '${cert.visitanteId}')" 
+                             style="background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+                        Ver Examen
+                    </button>` 
+                    : 'No disponible'
+                }
+            </td>
+        `;
 
-          fila.innerHTML = `
-    <td>${index + 1}</td>
-    <td>${cert.titulo}</td>
-    <td>${cert.fecha.toLocaleDateString()}</td>
-    <td>${cert.asistenciasCompletadas}/3</td>
-    <td>${cert.examenRealizado ? "Sí" : "No"}</td>
-    <td class="${calificacionClase}">${calificacionTexto}</td>
-    <td class="${cert.estadoClase}">${cert.estado}</td>
-    <td>
-        ${cert.examenRealizado ?
-              `<button onclick="verCertificacionCompleta('${cert.formularioId}', '${cert.visitanteId}')" 
-                     style="background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
-                Ver Examen
-            </button>`
-              : 'No disponible'
-            }
-    </td>
-`;
-
-          cuerpoTablaCertificaciones.appendChild(fila);
-        });
-      }
-
+        cuerpoTablaCertificaciones.appendChild(fila);
+    });
+}
       const tabla = document.getElementById('tablaCertificaciones');
       tabla.querySelector('thead').innerHTML = `
     <tr>
