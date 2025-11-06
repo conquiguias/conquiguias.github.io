@@ -98,25 +98,6 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
     }
 
-    /* Imagenes de perfil */
-    #preview,
-    #inicioFoto {
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #ccc;
-      display: block;
-      margin: 15px auto;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    #preview:hover,
-    #inicioFoto:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
     /* Inputs y selects */
     input,
     select {
@@ -577,6 +558,44 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    /* Header fijo con información del usuario */
+#userHeader {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 10px 20px;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#userHeader img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1976d2;
+}
+
+#userHeader span {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+/* Ajustar el contenido principal para el header fijo */
+#mainContent {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+  position: relative;
+}
   </style>
 </head>
 
@@ -587,20 +606,25 @@
     <h2></h2>
     <button id="menuInicio" class="active">Inicio</button>
     <button id="menuClubes">Clubes</button>
+    <button id="menuCertificaciones">Certificaciones</button>
     <button id="menuEspecialidades">Especialidades Storage</button>
     <button id="menuPerfil">Perfil</button>
-    <button id="menuCertificaciones">Certificaciones</button>
     <button id="logoutBtn">Cerrar sesión</button>
   </div>
 
   <!-- Contenido principal -->
   <div id="mainContent">
+    <!-- Header fijo con información del usuario -->
+<div id="userHeader">
+  <img id="headerUserPhoto" src="https://dummyimage.com/45x45/ccc/fff">
+  <span id="headerUserName">Cargando...</span>
+</div>
 
     <!-- Inicio -->
-    <div id="inicioSection" class="card">
-      <img id="inicioFoto" src="https://dummyimage.com/120x120/ccc/fff">
-      <h2 id="inicioNombre">Cargando...</h2>
-    </div>
+<div id="inicioSection" class="card">
+  <h2>Bienvenido</h2>
+  <p>Selecciona una opción del menú para comenzar.</p>
+</div>
 
     <!-- Sección Clubes -->
     <div id="clubesSection" class="card hidden">
@@ -807,6 +831,22 @@
 
     // 🔹 Detectar usuario logueado
     onAuthStateChanged(auth, async (user) => {
+      // Actualizar header del usuario
+const headerUserPhoto = document.getElementById("headerUserPhoto");
+const headerUserName = document.getElementById("headerUserName");
+
+if (docSnap.exists()) {
+  const data = docSnap.data();
+  currentPhotoURL = data.fotoURL || placeholderURL;
+  
+  // Actualizar header
+  headerUserPhoto.src = currentPhotoURL;
+  headerUserName.textContent = `${data.nombre} ${data.apellido}`;
+  
+  // Quitar el contenido antiguo del inicio
+  inicioNombre.textContent = "Bienvenido";
+  inicioFoto.style.display = "none"; // Ocultar la foto grande
+}
 
       // 🔒 Lista de correos permitidos para entrar a Especialidades
       const correosAutorizados = [
