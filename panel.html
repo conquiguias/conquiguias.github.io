@@ -1185,15 +1185,36 @@
         pdfViewerModal.style.display = "flex";
       }
 
-      cerrarPDF.addEventListener("click", () => {
+      // 🔹 MODIFICAR EL CIERRE DEL MODAL PARA LIMPIAR EL CONTENIDO
+      cerrarPDF.addEventListener('click', () => {
         pdfViewerModal.style.display = "none";
         pdfFrame.src = "";
+
+        // Ocultar y limpiar el contenedor de certificación
+        const certContainer = document.getElementById('certificacionContainer');
+        if (certContainer) {
+          certContainer.style.display = 'none';
+          certContainer.innerHTML = '';
+        }
+
+        // Mostrar el iframe nuevamente
+        pdfFrame.style.display = 'block';
       });
 
-      pdfViewerModal.addEventListener("click", (e) => {
+      pdfViewerModal.addEventListener('click', (e) => {
         if (e.target === pdfViewerModal) {
           pdfViewerModal.style.display = "none";
           pdfFrame.src = "";
+
+          // Ocultar y limpiar el contenedor de certificación
+          const certContainer = document.getElementById('certificacionContainer');
+          if (certContainer) {
+            certContainer.style.display = 'none';
+            certContainer.innerHTML = '';
+          }
+
+          // Mostrar el iframe nuevamente
+          pdfFrame.style.display = 'block';
         }
       });
 
@@ -1607,34 +1628,26 @@
 
         const porcentaje = (correctas / total) * 100;
 
-        // En la función mostrarCertificacionCompleta, actualiza los botones:
-        contenidoHTML += `
-    <!-- Botones de acción -->
-    <div style="margin-top: 30px; text-align: center; padding: 20px; background: #ecf0f1; border-radius: 10px;">
-        <button id="btnImprimirExamen" style="
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            margin: 0 10px;
-        ">🖨️ Imprimir Examen y Certificación</button>
+        let contenidoHTML = `
+        <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <!-- Encabezado -->
+            <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #2c3e50; padding-bottom: 20px;">
+                <h1 style="color: #2c3e50; margin-bottom: 10px; font-size: 36px;">Conquiguias World</h1>
+                <h2 style="color: #34495e; margin-bottom: 20px;">${formulario.titulo}</h2>
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px;">
+                    <h3 style="margin: 0 0 10px 0;">Resultados del Examen</h3>
+                    <p style="margin: 5px 0; font-size: 18px;">
+                        <strong>Resumen:</strong> ${correctas} de ${total} preguntas correctas (${porcentaje.toFixed(1)}%)
+                    </p>
+                    <p style="margin: 5px 0; font-size: 16px;">
+                        <strong>Estado:</strong> ${porcentaje >= 70 ? '✅ Aprobado' : '❌ Reprobado'}
+                    </p>
+                </div>
+            </div>
 
-        <button id="btnImprimirCertificacion" style="
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin: 0 10px;
-        " disabled>📜 Solo Certificación (Próximamente)</button>
-    </div>
-`;
+            <!-- Preguntas y respuestas -->
+            <div style="margin-bottom: 30px;">
+    `;
 
         // Agregar cada pregunta con retroalimentación
         examen.forEach((pregunta, index) => {
@@ -1666,30 +1679,6 @@
         contenidoHTML += `
             </div>
 
-            <!-- Firmas (si están disponibles en el formulario) -->
-            <div style="margin-top: 40px; border-top: 2px solid #bdc3c7; padding-top: 20px;">
-                <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-                    ${formulario.imagenFirma1 ? `
-                        <div style="text-align: center; flex: 1; min-width: 200px; margin: 10px;">
-                            <img src="${formulario.imagenFirma1}" style="max-width: 150px; max-height: 80px; margin-bottom: 10px;">
-                            <p style="margin: 0; border-top: 1px solid #7f8c8d; padding-top: 5px;">Firma del Instructor</p>
-                        </div>
-                    ` : ''}
-                    ${formulario.imagenFirma2 ? `
-                        <div style="text-align: center; flex: 1; min-width: 200px; margin: 10px;">
-                            <img src="${formulario.imagenFirma2}" style="max-width: 150px; max-height: 80px; margin-bottom: 10px;">
-                            <p style="margin: 0; border-top: 1px solid #7f8c8d; padding-top: 5px;">Firma del Director</p>
-                        </div>
-                    ` : ''}
-                    ${formulario.imagenFirma3 ? `
-                        <div style="text-align: center; flex: 1; min-width: 200px; margin: 10px;">
-                            <img src="${formulario.imagenFirma3}" style="max-width: 150px; max-height: 80px; margin-bottom: 10px;">
-                            <p style="margin: 0; border-top: 1px solid #7f8c8d; padding-top: 5px;">Firma del Coordinador</p>
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-
             <!-- Botones de acción -->
             <div style="margin-top: 30px; text-align: center; padding: 20px; background: #ecf0f1; border-radius: 10px;">
                 <button id="btnImprimirExamen" style="
@@ -1702,7 +1691,7 @@
                     border-radius: 6px;
                     cursor: pointer;
                     margin: 0 10px;
-                ">🖨️ Imprimir Examen</button>
+                ">🖨️ Imprimir Examen y Certificación</button>
 
                 <button id="btnImprimirCertificacion" style="
                     background: #6c757d;
@@ -1713,7 +1702,7 @@
                     border-radius: 6px;
                     cursor: pointer;
                     margin: 0 10px;
-                ">📜 Imprimir Certificación (Próximamente)</button>
+                " disabled>📜 Solo Certificación (Próximamente)</button>
             </div>
         </div>
     `;
@@ -2013,7 +2002,6 @@
 
 
 
-
       // Función para actualizar la interfaz con las certificaciones
       // Función para actualizar la interfaz con las certificaciones
       // Función para actualizar la interfaz con las certificaciones
@@ -2077,16 +2065,25 @@
             calificacionTexto = `${cert.calificacion.toFixed(1)}%`;
           }
 
+
           fila.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${cert.titulo}</td>
-            <td>${cert.fecha.toLocaleDateString()}</td>
-            <td>${cert.asistenciasCompletadas}/3</td>
-            <td>${cert.examenRealizado ? "Sí" : "No"}</td>
-            <td class="${calificacionClase}">${calificacionTexto}</td>
-            <td class="${cert.estadoClase}">${cert.estado}</td>
-            
-        `;
+    <td>${index + 1}</td>
+    <td>${cert.titulo}</td>
+    <td>${cert.fecha.toLocaleDateString()}</td>
+    <td>${cert.asistenciasCompletadas}/3</td>
+    <td>${cert.examenRealizado ? "Sí" : "No"}</td>
+    <td class="${calificacionClase}">${calificacionTexto}</td>
+    <td class="${cert.estadoClase}">${cert.estado}</td>
+    <td>
+        ${cert.examenRealizado ?
+              `<button onclick="verCertificacionCompleta('${cert.formularioId}', '${cert.visitanteId}')" 
+                     style="background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+                Ver Examen
+            </button>`
+              : 'No disponible'
+            }
+    </td>
+`;
 
           cuerpoTablaCertificaciones.appendChild(fila);
         });
@@ -2102,6 +2099,7 @@
         <th>Examen Realizado</th>
         <th>Calificación</th>
         <th>Estado</th>
+        <th>Examen</th>
     </tr>
 `;
 
