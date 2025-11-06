@@ -1355,6 +1355,7 @@
       // 🔹 NUEVAS FUNCIONES PARA CERTIFICACIONES - DENTRO DEL MÓDULO
 
       // Función para cargar las certificaciones del usuario
+      // Función para cargar las certificaciones del usuario
       async function cargarCertificaciones() {
         // Mostrar loading
         certificacionesLoading.style.display = "block";
@@ -1390,6 +1391,8 @@
                 const data = await respuestasRes.json();
                 const respuestas = data.asistencias || [];
                 const examenes = data.examenes || [];
+                const fechaFin = data.fechaFin ? new Date(data.fechaFin) : null;
+                const hoy = new Date();
 
                 // Buscar respuestas del usuario por correo
                 const respuestasUsuario = respuestas.filter(r => r.correo === userEmail);
@@ -1402,11 +1405,46 @@
                     return respuestaUsuario !== undefined;
                   });
 
-                  // Determinar estado
+                  // Determinar asistencias
                   const maxAsistencia = Math.max(...respuestasUsuario.map(r => r.asistenciaNumero || 0));
-                  const completado = maxAsistencia >= 3;
+                  const asistenciasCompletadas = maxAsistencia;
                   const examenRealizado = examenUsuario !== undefined;
                   const calificacion = examenRealizado ? examenUsuario.puntaje : null;
+                  const aprobado = calificacion >= 70;
+
+                  // 🔹 NUEVA LÓGICA PARA DETERMINAR ESTADO
+                  let estado = "";
+                  let estadoClase = "";
+
+                  if (fechaFin && hoy > fechaFin) {
+                    // TIEMPO TERMINADO
+                    if (asistenciasCompletadas >= 3) {
+                      if (examenRealizado && aprobado) {
+                        estado = "Completado";
+                        estadoClase = "estado-completado";
+                      } else {
+                        estado = "No aplica";
+                        estadoClase = "estado-incompleto";
+                      }
+                    } else {
+                      estado = "No aplica";
+                      estadoClase = "estado-incompleto";
+                    }
+                  } else {
+                    // TIEMPO EN CURSO
+                    if (asistenciasCompletadas >= 3) {
+                      if (examenRealizado && aprobado) {
+                        estado = "Completado";
+                        estadoClase = "estado-completado";
+                      } else {
+                        estado = "En progreso";
+                        estadoClase = "estado-pendiente";
+                      }
+                    } else {
+                      estado = "En progreso";
+                      estadoClase = "estado-pendiente";
+                    }
+                  }
 
                   // Obtener la fecha más reciente
                   const fechaMasReciente = new Date(Math.max(...respuestasUsuario.map(r => new Date(r.fecha))));
@@ -1415,10 +1453,13 @@
                     formularioId: formularioId,
                     titulo: formularios[formularioId].titulo,
                     fecha: fechaMasReciente,
-                    asistenciasCompletadas: maxAsistencia,
+                    asistenciasCompletadas: asistenciasCompletadas,
                     examenRealizado: examenRealizado,
                     calificacion: calificacion,
-                    completado: completado
+                    aprobado: aprobado,
+                    estado: estado,
+                    estadoClase: estadoClase,
+                    fechaFin: fechaFin
                   });
                 }
               }
@@ -1438,9 +1479,9 @@
           certificacionesLoading.style.display = "none";
           sinCertificaciones.style.display = "block";
           sinCertificaciones.innerHTML = `
-          <h3>❌ Error al cargar certificaciones</h3>
-          <p>No se pudieron cargar tus certificaciones. Intenta nuevamente.</p>
-        `;
+      <h3>❌ Error al cargar certificaciones</h3>
+      <p>No se pudieron cargar tus certificaciones. Intenta nuevamente.</p>
+    `;
         }
       }
 
@@ -1460,8 +1501,8 @@
         certificacionesContent.style.display = "block";
 
         // Actualizar contadores
+        const completadas = certificaciones.filter(c => c.estado === "Completado").length;
         totalEspecialidades.textContent = certificaciones.length;
-        const completadas = certificaciones.filter(c => c.completado).length;
         especialidadesCompletadas.textContent = completadas;
 
         // Limpiar tabla
@@ -1474,27 +1515,23 @@
         certificaciones.forEach((cert, index) => {
           const fila = document.createElement("tr");
 
-          // Determinar clases de estado y calificación
-          const estadoClase = cert.completado ? "estado-completado" : "estado-pendiente";
-          const estadoTexto = cert.completado ? "Completado" : "En progreso";
-
           let calificacionTexto = "No realizado";
           let calificacionClase = "";
 
           if (cert.examenRealizado) {
-            calificacionClase = cert.calificacion >= 70 ? "calificacion-aprobada" : "calificacion-reprobada";
+            calificacionClase = cert.aprobado ? "calificacion-aprobada" : "calificacion-reprobada";
             calificacionTexto = `${cert.calificacion.toFixed(1)}%`;
           }
 
           fila.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${cert.titulo}</td>
-          <td>${cert.fecha.toLocaleDateString()}</td>
-          <td>${cert.asistenciasCompletadas}/3</td>
-          <td>${cert.examenRealizado ? "Sí" : "No"}</td>
-          <td class="${calificacionClase}">${calificacionTexto}</td>
-          <td class="${estadoClase}">${estadoTexto}</td>
-        `;
+      <td>${index + 1}</td>
+      <td>${cert.titulo}</td>
+      <td>${cert.fecha.toLocaleDateString()}</td>
+      <td>${cert.asistenciasCompletadas}/3</td>
+      <td>${cert.examenRealizado ? "Sí" : "No"}</td>
+      <td class="${calificacionClase}">${calificacionTexto}</td>
+      <td class="${cert.estadoClase}">${cert.estado}</td>
+    `;
 
           cuerpoTablaCertificaciones.appendChild(fila);
         });
