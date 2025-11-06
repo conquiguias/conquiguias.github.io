@@ -249,19 +249,24 @@
     }
 
     #tablaRespuestas button {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 600;
+      margin: 2px;
+      white-space: nowrap;
       transition: all 0.3s ease;
     }
 
     #tablaRespuestas button:hover {
-      background-color: #2980b9;
       transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      #tablaRespuestas button {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+        padding: 10px;
+        font-size: 14px;
+      }
     }
 
     /* Información adicional */
@@ -986,14 +991,17 @@
     <td>${r.maxAsistencia}</td>
     <td>${asistioCompleto}</td>
     <td>
-      ${esUsuarioActual && puedeExamen
+  ${esUsuarioActual && puedeExamen
               ? (r.examen
-                ? `<button onclick="verResultadosExamen()" style="background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">📊 Ver Resultados</button>`
+                ? `
+        <button onclick="verResultadosExamen()" style="background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 2px;">📊 Ver Resultados</button>
+        <button onclick="window.open('https://conquiguias.vercel.app/', '_blank')" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 2px;">📜 Ver Certificación</button>
+      `
                 : `<button onclick="iniciarExamen()">📝 Hacer Examen</button>`)
               : (esUsuarioActual
                 ? '⏳ Complete las 3 asistencias'
                 : (r.examen ? '✅ Examen completado' : '❌ Examen no realizado'))}
-    </td>
+</td>
   </tr>
 `;
           tablaBody.insertAdjacentHTML("beforeend", fila);
