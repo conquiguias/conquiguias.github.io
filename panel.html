@@ -1762,6 +1762,21 @@
             const ventanaImpresion = window.open('', '_blank');
             const respuestasUsuario = resultado.respuestas || {};
 
+            // Calcular estadísticas del examen
+            let correctas = 0;
+            let total = examen.length;
+
+            examen.forEach(pregunta => {
+              const respuestaUsuario = respuestasUsuario[pregunta.id];
+              const respuestaCorrecta = pregunta.options.find(opt => opt.correct);
+              if (respuestaCorrecta && respuestaUsuario === respuestaCorrecta.id) {
+                correctas++;
+              }
+            });
+
+            const porcentaje = (correctas / total) * 100;
+            const aprobado = porcentaje >= 70;
+
             // Formatear fecha
             const fechaCreacion = new Date(formulario.creado);
             const opcionesFecha = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -1983,8 +1998,11 @@
 
               contenidoImpresion += `
                     <div class="pregunta ${esCorrecta ? 'correcta' : 'incorrecta'}">
-                        <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 16px;">
+                        <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 16px; color: #2c3e50;">
                             <strong>Pregunta ${index + 1}:</strong> ${pregunta.text}
+                        </p>
+                        <p style="margin: 0 0 8px 0; font-size: 14px; color: ${esCorrecta ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                            ${esCorrecta ? '✅ Correcta' : '❌ Incorrecta'}
                         </p>
                         <p style="margin: 0 0 8px 0; font-size: 14px;">
                             <strong>Tu respuesta:</strong> ${opcionUsuario ? opcionUsuario.text : 'No respondida'}
@@ -1993,15 +2011,13 @@
                   `<p style="margin: 0 0 5px 0; font-size: 14px; color: #28a745;">
                                 <strong>Respuesta correcta:</strong> ${respuestaCorrecta.text}
                             </p>` : ''}
-                        <p style="margin: 0; font-size: 14px; font-weight: bold;">
-                            <strong>Resultado:</strong> ${esCorrecta ? '✅ Correcta' : '❌ Incorrecta'}
-                        </p>
                     </div>
                 `;
             });
 
             // SECCIÓN DEL CERTIFICADO (HOJA COMPLETA SEPARADA)
             contenidoImpresion += `
+                        </div>
                     </div> <!-- Cierre de examen-section -->
 
                     <!-- CERTIFICADO - HOJA COMPLETA SEPARADA -->
@@ -2024,7 +2040,7 @@
                                 
                                 <div class="nombre-usuario">${nombreUsuario}</div>
                                 
-                                <!-- <div class="linea-separadora"></div> -->
+                                <div class="linea-separadora"></div>
 
                                 <div class="texto-certificacion">
                                     Por haber participado en la especialidad:<br>
