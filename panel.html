@@ -1356,6 +1356,7 @@
 
       // Función para cargar las certificaciones del usuario
       // Función para cargar las certificaciones del usuario
+      // Función para cargar las certificaciones del usuario
       async function cargarCertificaciones() {
         // Mostrar loading
         certificacionesLoading.style.display = "block";
@@ -1370,6 +1371,9 @@
           }
 
           const userEmail = user.email;
+
+          // Obtener el visitanteId del localStorage (si existe)
+          let visitanteId = localStorage.getItem("visitanteId");
 
           // Obtener todos los formularios
           const formulariosRes = await fetch("/api/listarFormularios");
@@ -1394,8 +1398,13 @@
                 const fechaFin = data.fechaFin ? new Date(data.fechaFin) : null;
                 const hoy = new Date();
 
-                // Buscar respuestas del usuario por correo
-                const respuestasUsuario = respuestas.filter(r => r.correo === userEmail);
+                // Buscar respuestas del usuario por correo O por visitanteId
+                let respuestasUsuario = respuestas.filter(r => r.correo === userEmail);
+
+                // Si no encontramos por correo, intentamos por visitanteId
+                if (respuestasUsuario.length === 0 && visitanteId) {
+                  respuestasUsuario = respuestas.filter(r => r.visitanteId === visitanteId);
+                }
 
                 if (respuestasUsuario.length > 0) {
                   // Encontrar el examen del usuario si existe
@@ -1405,9 +1414,11 @@
                     return respuestaUsuario !== undefined;
                   });
 
-                  // Determinar asistencias
-                  const maxAsistencia = Math.max(...respuestasUsuario.map(r => r.asistenciaNumero || 0));
-                  const asistenciasCompletadas = maxAsistencia;
+                  // 🔹 CORRECCIÓN: Contar asistencias únicas completadas
+                  const asistenciasCompletadas = new Set(
+                    respuestasUsuario.map(r => r.asistenciaNumero)
+                  ).size;
+
                   const examenRealizado = examenUsuario !== undefined;
                   const calificacion = examenRealizado ? examenUsuario.puntaje : null;
                   const aprobado = calificacion >= 70;
@@ -1453,7 +1464,7 @@
                     formularioId: formularioId,
                     titulo: formularios[formularioId].titulo,
                     fecha: fechaMasReciente,
-                    asistenciasCompletadas: asistenciasCompletadas,
+                    asistenciasCompletadas: asistenciasCompletadas, // 🔹 Ahora es el conteo real
                     examenRealizado: examenRealizado,
                     calificacion: calificacion,
                     aprobado: aprobado,
