@@ -691,14 +691,26 @@
       </div>
     </div>
 
-    <!-- Perfil (igual que antes) -->
+    <!-- Perfil (sección corregida) -->
     <div id="perfilSection" class="card hidden">
       <h1>Editar Información</h1>
       <form id="editForm">
-        <img id="preview" src="https://dummyimage.com/120x120/ccc/fff">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img id="preview" src="https://dummyimage.com/120x120/ccc/fff"
+            style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #1976d2;">
+        </div>
+
         <h3>Actualizar Foto:</h3>
         <input type="file" id="foto" accept="image/*">
-        <h3>Actualizar Datos personales:</h3>
+
+        <h3>Datos personales:</h3>
+
+        <!-- Correo (solo lectura) -->
+        <div style="margin-bottom: 15px;">
+          <label for="correo" style="display: block; margin-bottom: 5px; font-weight: bold;">Correo electrónico:</label>
+          <input type="email" id="correo" readonly style="background-color: #f5f5f5; color: #666;">
+        </div>
+
         <input type="text" id="nombre" placeholder="Nombre" required>
         <input type="text" id="apellido" placeholder="Apellido" required>
         <input type="number" id="edad" placeholder="Edad" required>
@@ -709,6 +721,7 @@
           <option value="Otro">Otro</option>
         </select>
         <input type="text" id="pais" placeholder="País" required>
+
         <button type="submit" class="saveBtn">Guardar cambios</button>
       </form>
     </div>
@@ -843,6 +856,7 @@
     let puedeEntrarEspecialidades = false;
 
     // 🔹 Detectar usuario logueado
+    // 🔹 Detectar usuario logueado
     onAuthStateChanged(auth, async (user) => {
       // 🔒 Lista de correos permitidos para entrar a Especialidades
       const correosAutorizados = [
@@ -852,6 +866,9 @@
       // Obtener elementos del header
       const headerUserPhoto = document.getElementById("headerUserPhoto");
       const headerUserName = document.getElementById("headerUserName");
+
+      // Obtener el campo de correo del perfil
+      const correoInput = document.getElementById("correo");
 
       // Dentro del onAuthStateChanged (después de obtener el usuario)
       if (user) {
@@ -875,19 +892,18 @@
 
         // Actualizar header del usuario
         headerUserPhoto.src = currentPhotoURL;
-        headerUserName.textContent = `${data.nombre} ${data.apellido}`;
+        headerUserName.textContent = `${data.nombre || ''} ${data.apellido || ''}`;
 
-        // Quitar el contenido antiguo del inicio
-        inicioNombre.textContent = "Bienvenido";
-        inicioFoto.style.display = "none"; // Ocultar la foto grande
-
-        // Actualizar el resto de los campos
-        nombreInput.value = data.nombre;
-        apellidoInput.value = data.apellido;
-        edadInput.value = data.edad;
-        sexoInput.value = data.sexo;
-        paisInput.value = data.pais;
+        // Actualizar los campos del perfil
+        nombreInput.value = data.nombre || '';
+        apellidoInput.value = data.apellido || '';
+        edadInput.value = data.edad || '';
+        sexoInput.value = data.sexo || '';
+        paisInput.value = data.pais || '';
         preview.src = currentPhotoURL;
+
+        // Establecer el correo (solo lectura)
+        correoInput.value = user.email || '';
       }
 
       cargarEspecialidadesFijas();
