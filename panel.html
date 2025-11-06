@@ -1359,6 +1359,9 @@
       // 🔹 NUEVAS FUNCIONES PARA CERTIFICACIONES - DENTRO DEL MÓDULO
 
       // Función para cargar las certificaciones del usuario
+      // 🔹 NUEVAS FUNCIONES PARA CERTIFICACIONES - DENTRO DEL MÓDULO
+
+      // Función para cargar las certificaciones del usuario
       async function cargarCertificaciones() {
         // Mostrar loading
         certificacionesLoading.style.display = "block";
@@ -1403,31 +1406,40 @@
                 const fechaFin = fechaCierreFormulario ? new Date(fechaCierreFormulario) : null;
                 const hoy = new Date();
 
-                // Buscar respuestas del usuario por correo O por visitanteId
-                let respuestasUsuario = respuestas.filter(r => r.correo === userEmail);
+                // Buscar TODAS las respuestas del usuario por correo O por visitanteId
+                let respuestasUsuario = respuestas.filter(r =>
+                  r.correo === userEmail || r.visitanteId === visitanteId
+                );
 
-                // Si no encontramos por correo, intentamos por visitanteId
-                if (respuestasUsuario.length === 0 && visitanteId) {
-                  respuestasUsuario = respuestas.filter(r => r.visitanteId === visitanteId);
+                // Si no encontramos respuestas, continuar con el siguiente formulario
+                if (respuestasUsuario.length === 0) {
+                  continue;
                 }
 
-                if (respuestasUsuario.length > 0) {
-                  // Encontrar el examen del usuario si existe
-                  const examenUsuario = examenes.find(e => {
-                    // Buscar por visitanteId si está disponible
-                    const respuestaUsuario = respuestasUsuario.find(r => r.visitanteId === e.visitanteId);
-                    return respuestaUsuario !== undefined;
-                  });
+                // Agrupar respuestas por visitanteId para evitar duplicados
+                const respuestasAgrupadas = {};
+                respuestasUsuario.forEach(respuesta => {
+                  const key = respuesta.visitanteId;
+                  if (!respuestasAgrupadas[key]) {
+                    respuestasAgrupadas[key] = [];
+                  }
+                  respuestasAgrupadas[key].push(respuesta);
+                });
+
+                // Procesar cada grupo de respuestas (por visitanteId)
+                for (const [visitanteIdGrupo, respuestasGrupo] of Object.entries(respuestasAgrupadas)) {
+                  // Encontrar el examen del usuario para este visitanteId
+                  const examenUsuario = examenes.find(e => e.visitanteId === visitanteIdGrupo);
 
                   // 🔹 CORRECCIÓN: Contar asistencias completadas correctamente
-                  const numerosAsistencia = respuestasUsuario.map(r => r.asistenciaNumero);
+                  const numerosAsistencia = respuestasGrupo.map(r => r.asistenciaNumero);
                   const asistenciasCompletadas = [1, 2, 3].filter(num =>
                     numerosAsistencia.includes(num)
                   ).length;
 
                   const examenRealizado = examenUsuario !== undefined;
                   const calificacion = examenRealizado ? examenUsuario.puntaje : null;
-                  const aprobado = calificacion >= 70;
+                  const aprobado = examenRealizado ? calificacion >= 70 : false;
 
                   // 🔹 NUEVA LÓGICA PARA DETERMINAR ESTADO
                   let estado = "";
@@ -1440,7 +1452,7 @@
                         estado = "Completado";
                         estadoClase = "estado-completado";
                       } else {
-                        estado = "No aplica";
+                        estado = "Incompleto";
                         estadoClase = "estado-incompleto";
                       }
                     } else {
@@ -1464,19 +1476,20 @@
                   }
 
                   // Obtener la fecha más reciente
-                  const fechaMasReciente = new Date(Math.max(...respuestasUsuario.map(r => new Date(r.fecha))));
+                  const fechaMasReciente = new Date(Math.max(...respuestasGrupo.map(r => new Date(r.fecha))));
 
                   certificaciones.push({
                     formularioId: formularioId,
                     titulo: formularios[formularioId].titulo,
                     fecha: fechaMasReciente,
-                    asistenciasCompletadas: asistenciasCompletadas, // 🔹 Ahora es el conteo real
+                    asistenciasCompletadas: asistenciasCompletadas,
                     examenRealizado: examenRealizado,
                     calificacion: calificacion,
                     aprobado: aprobado,
                     estado: estado,
                     estadoClase: estadoClase,
-                    fechaFin: fechaFin
+                    fechaFin: fechaFin,
+                    visitanteId: visitanteIdGrupo
                   });
                 }
               }
@@ -1503,6 +1516,7 @@
       }
 
       // Función para actualizar la interfaz con las certificaciones
+      // Función para actualizar la interfaz con las certificaciones
       function actualizarInterfazCertificaciones(certificaciones) {
         // Ocultar loading
         certificacionesLoading.style.display = "none";
@@ -1517,19 +1531,42 @@
         sinCertificaciones.style.display = "none";
         certificacionesContent.style.display = "block";
 
+        // Agrupar certificaciones por formularioId para evitar duplicados
+        const certificacionesAgrupadas = {};
+        certificaciones.forEach(cert => {
+          if (!certificacionesAgrupadas[cert.formularioId]) {
+            certificacionesAgrupadas[cert.formularioId] = [];
+          }
+          certificacionesAgrupadas[cert.formularioId].push(cert);
+        });
+
+        // Tomar la mejor certificación de cada formulario (la que tenga más asistencias completadas)
+        const certificacionesUnicas = [];
+        Object.values(certificacionesAgrupadas).forEach(grupo => {
+          // Ordenar por asistencias completadas (mayor a menor) y luego por fecha (más reciente primero)
+          grupo.sort((a, b) => {
+            if (b.asistenciasCompletadas !== a.asistenciasCompletadas) {
+              return b.asistenciasCompletadas - a.asistenciasCompletadas;
+            }
+            return new Date(b.fecha) - new Date(a.fecha);
+          });
+          // Tomar la primera (mejor) certificación del grupo
+          certificacionesUnicas.push(grupo[0]);
+        });
+
         // Actualizar contadores
-        const completadas = certificaciones.filter(c => c.estado === "Completado").length;
-        totalEspecialidades.textContent = certificaciones.length;
+        const completadas = certificacionesUnicas.filter(c => c.estado === "Completado").length;
+        totalEspecialidades.textContent = certificacionesUnicas.length;
         especialidadesCompletadas.textContent = completadas;
 
         // Limpiar tabla
         cuerpoTablaCertificaciones.innerHTML = "";
 
         // Ordenar certificaciones por fecha (más reciente primero)
-        certificaciones.sort((a, b) => b.fecha - a.fecha);
+        certificacionesUnicas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
         // Llenar tabla
-        certificaciones.forEach((cert, index) => {
+        certificacionesUnicas.forEach((cert, index) => {
           const fila = document.createElement("tr");
 
           let calificacionTexto = "No realizado";
@@ -1541,14 +1578,14 @@
           }
 
           fila.innerHTML = `
-      <td>${index + 1}</td>
-      <td>${cert.titulo}</td>
-      <td>${cert.fecha.toLocaleDateString()}</td>
-      <td>${cert.asistenciasCompletadas}/3</td>
-      <td>${cert.examenRealizado ? "Sí" : "No"}</td>
-      <td class="${calificacionClase}">${calificacionTexto}</td>
-      <td class="${cert.estadoClase}">${cert.estado}</td>
-    `;
+            <td>${index + 1}</td>
+            <td>${cert.titulo}</td>
+            <td>${cert.fecha.toLocaleDateString()}</td>
+            <td>${cert.asistenciasCompletadas}/3</td>
+            <td>${cert.examenRealizado ? "Sí" : "No"}</td>
+            <td class="${calificacionClase}">${calificacionTexto}</td>
+            <td class="${cert.estadoClase}">${cert.estado}</td>
+        `;
 
           cuerpoTablaCertificaciones.appendChild(fila);
         });
