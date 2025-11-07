@@ -3350,51 +3350,85 @@
       });
 
       // 🔹 Agregar reacción a publicación
+      // 🔹 Agregar reacción a publicación - VERSIÓN MEJORADA CON VALIDACIONES
       async function addReaction(postId, reaction) {
         try {
+          // Validar que el usuario esté autenticado
+          if (!currentUserId) {
+            console.error('❌ Usuario no autenticado');
+            mostrarMensaje('info', 'Inicia sesión', 'Debes iniciar sesión para reaccionar.');
+            return;
+          }
+
+          console.log(`🎯 Agregando reacción ${reaction} al post ${postId} por usuario ${currentUserId}`);
+
           const postRef = doc(db, "posts", postId);
           const postDoc = await getDoc(postRef);
 
-          if (postDoc.exists()) {
-            const postData = postDoc.data();
-            const reactions = postData.reactions[reaction] || [];
+          if (!postDoc.exists()) {
+            console.error('❌ El post no existe');
+            return;
+          }
 
-            // Verificar si el usuario ya reaccionó
-            const userIndex = reactions.indexOf(currentUserId);
+          const postData = postDoc.data();
 
-            if (userIndex > -1) {
-              // Quitar reacción
-              reactions.splice(userIndex, 1);
-            } else {
-              // Agregar reacción
-              reactions.push(currentUserId);
-            }
-
-            const updatedReactions = {
-              ...postData.reactions,
-              [reaction]: reactions
+          // Inicializar reactions si no existen
+          if (!postData.reactions) {
+            postData.reactions = {
+              like: [], love: [], laugh: [], wow: [], sad: [], angry: [], seven: []
             };
+          }
 
-            await updateDoc(postRef, {
-              reactions: updatedReactions
-            });
+          const reactions = postData.reactions[reaction] || [];
 
-            // Actualizar visualmente
-            const countElement = document.querySelector(`[data-postid="${postId}"][data-reaction="${reaction}"] .reaction-count`);
-            if (countElement) {
-              countElement.textContent = reactions.length;
+          // Verificar si el usuario ya reaccionó
+          const userIndex = reactions.indexOf(currentUserId);
 
-              // Resaltar si el usuario reaccionó
-              const btn = countElement.closest('.reaction-btn');
-              if (reactions.includes(currentUserId)) {
-                btn.classList.add('active');
-              } else {
-                btn.classList.remove('active');
-              }
+          if (userIndex > -1) {
+            // Quitar reacción
+            reactions.splice(userIndex, 1);
+          } else {
+            // Agregar reacción
+            reactions.push(currentUserId);
+          }
+
+          const updatedReactions = {
+            ...postData.reactions,
+            [reaction]: reactions
+          };
+
+          console.log('📝 Actualizando reacciones:', updatedReactions);
+
+          await updateDoc(postRef, {
+            reactions: updatedReactions
+          });
+
+          console.log('✅ Reacción actualizada exitosamente');
+
+          // Actualizar visualmente
+          const countElement = document.querySelector(`[data-postid="${postId}"][data-reaction="${reaction}"] .reaction-count`);
+          if (countElement) {
+            countElement.textContent = reactions.length;
+
+            // Resaltar si el usuario reaccionó
+            const btn = countElement.closest('.reaction-btn');
+            if (reactions.includes(currentUserId)) {
+              btn.classList.add('active');
+            } else {
+              btn.classList.remove('active');
             }
           }
+
         } catch (error) {
-          console.error('Error agregando reacción:', error);
+          console.error('❌ Error agregando reacción:', error);
+          console.error('Detalles del error:', error.code, error.message);
+
+          // Mostrar mensaje específico según el error
+          if (error.code === 'permission-denied') {
+            mostrarMensaje('error', 'Permisos insuficientes', 'No tienes permisos para reaccionar. Contacta al administrador.');
+          } else {
+            mostrarMensaje('error', 'Error al reaccionar', 'No se pudo agregar la reacción. Intenta nuevamente.');
+          }
         }
       }
 
