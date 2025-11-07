@@ -1053,6 +1053,56 @@
       margin-bottom: 10px;
       color: #999;
     }
+
+    /* 🔧 ESTILOS PARA EL PANEL DE ADMINISTRACIÓN */
+
+    .admin-post-pending {
+      border-left: 4px solid #ff9800 !important;
+      background: #fffaf2 !important;
+    }
+
+    .admin-post-approved {
+      border-left: 4px solid #4caf50 !important;
+      background: #f8fff8 !important;
+    }
+
+    .admin-post-rejected {
+      border-left: 4px solid #f44336 !important;
+      background: #fff5f5 !important;
+    }
+
+    .approve-btn:hover {
+      background: #45a049 !important;
+      transform: translateY(-2px);
+    }
+
+    .reject-btn:hover {
+      background: #da190b !important;
+      transform: translateY(-2px);
+    }
+
+    .view-user-btn:hover {
+      background: #0b7dda !important;
+      transform: translateY(-2px);
+    }
+
+    /* Indicador de estado en publicaciones normales */
+    .post-status-indicator {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-left: 10px;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-approved {
+      background: #d1edff;
+      color: #02587f;
+    }
   </style>
 </head>
 
@@ -1066,6 +1116,7 @@
     <button id="menuCertificaciones">Certificaciones</button>
     <button id="menuEspecialidades">Especialidades Storage</button>
     <button id="menuPerfil">Perfil</button>
+    <button id="menuAdmin" class="hidden">🔧 Admin</button>
     <button id="logoutBtn">Cerrar sesión</button>
   </div>
 
@@ -1238,6 +1289,44 @@
       </div>
     </div>
 
+    <!-- 🔧 SECCIÓN ADMIN -->
+    <div id="adminSection" class="card hidden">
+      <h2>🔧 Panel de Administración</h2>
+      <p>Desde aquí puedes moderar las publicaciones pendientes de aprobación.</p>
+
+      <div id="adminStats" style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h4>📊 Estadísticas de Moderación</h4>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+          <div style="text-align: center;">
+            <div style="font-size: 24px; color: #ff9800;" id="pendingCount">0</div>
+            <div>Pendientes</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 24px; color: #4caf50;" id="approvedCount">0</div>
+            <div>Aprobadas</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 24px; color: #f44336;" id="rejectedCount">0</div>
+            <div>Rechazadas</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="adminLoading" style="text-align: center; padding: 20px; display: none;">
+        <div class="loading" style="display: inline-block;"></div>
+        <p>Cargando publicaciones pendientes...</p>
+      </div>
+
+      <div id="adminPostsContainer">
+        <!-- Aquí se cargarán las publicaciones pendientes -->
+      </div>
+
+      <div id="noPendingPosts" style="text-align: center; padding: 40px; display: none;">
+        <h3>🎉 No hay publicaciones pendientes</h3>
+        <p>Todas las publicaciones han sido moderadas.</p>
+      </div>
+    </div>
+
     <!-- 🔹 Visor PDF modal -->
     <div id="pdfViewerModal" class="hidden" style="display: none;">
       <div class="pdf-viewer-content">
@@ -1359,6 +1448,13 @@
         if (user) {
           const email = user.email;
           puedeEntrarEspecialidades = correosAutorizados.includes(email);
+        }
+
+        // Configurar panel admin si es administrador
+        if (user.email === "kendall.torres.17@gmail.com") {
+          isAdmin = true;
+          setupAdminSection();
+          setupAdminEventListeners();
         }
 
         if (!user) {
@@ -2991,18 +3087,14 @@
       }
 
       // 🔹 Guardar publicación en Firestore - VERSIÓN CORREGIDA
+      // 🔒 GUARDAR PUBLICACIÓN COMO PENDIENTE
       async function savePost(mediaData, description, mediaType) {
         try {
-          console.log('💾 Guardando publicación en Firestore...');
-
-          // Asegurarnos de que tenemos todos los datos necesarios
-          if (!userData || !userData.nombre) {
-            throw new Error('Datos de usuario incompletos');
-          }
+          console.log('💾 Guardando publicación como PENDIENTE...');
 
           const postData = {
             userId: currentUserId,
-            userName: userData.nombre.trim() || 'Usuario',
+            userName: userData.nombre || 'Usuario',
             userPhoto: userData.fotoURL || 'https://dummyimage.com/40x40/ccc/fff&text=User',
             mediaUrl: mediaData.url,
             mediaType: mediaType,
@@ -3012,28 +3104,24 @@
               id: mediaData.id,
               deletehash: mediaData.deletehash
             },
+            status: 'pending', // 🔥 NUEVO: Estado pendiente de aprobación
+            moderatedBy: null,
+            moderatedAt: null,
+            moderationReason: null,
             reactions: {
-              like: [],
-              love: [],
-              laugh: [],
-              wow: [],
-              sad: [],
-              angry: [],
-              seven: []
+              like: [], love: [], laugh: [], wow: [], sad: [], angry: [], seven: []
             },
-            comments: [],
-            status: 'active'
+            comments: []
           };
 
-          console.log('📝 Datos de la publicación:', postData);
+          console.log('📝 Datos de la publicación (PENDIENTE):', postData);
 
           const docRef = await addDoc(collection(db, "posts"), postData);
-          console.log('✅ Publicación guardada con ID:', docRef.id);
+          console.log('✅ Publicación guardada como PENDIENTE con ID:', docRef.id);
 
           return docRef.id;
         } catch (error) {
-          console.error('❌ Error guardando en Firestore:', error);
-          console.error('Detalles del error:', error.message, error.code);
+          console.error('❌ Error guardando publicación:', error);
           throw new Error('No se pudo guardar la publicación: ' + error.message);
         }
       }
@@ -3182,7 +3270,11 @@
           }
 
           await loadPosts();
-          mostrarMensaje('info', '¡Publicación exitosa!', 'Tu publicación ha sido compartida.');
+          // En handleUpload, después de guardar la publicación exitosamente
+          mostrarMensaje('info', '📤 Publicación enviada',
+            'Tu publicación ha sido enviada para revisión. Será visible para todos una vez que sea aprobada por un administrador.\n\n' +
+            'Tiempo estimado de revisión: 24 horas.'
+          );
 
         } catch (error) {
           console.error('❌ Error al publicar:', error);
@@ -3193,80 +3285,46 @@
       }
 
       // 🔹 Cargar publicaciones - VERSIÓN MEJORADA CON FALLBACK
+      // 🔒 CARGAR SOLO PUBLICACIONES APROBADAS PARA USUARIOS NORMALES
       async function loadPosts() {
         try {
-          console.log('📥 Cargando publicaciones...');
+          console.log('📥 Cargando publicaciones APROBADAS...');
 
-          // Cargar de Firestore
-          const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+          // Solo cargar publicaciones aprobadas
+          const q = query(
+            collection(db, "posts"),
+            where("status", "==", "approved"),
+            orderBy("timestamp", "desc")
+          );
+
           const querySnapshot = await getDocs(q);
-
-          console.log(`📊 Se encontraron ${querySnapshot.size} publicaciones en Firestore`);
+          console.log(`📊 Se encontraron ${querySnapshot.size} publicaciones aprobadas`);
 
           feed.innerHTML = '';
 
-          // Cargar publicaciones de localStorage si hay
-          const localPosts = JSON.parse(localStorage.getItem('localPosts') || '[]');
-          console.log(`📊 Se encontraron ${localPosts.length} publicaciones locales`);
-
-          const allPosts = [];
-
-          // Agregar publicaciones de Firestore
-          querySnapshot.forEach((doc) => {
-            allPosts.push({
-              ...doc.data(),
-              id: doc.id,
-              source: 'firestore'
-            });
-          });
-
-          // Agregar publicaciones locales
-          localPosts.forEach(post => {
-            allPosts.push({
-              ...post,
-              source: 'local'
-            });
-          });
-
-          // Ordenar todas las publicaciones por fecha
-          allPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-          if (allPosts.length === 0) {
+          if (querySnapshot.empty) {
             feed.innerHTML = `
         <div class="empty-feed">
           <h3>📷 No hay publicaciones aún</h3>
-          <p>¡Sé el primero en compartir algo!</p>
+          <p>¡Sé el primero en compartir algo! Recuerda que todas las publicaciones requieren aprobación.</p>
         </div>
       `;
             return;
           }
 
-          // Mostrar todas las publicaciones
-          allPosts.forEach((post) => {
-            displayPost(post, post.id);
+          querySnapshot.forEach((doc) => {
+            const post = doc.data();
+            displayPost(post, doc.id);
           });
 
         } catch (error) {
           console.error('❌ Error cargando publicaciones:', error);
-
-          // Fallback a localStorage
-          const localPosts = JSON.parse(localStorage.getItem('localPosts') || '[]');
-
-          if (localPosts.length > 0) {
-            feed.innerHTML = '';
-            localPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-              .forEach(post => displayPost(post, post.id));
-          } else {
-            feed.innerHTML = `
-        <div class="empty-feed">
-          <h3>❌ Error al cargar publicaciones</h3>
-          <p>${error.message || 'Intenta recargar la página'}</p>
-          <button onclick="loadPosts()" style="margin-top: 10px; padding: 8px 16px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            Reintentar
-          </button>
-        </div>
-      `;
-          }
+          feed.innerHTML = `
+      <div class="empty-feed">
+        <h3>❌ Error al cargar publicaciones</h3>
+        <p>${error.message || 'Intenta recargar la página'}</p>
+      </div>
+    `;
         }
       }
 
@@ -3584,6 +3642,283 @@
       }
 
 
+
+      // 🔧 FUNCIONES DEL PANEL DE ADMINISTRACIÓN
+
+      // Mostrar/ocultar sección Admin
+      function setupAdminSection() {
+        const menuAdmin = document.getElementById('menuAdmin');
+        const adminSection = document.getElementById('adminSection');
+
+        if (isAdmin) {
+          menuAdmin.classList.remove('hidden');
+
+          menuAdmin.addEventListener('click', () => {
+            mostrarSeccion(adminSection, menuAdmin);
+            loadPendingPosts();
+          });
+        }
+      }
+
+      // Cargar publicaciones pendientes
+      async function loadPendingPosts() {
+        try {
+          const adminLoading = document.getElementById('adminLoading');
+          const adminPostsContainer = document.getElementById('adminPostsContainer');
+          const noPendingPosts = document.getElementById('noPendingPosts');
+
+          adminLoading.style.display = 'block';
+          adminPostsContainer.innerHTML = '';
+          noPendingPosts.style.display = 'none';
+
+          console.log('🔧 Cargando publicaciones pendientes...');
+
+          const q = query(
+            collection(db, "posts"),
+            where("status", "==", "pending"),
+            orderBy("timestamp", "asc") // Más antiguas primero
+          );
+
+          const querySnapshot = await getDocs(q);
+
+          adminLoading.style.display = 'none';
+
+          if (querySnapshot.empty) {
+            noPendingPosts.style.display = 'block';
+            updateAdminStats();
+            return;
+          }
+
+          console.log(`🔧 Se encontraron ${querySnapshot.size} publicaciones pendientes`);
+
+          querySnapshot.forEach((doc) => {
+            displayPendingPost(doc.data(), doc.id);
+          });
+
+          updateAdminStats();
+
+        } catch (error) {
+          console.error('❌ Error cargando publicaciones pendientes:', error);
+          document.getElementById('adminLoading').style.display = 'none';
+          mostrarMensaje('error', 'Error', 'No se pudieron cargar las publicaciones pendientes.');
+        }
+      }
+
+      // Mostrar publicación pendiente en el panel admin
+      function displayPendingPost(post, postId) {
+        const postElement = document.createElement('div');
+        postElement.className = 'post-card';
+        postElement.style.marginBottom = '20px';
+        postElement.style.border = '2px solid #ff9800';
+
+        const timeAgo = getTimeAgo(new Date(post.timestamp));
+
+        postElement.innerHTML = `
+    <div class="post-header">
+      <img src="${post.userPhoto}" alt="Foto de perfil" class="post-user-img" onerror="this.src='https://dummyimage.com/40x40/ccc/fff'">
+      <div style="flex: 1;">
+        <div class="post-user-name">${post.userName}</div>
+        <div class="post-time">${timeAgo}</div>
+        <div style="font-size: 12px; color: #ff9800; margin-top: 5px;">
+          ⏳ Esperando aprobación
+        </div>
+      </div>
+    </div>
+    
+    <div class="post-content">
+      ${post.mediaType.startsWith('image/')
+            ? `<img src="${post.mediaUrl}" alt="Publicación pendiente" loading="lazy" style="max-width: 100%; border-radius: 8px;">`
+            : `<video src="${post.mediaUrl}" controls style="max-width: 100%; border-radius: 8px;"></video>`
+          }
+    </div>
+    
+    <div class="post-description">
+      ${post.description}
+    </div>
+    
+    <div style="padding: 15px; background: #fff3e0; border-radius: 8px; margin: 10px 0;">
+      <h4 style="margin-bottom: 10px;">🔧 Acciones de Moderación</h4>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="approve-btn" data-postid="${postId}" data-deletehash="${post.imgurData?.deletehash}" 
+                style="background: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+          ✅ Aprobar
+        </button>
+        <button class="reject-btn" data-postid="${postId}" data-deletehash="${post.imgurData?.deletehash}" 
+                style="background: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+          ❌ Rechazar
+        </button>
+        <button class="view-user-btn" data-userid="${post.userId}" 
+                style="background: #2196f3; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+          👤 Ver Usuario
+        </button>
+      </div>
+    </div>
+  `;
+
+        document.getElementById('adminPostsContainer').appendChild(postElement);
+      }
+
+      // Aprobar publicación
+      async function approvePost(postId) {
+        try {
+          console.log(`✅ Aprobando publicación: ${postId}`);
+
+          const postRef = doc(db, "posts", postId);
+          await updateDoc(postRef, {
+            status: 'approved',
+            moderatedBy: currentUserId,
+            moderatedAt: new Date().toISOString()
+          });
+
+          // Eliminar del panel admin
+          const postElement = document.querySelector(`.approve-btn[data-postid="${postId}"]`)?.closest('.post-card');
+          if (postElement) {
+            postElement.remove();
+          }
+
+          // Actualizar estadísticas
+          updateAdminStats();
+
+          // Notificar al backend (opcional)
+          try {
+            await fetch(`/api/social?action=approve-post`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ postId })
+            });
+          } catch (apiError) {
+            console.warn('⚠️ No se pudo notificar al backend:', apiError);
+          }
+
+          mostrarMensaje('success', '✅ Publicación aprobada', 'La publicación ahora es visible para todos los usuarios.');
+
+          // Verificar si quedan más publicaciones pendientes
+          const remainingPosts = document.querySelectorAll('.post-card').length;
+          if (remainingPosts === 0) {
+            document.getElementById('noPendingPosts').style.display = 'block';
+          }
+
+        } catch (error) {
+          console.error('❌ Error aprobando publicación:', error);
+          mostrarMensaje('error', 'Error', 'No se pudo aprobar la publicación.');
+        }
+      }
+
+      // Rechazar publicación
+      async function rejectPost(postId, deletehash) {
+        try {
+          console.log(`❌ Rechazando publicación: ${postId}`);
+
+          // Eliminar de Imgur primero
+          if (deletehash) {
+            try {
+              await fetch(`/api/social?action=delete`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ deletehash })
+              });
+            } catch (imgurError) {
+              console.warn('⚠️ No se pudo eliminar de Imgur:', imgurError);
+            }
+          }
+
+          // Eliminar de Firestore
+          await deleteDoc(doc(db, "posts", postId));
+
+          // Eliminar del panel admin
+          const postElement = document.querySelector(`.reject-btn[data-postid="${postId}"]`)?.closest('.post-card');
+          if (postElement) {
+            postElement.remove();
+          }
+
+          // Actualizar estadísticas
+          updateAdminStats();
+
+          // Notificar al backend (opcional)
+          try {
+            await fetch(`/api/social?action=reject-post`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ postId, deletehash })
+            });
+          } catch (apiError) {
+            console.warn('⚠️ No se pudo notificar al backend:', apiError);
+          }
+
+          mostrarMensaje('info', '❌ Publicación rechazada', 'La publicación ha sido eliminada.');
+
+          // Verificar si quedan más publicaciones pendientes
+          const remainingPosts = document.querySelectorAll('.post-card').length;
+          if (remainingPosts === 0) {
+            document.getElementById('noPendingPosts').style.display = 'block';
+          }
+
+        } catch (error) {
+          console.error('❌ Error rechazando publicación:', error);
+          mostrarMensaje('error', 'Error', 'No se pudo rechazar la publicación.');
+        }
+      }
+
+      // Actualizar estadísticas del panel admin
+      async function updateAdminStats() {
+        try {
+          const pendingQuery = query(collection(db, "posts"), where("status", "==", "pending"));
+          const approvedQuery = query(collection(db, "posts"), where("status", "==", "approved"));
+          const rejectedQuery = query(collection(db, "posts"), where("status", "==", "rejected"));
+
+          const [pendingSnapshot, approvedSnapshot, rejectedSnapshot] = await Promise.all([
+            getDocs(pendingQuery),
+            getDocs(approvedQuery),
+            getDocs(rejectedQuery)
+          ]);
+
+          document.getElementById('pendingCount').textContent = pendingSnapshot.size;
+          document.getElementById('approvedCount').textContent = approvedSnapshot.size;
+          document.getElementById('rejectedCount').textContent = rejectedSnapshot.size;
+
+        } catch (error) {
+          console.error('Error actualizando estadísticas:', error);
+        }
+      }
+
+      // Manejar eventos del panel admin
+      function setupAdminEventListeners() {
+        document.addEventListener('click', async (e) => {
+          // Aprobar publicación
+          if (e.target.classList.contains('approve-btn')) {
+            const postId = e.target.getAttribute('data-postid');
+            mostrarMensaje('confirm',
+              '¿Aprobar publicación?',
+              'Esta publicación será visible para todos los usuarios.',
+              () => approvePost(postId)
+            );
+          }
+
+          // Rechazar publicación
+          if (e.target.classList.contains('reject-btn')) {
+            const postId = e.target.getAttribute('data-postid');
+            const deletehash = e.target.getAttribute('data-deletehash');
+            mostrarMensaje('confirm',
+              '¿Rechazar publicación?',
+              'Esta publicación será eliminada permanentemente. Esta acción no se puede deshacer.',
+              () => rejectPost(postId, deletehash)
+            );
+          }
+
+          // Ver información del usuario
+          if (e.target.classList.contains('view-user-btn')) {
+            const userId = e.target.getAttribute('data-userid');
+            // Aquí puedes implementar una función para ver detalles del usuario
+            mostrarMensaje('info', 'Información del usuario', `ID del usuario: ${userId}`);
+          }
+        });
+      }
     </script>
 
 </body>
