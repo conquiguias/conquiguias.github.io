@@ -1539,12 +1539,6 @@
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          // 🔹 MIGRAR PUBLICACIONES ANTIGUAS SI ES ADMIN
-          if (isAdmin) {
-            setTimeout(() => {
-              migrateOldPosts();
-            }, 2000);
-          }
           currentPhotoURL = data.fotoURL || placeholderURL;
 
           // Actualizar header del usuario
@@ -1562,9 +1556,13 @@
           // Establecer el correo (solo lectura)
           correoInput.value = user.email || '';
 
-          // 🔹 INICIALIZAR DATOS DE RED SOCIAL
-          userData = data;
-          userData.email = user.email;
+          // 🔹 INICIALIZAR DATOS DE RED SOCIAL - CORREGIDO
+          userData = {
+            ...data,
+            email: user.email // 🔥 Asegurar que userData tenga el email
+          };
+
+          isAdmin = ADMIN_EMAILS.includes(user.email);
           lastPostTime = data.lastPostTime || null;
 
           // 🔹 INICIALIZAR RED SOCIAL INMEDIATAMENTE SI ESTAMOS EN INICIO
@@ -3168,7 +3166,7 @@
             userId: currentUserId,
             userName: userData.nombre || 'Usuario',
             userPhoto: userData.fotoURL || 'https://dummyimage.com/40x40/ccc/fff&text=User',
-            userEmail: userData.email,
+            userEmail: userData.email || '',
             mediaUrl: mediaData.url,
             mediaType: mediaType,
             description: description.trim(),
@@ -3277,7 +3275,7 @@
             userId: currentUserId,
             userName: userData.nombre || 'Usuario',
             userPhoto: userData.fotoURL || 'https://dummyimage.com/40x40/ccc/fff&text=User',
-            userEmail: userData.email,
+            userEmail: userData.email || '',
             mediaUrl: mediaData.url,
             mediaType: file.type,
             description: description,
