@@ -3066,11 +3066,36 @@
           return;
         }
 
-        // Validaciones de archivo
-        if (file.size > 10 * 1024 * 1024) {
-          mostrarMensaje('error', 'Archivo muy grande', 'El archivo no debe superar los 10MB.');
-          return;
+        // Validaciones de archivo según tipo y tamaño
+        const fileType = file.type;
+
+        // Límite para imágenes → 20MB
+        const IMAGE_MAX = 20 * 1024 * 1024; // 20MB
+        // Límite para videos / GIF → 200MB
+        const VIDEO_MAX = 200 * 1024 * 1024; // 200MB
+
+        if (fileType.startsWith("image/")) {
+          // Es imagen
+          if (file.size > IMAGE_MAX) {
+            mostrarMensaje(
+              'error',
+              'Imagen muy grande',
+              'Las imágenes no deben superar los 20MB.'
+            );
+            return;
+          }
+        } else if (fileType.startsWith("video/") || fileType === "image/gif") {
+          // Es video o GIF
+          if (file.size > VIDEO_MAX) {
+            mostrarMensaje(
+              'error',
+              'Video demasiado grande',
+              'Los videos y GIF no deben superar los 200MB.'
+            );
+            return;
+          }
         }
+
 
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime'];
         if (!validTypes.includes(file.type)) {
