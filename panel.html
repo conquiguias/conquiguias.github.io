@@ -1103,6 +1103,71 @@
       background: #d1edff;
       color: #02587f;
     }
+
+    /* Estilos para reacciones exclusivas */
+    .reaction-btn {
+      background: none;
+      border: 2px solid transparent;
+      border-radius: 20px;
+      padding: 6px 12px;
+      margin: 2px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .reaction-btn:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.05);
+    }
+
+    .reaction-btn.active {
+      background-color: #e3f2fd;
+      border-color: #1976d2;
+      transform: scale(1.1);
+      box-shadow: 0 2px 5px rgba(25, 118, 210, 0.3);
+    }
+
+    .reaction-count {
+      font-size: 13px;
+      color: #666;
+      font-weight: 500;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .reaction-btn.active .reaction-count {
+      color: #1976d2;
+      font-weight: bold;
+    }
+
+    /* Indicadores de estado de publicación */
+    .post-status-indicator {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 8px;
+      font-weight: 500;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-approved {
+      background: #d1edff;
+      color: #02587f;
+    }
+
+    /* Estilos para comentarios */
+    .post-comments {
+      background: #f8f9fa;
+      border-radius: 0 0 8px 8px;
+    }
   </style>
 </head>
 
@@ -3364,6 +3429,7 @@
       }
 
       // 🔹 Mostrar publicación en el feed - VERSIÓN MEJORADA
+      // 🔹 Mostrar publicación en el feed - VERSIÓN CON REACCIONES EXCLUSIVAS
       function displayPost(post, postId) {
         const postElement = document.createElement('div');
         postElement.className = 'post-card';
@@ -3371,6 +3437,27 @@
         const timeAgo = getTimeAgo(new Date(post.timestamp));
         const isPostOwner = post.userId === currentUserId;
         const isLocalPost = post.source === 'local';
+
+        // Preparar reacciones (con valores por defecto si no existen)
+        const reactions = post.reactions || {
+          like: [], love: [], laugh: [], wow: [], sad: [], angry: [], seven: []
+        };
+
+        // Determinar si el usuario actual está en cada reacción
+        const userReactions = {
+          like: reactions.like?.includes(currentUserId) || false,
+          love: reactions.love?.includes(currentUserId) || false,
+          laugh: reactions.laugh?.includes(currentUserId) || false,
+          wow: reactions.wow?.includes(currentUserId) || false,
+          sad: reactions.sad?.includes(currentUserId) || false,
+          angry: reactions.angry?.includes(currentUserId) || false,
+          seven: reactions.seven?.includes(currentUserId) || false
+        };
+
+        // Encontrar qué reacción tiene activa el usuario actual (solo debería haber una)
+        const userActiveReaction = Object.keys(userReactions).find(
+          reaction => userReactions[reaction]
+        );
 
         postElement.innerHTML = `
     <div class="post-header">
@@ -3380,54 +3467,116 @@
         <div class="post-time">
           ${timeAgo}
           ${isLocalPost ? ' (Guardado localmente)' : ''}
+          ${post.status === 'pending' ? '<span class="status-pending post-status-indicator">⏳ Pendiente</span>' : ''}
+          ${post.status === 'approved' ? '<span class="status-approved post-status-indicator">✅ Aprobada</span>' : ''}
         </div>
       </div>
       ${(isAdmin || isPostOwner) ? `
-    <button class="delete-post-btn" data-postid="${postId}" data-deletehash="${post.imgurData?.deletehash}">
-        🗑️ Eliminar
-    </button>
-` : ''}
+        <button class="delete-post-btn" data-postid="${postId}" data-deletehash="${post.imgurData?.deletehash}">
+          🗑️ Eliminar
+        </button>
+      ` : ''}
     </div>
     
     <div class="post-content">
       ${post.mediaType.startsWith('image/')
             ? `<img src="${post.mediaUrl}" alt="Publicación" loading="lazy" onerror="this.style.display='none'">`
-            : `<video src="${post.mediaUrl}" controls></video>`
+            : post.mediaType.startsWith('video/')
+              ? `<video src="${post.mediaUrl}" controls style="max-width: 100%; border-radius: 8px;"></video>`
+              : `<div style="padding: 20px; text-align: center; color: #666;">Tipo de archivo no compatible</div>`
           }
     </div>
     
     <div class="post-description">
-      ${post.description}
+      ${post.description || ''}
     </div>
     
     <div class="post-actions">
-      <button class="reaction-btn" data-reaction="like" data-postid="${postId}" data-source="${post.source}">❤️ <span class="reaction-count">${post.reactions?.like?.length || 0}</span></button>
-      <button class="reaction-btn" data-reaction="love" data-postid="${postId}" data-source="${post.source}">😍 <span class="reaction-count">${post.reactions?.love?.length || 0}</span></button>
-      <button class="reaction-btn" data-reaction="laugh" data-postid="${postId}" data-source="${post.source}">😂 <span class="reaction-count">${post.reactions?.laugh?.length || 0}</span></button>
-      <button class="reaction-btn" data-reaction="wow" data-postid="${postId}" data-source="${post.source}">🤣 <span class="reaction-count">${post.reactions?.wow?.length || 0}</span></button>
-      <button class="reaction-btn" data-reaction="sad" data-postid="${postId}" data-source="${post.source}">😲 <span class="reaction-count">${post.reactions?.sad?.length || 0}</span></button>
-      <button class="reaction-btn" data-reaction="angry" data-postid="${postId}" data-source="${post.source}">😠 <span class="reaction-count">${post.reactions?.angry?.length || 0}</span></button>
-      <button class="reaction-btn" data-reaction="seven" data-postid="${postId}" data-source="${post.source}">7️⃣ <span class="reaction-count">${post.reactions?.seven?.length || 0}</span></button>
+      <button class="reaction-btn ${userReactions.like ? 'active' : ''}" 
+              data-reaction="like" 
+              data-postid="${postId}">
+        ❤️ <span class="reaction-count">${reactions.like?.length || 0}</span>
+      </button>
+      
+      <button class="reaction-btn ${userReactions.love ? 'active' : ''}" 
+              data-reaction="love" 
+              data-postid="${postId}">
+        😍 <span class="reaction-count">${reactions.love?.length || 0}</span>
+      </button>
+      
+      <button class="reaction-btn ${userReactions.laugh ? 'active' : ''}" 
+              data-reaction="laugh" 
+              data-postid="${postId}">
+        😂 <span class="reaction-count">${reactions.laugh?.length || 0}</span>
+      </button>
+      
+      <button class="reaction-btn ${userReactions.wow ? 'active' : ''}" 
+              data-reaction="wow" 
+              data-postid="${postId}">
+        🤣 <span class="reaction-count">${reactions.wow?.length || 0}</span>
+      </button>
+      
+      <button class="reaction-btn ${userReactions.sad ? 'active' : ''}" 
+              data-reaction="sad" 
+              data-postid="${postId}">
+        😲 <span class="reaction-count">${reactions.sad?.length || 0}</span>
+      </button>
+      
+      <button class="reaction-btn ${userReactions.angry ? 'active' : ''}" 
+              data-reaction="angry" 
+              data-postid="${postId}">
+        😠 <span class="reaction-count">${reactions.angry?.length || 0}</span>
+      </button>
+      
+      <button class="reaction-btn ${userReactions.seven ? 'active' : ''}" 
+              data-reaction="seven" 
+              data-postid="${postId}">
+        7️⃣ <span class="reaction-count">${reactions.seven?.length || 0}</span>
+      </button>
     </div>
+
+    ${post.comments && post.comments.length > 0 ? `
+      <div class="post-comments" style="padding: 10px 15px; border-top: 1px solid #f0f0f0;">
+        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Comentarios:</div>
+        ${post.comments.slice(0, 2).map(comment => `
+          <div style="margin-bottom: 5px; font-size: 13px;">
+            <strong>${comment.userName}:</strong> ${comment.text}
+          </div>
+        `).join('')}
+        ${post.comments.length > 2 ? `
+          <div style="font-size: 12px; color: #1976d2; cursor: pointer;">
+            Ver ${post.comments.length - 2} comentarios más...
+          </div>
+        ` : ''}
+      </div>
+    ` : ''}
   `;
 
         feed.appendChild(postElement);
       }
 
-      // 🔹 Calcular tiempo transcurrido
+      // 🔹 Calcular tiempo transcurrido (formato humano)
       function getTimeAgo(date) {
         const now = new Date();
         const diffMs = now - date;
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
+        const diffWeeks = Math.floor(diffDays / 7);
+        const diffMonths = Math.floor(diffDays / 30);
 
         if (diffMins < 1) return 'Ahora mismo';
         if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
         if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
         if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+        if (diffWeeks < 4) return `Hace ${diffWeeks} semana${diffWeeks > 1 ? 's' : ''}`;
+        if (diffMonths < 12) return `Hace ${diffMonths} mes${diffMonths > 1 ? 'es' : ''}`;
 
-        return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        return date.toLocaleDateString('es-ES', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
       }
 
       // 🔹 Manejar reacciones
@@ -3483,9 +3632,8 @@
         }
       });
 
-      // 🔹 Agregar reacción a publicación
-      // 🔹 Agregar reacción a publicación - VERSIÓN MEJORADA CON VALIDACIONES
-      async function addReaction(postId, reaction) {
+      // 🔹 Agregar reacción EXCLUSIVA - solo una por usuario
+      async function addReaction(postId, newReaction) {
         try {
           // Validar que el usuario esté autenticado
           if (!currentUserId) {
@@ -3494,7 +3642,7 @@
             return;
           }
 
-          console.log(`🎯 Agregando reacción ${reaction} al post ${postId} por usuario ${currentUserId}`);
+          console.log(`🎯 Usuario ${currentUserId} quiere reaccionar con ${newReaction} al post ${postId}`);
 
           const postRef = doc(db, "posts", postId);
           const postDoc = await getDoc(postRef);
@@ -3513,57 +3661,81 @@
             };
           }
 
-          const reactions = postData.reactions[reaction] || [];
+          // 🔥 NUEVA LÓGICA: Reacciones exclusivas
+          const updatedReactions = { ...postData.reactions };
+          const allReactionTypes = ['like', 'love', 'laugh', 'wow', 'sad', 'angry', 'seven'];
 
-          // Verificar si el usuario ya reaccionó
-          const userIndex = reactions.indexOf(currentUserId);
+          // 1. Verificar si el usuario ya tenía esta misma reacción
+          const currentReactionIndex = updatedReactions[newReaction]?.indexOf(currentUserId);
+          const hadThisReaction = currentReactionIndex > -1;
 
-          if (userIndex > -1) {
-            // Quitar reacción
-            reactions.splice(userIndex, 1);
+          if (hadThisReaction) {
+            // 🔄 Caso 1: Ya tenía esta reacción → REMOVERLA (toggle off)
+            console.log(`➖ Usuario ya tenía ${newReaction}, removiendo...`);
+            updatedReactions[newReaction].splice(currentReactionIndex, 1);
           } else {
-            // Agregar reacción
-            reactions.push(currentUserId);
+            // 🔄 Caso 2: Nueva reacción → REMOVER de todas y AGREGAR a la nueva
+            console.log(`🔄 Usuario cambia a ${newReaction}`);
+
+            // Remover al usuario de TODAS las reacciones primero
+            allReactionTypes.forEach(reactionType => {
+              if (updatedReactions[reactionType]) {
+                const userIndex = updatedReactions[reactionType].indexOf(currentUserId);
+                if (userIndex > -1) {
+                  updatedReactions[reactionType].splice(userIndex, 1);
+                  console.log(`➖ Removido de ${reactionType}`);
+                }
+              }
+            });
+
+            // Agregar a la nueva reacción
+            if (!updatedReactions[newReaction]) {
+              updatedReactions[newReaction] = [];
+            }
+            updatedReactions[newReaction].push(currentUserId);
+            console.log(`➕ Agregado a ${newReaction}`);
           }
 
-          const updatedReactions = {
-            ...postData.reactions,
-            [reaction]: reactions
-          };
+          console.log('📝 Reacciones actualizadas:', updatedReactions);
 
-          console.log('📝 Actualizando reacciones:', updatedReactions);
-
+          // Actualizar en Firestore
           await updateDoc(postRef, {
             reactions: updatedReactions
           });
 
           console.log('✅ Reacción actualizada exitosamente');
 
-          // Actualizar visualmente
-          const countElement = document.querySelector(`[data-postid="${postId}"][data-reaction="${reaction}"] .reaction-count`);
-          if (countElement) {
-            countElement.textContent = reactions.length;
-
-            // Resaltar si el usuario reaccionó
-            const btn = countElement.closest('.reaction-btn');
-            if (reactions.includes(currentUserId)) {
-              btn.classList.add('active');
-            } else {
-              btn.classList.remove('active');
-            }
-          }
+          // Actualizar visualmente TODOS los botones de este post
+          updateReactionButtons(postId, updatedReactions);
 
         } catch (error) {
           console.error('❌ Error agregando reacción:', error);
-          console.error('Detalles del error:', error.code, error.message);
-
-          // Mostrar mensaje específico según el error
-          if (error.code === 'permission-denied') {
-            mostrarMensaje('error', 'Permisos insuficientes', 'No tienes permisos para reaccionar. Contacta al administrador.');
-          } else {
-            mostrarMensaje('error', 'Error al reaccionar', 'No se pudo agregar la reacción. Intenta nuevamente.');
-          }
+          mostrarMensaje('error', 'Error al reaccionar', 'No se pudo agregar la reacción. Intenta nuevamente.');
         }
+      }
+
+      // 🔹 Función para actualizar visualmente los botones de reacción
+      function updateReactionButtons(postId, reactions) {
+        const reactionButtons = document.querySelectorAll(`[data-postid="${postId}"].reaction-btn`);
+
+        reactionButtons.forEach(button => {
+          const reactionType = button.getAttribute('data-reaction');
+          const count = reactions[reactionType]?.length || 0;
+          const countElement = button.querySelector('.reaction-count');
+
+          // Actualizar contador
+          if (countElement) {
+            countElement.textContent = count;
+          }
+
+          // Actualizar estado activo
+          const isUserInThisReaction = reactions[reactionType]?.includes(currentUserId);
+          if (isUserInThisReaction) {
+            button.classList.add('active');
+          } else {
+            button.classList.remove('active');
+          }
+        });
       }
 
       // 🔹 Eliminar publicación (para admin o dueño del post)
