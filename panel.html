@@ -1374,14 +1374,20 @@
           // Establecer el correo (solo lectura)
           correoInput.value = user.email || '';
           // 🔹 INICIALIZAR DATOS DE RED SOCIAL
-  userData = data;
-  currentUserId = user.uid;
-  isAdmin = user.email === "kendall.torres.17@gmail.com"; // Tu correo de admin
-  lastPostTime = data.lastPostTime || null;
+          userData = data;
+          //currentUserId = user.uid;
+          isAdmin = user.email === "kendall.torres.17@gmail.com"; // Tu correo de admin
+          lastPostTime = data.lastPostTime || null;
         }
 
         cargarEspecialidadesFijas();
       });
+      // 🔹 Inicializar red social automáticamente si estamos en la sección de inicio
+      setTimeout(() => {
+        if (!inicioSection.classList.contains('hidden') && currentUserId && userData) {
+          initializeSocialNetwork();
+        }
+      }, 500);
 
       // 🔹 Navegación
       menuInicio.addEventListener("click", () => mostrarSeccion(inicioSection, menuInicio));
@@ -1630,7 +1636,9 @@
         // 🔹 INICIALIZAR RED SOCIAL CUANDO SE MUESTRE LA SECCIÓN DE INICIO
         if (seccion.id === "inicioSection") {
           setTimeout(() => {
-            initializeSocialNetwork();
+            if (currentUserId && userData) {
+              initializeSocialNetwork();
+            }
           }, 100);
         }
       }
@@ -2724,45 +2732,72 @@
 
 
       // 🔹 RED SOCIAL - Variables globales
-const uploadContainer = document.getElementById('uploadContainer');
-const fileInput = document.getElementById('fileInput');
-const postDescription = document.getElementById('postDescription');
-const previewContainer = document.getElementById('previewContainer');
-const uploadProgress = document.getElementById('uploadProgress');
-const progressBar = document.getElementById('progressBar');
-const progressText = document.getElementById('progressText');
-const uploadBtn = document.getElementById('uploadBtn');
-const countdownTimer = document.getElementById('countdownTimer');
-const feed = document.getElementById('feed');
+      const uploadContainer = document.getElementById('uploadContainer');
+      const fileInput = document.getElementById('fileInput');
+      const postDescription = document.getElementById('postDescription');
+      const previewContainer = document.getElementById('previewContainer');
+      const uploadProgress = document.getElementById('uploadProgress');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const countdownTimer = document.getElementById('countdownTimer');
+      const feed = document.getElementById('feed');
 
-let userData = null;
-let isAdmin = false;
-let lastPostTime = null;
-let countdownInterval = null;
+      let userData = null;
+      let isAdmin = false;
+      let lastPostTime = null;
+      let countdownInterval = null;
 
       // 🔹 RED SOCIAL - Funciones principales
 
-      // 🔹 Inicializar red social cuando se muestre la sección
-      function initializeSocialNetwork() {
+      // 🔹 Inicializar red social cuando se muestre la sección - VERSIÓN CORREGIDA
+      async function initializeSocialNetwork() {
+        console.log('🚀 Inicializando red social...');
+        console.log('👤 User ID:', currentUserId);
+        console.log('👑 Es admin:', isAdmin);
+        console.log('🕐 Última publicación:', lastPostTime);
+
+        // Verificar que tenemos los datos necesarios
+        if (!currentUserId || !userData) {
+          console.error('❌ No se pueden inicializar datos de red social: currentUserId o userData no están definidos');
+          return;
+        }
+
         setupUploadListeners();
         checkPostCooldown();
-        loadPosts();
+        await loadPosts();
+
+        console.log('✅ Red social inicializada correctamente');
       }
 
-      // 🔹 Configurar listeners para la subida
+      // 🔹 Configurar listeners para la subida - VERSIÓN CON VERIFICACIÓN
       function setupUploadListeners() {
+        console.log('🎯 Configurando listeners...');
+
+        if (!fileInput) {
+          console.error('❌ fileInput no encontrado');
+          return;
+        }
+
+        if (!uploadBtn) {
+          console.error('❌ uploadBtn no encontrado');
+          return;
+        }
+
         fileInput.addEventListener('change', handleFileSelect);
         uploadBtn.addEventListener('click', handleUpload);
+
+        console.log('✅ Listeners configurados correctamente');
       }
 
       // 🔹 Manejar selección de archivo
       function handleFileSelect(e) {
         const file = e.target.files[0];
         previewContainer.innerHTML = '';
-        
+
         if (file) {
           const reader = new FileReader();
-          reader.onload = function(e) {
+          reader.onload = function (e) {
             if (file.type.startsWith('image/')) {
               const img = document.createElement('img');
               img.src = e.target.result;
@@ -2786,13 +2821,13 @@ let countdownInterval = null;
           countdownTimer.style.display = 'none';
           return;
         }
-        
+
         if (lastPostTime) {
           const now = new Date();
           const lastPost = new Date(lastPostTime);
           const diffMs = now - lastPost;
           const diffMins = Math.floor(diffMs / 60000);
-          
+
           if (diffMins < 60) {
             startCountdown(60 - diffMins);
           } else {
@@ -2808,16 +2843,16 @@ let countdownInterval = null;
       // 🔹 Iniciar contador regresivo
       function startCountdown(minutesLeft) {
         let timeLeft = minutesLeft * 60; // Convertir a segundos
-        
+
         uploadBtn.disabled = true;
         uploadBtn.classList.add('upload-disabled');
         countdownTimer.style.display = 'inline';
-        
+
         updateCountdownDisplay(timeLeft);
-        
+
         countdownInterval = setInterval(() => {
           timeLeft--;
-          
+
           if (timeLeft <= 0) {
             clearInterval(countdownInterval);
             uploadBtn.disabled = false;
@@ -2825,7 +2860,7 @@ let countdownInterval = null;
             countdownTimer.style.display = 'none';
             return;
           }
-          
+
           updateCountdownDisplay(timeLeft);
         }, 1000);
       }
@@ -2847,14 +2882,17 @@ let countdownInterval = null;
         });
       }
 
-      // 🔹 Subir a Imgur a través del backend unificado
+      // 🔹 Subir a Imgur a través del backend unificado - VERSIÓN CORREGIDA
       async function uploadToImgur(file) {
         try {
+          console.log('📤 Iniciando subida a Imgur...');
           uploadProgress.style.display = 'block';
-          
+
           // Convertir archivo a base64
+          console.log('🔄 Convirtiendo archivo a base64...');
           const base64File = await fileToBase64(file);
-          
+
+          console.log('🌐 Enviando a API...');
           const response = await fetch(`/api/social?action=upload`, {
             method: 'POST',
             headers: {
@@ -2867,18 +2905,23 @@ let countdownInterval = null;
             })
           });
 
+          console.log('📨 Respuesta recibida, status:', response.status);
+
           if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error en la subida');
+            const errorText = await response.text();
+            console.error('❌ Error en respuesta:', errorText);
+            throw new Error(`Error en la subida: ${response.status}`);
           }
 
           const data = await response.json();
-          
+          console.log('📊 Datos recibidos:', data);
+
           if (!data.success) {
             throw new Error(data.error || 'Error en la subida');
           }
 
           // Simular progreso
+          console.log('📊 Actualizando progreso...');
           for (let i = 0; i <= 100; i += 20) {
             setTimeout(() => {
               progressBar.style.width = i + '%';
@@ -2886,6 +2929,7 @@ let countdownInterval = null;
             }, i * 10);
           }
 
+          console.log('✅ Subida a Imgur completada');
           return {
             url: data.link,
             deletehash: data.deletehash,
@@ -2893,7 +2937,7 @@ let countdownInterval = null;
           };
 
         } catch (error) {
-          console.error('Error subiendo a Imgur:', error);
+          console.error('❌ Error subiendo a Imgur:', error);
           throw new Error('No se pudo subir el archivo: ' + error.message);
         } finally {
           setTimeout(() => {
@@ -2904,98 +2948,127 @@ let countdownInterval = null;
         }
       }
 
-      // 🔹 Guardar publicación en Firestore
+      // 🔹 Guardar publicación en Firestore - VERSIÓN CON MANEJO DE ERRORES
       async function savePost(mediaData, description, mediaType) {
-        const postData = {
-          userId: currentUserId,
-          userName: userData.nombre,
-          userPhoto: userData.fotoURL,
-          mediaUrl: mediaData.url,
-          mediaType: mediaType,
-          description: description,
-          timestamp: new Date().toISOString(),
-          imgurData: {
-            id: mediaData.id,
-            deletehash: mediaData.deletehash
-          },
-          reactions: {
-            like: [],
-            love: [],
-            laugh: [],
-            wow: [],
-            sad: [],
-            angry: [],
-            seven: []
-          },
-          comments: [],
-          status: 'active'
-        };
-        
-        const docRef = await addDoc(collection(db, "posts"), postData);
-        return docRef.id;
+        try {
+          console.log('💾 Guardando publicación en Firestore...');
+
+          const postData = {
+            userId: currentUserId,
+            userName: userData.nombre,
+            userPhoto: userData.fotoURL || 'https://dummyimage.com/40x40/ccc/fff',
+            mediaUrl: mediaData.url,
+            mediaType: mediaType,
+            description: description,
+            timestamp: new Date().toISOString(),
+            imgurData: {
+              id: mediaData.id,
+              deletehash: mediaData.deletehash
+            },
+            reactions: {
+              like: [],
+              love: [],
+              laugh: [],
+              wow: [],
+              sad: [],
+              angry: [],
+              seven: []
+            },
+            comments: [],
+            status: 'active'
+          };
+
+          console.log('📝 Datos de la publicación:', postData);
+
+          const docRef = await addDoc(collection(db, "posts"), postData);
+          console.log('✅ Publicación guardada con ID:', docRef.id);
+
+          return docRef.id;
+        } catch (error) {
+          console.error('❌ Error guardando en Firestore:', error);
+          throw new Error('No se pudo guardar la publicación: ' + error.message);
+        }
       }
 
-      // 🔹 Manejar subida de publicación
+      // 🔹 Manejar subida de publicación - VERSIÓN CON DEPURACIÓN
       async function handleUpload() {
+        console.log('🔄 handleUpload iniciado');
+
         const file = fileInput.files[0];
         const description = postDescription.value.trim();
-        
+
+        console.log('📁 Archivo:', file);
+        console.log('📝 Descripción:', description);
+
         if (!file) {
+          console.log('❌ No hay archivo');
           mostrarMensaje('info', 'Selecciona una imagen o video', 'Debes seleccionar un archivo para publicar.');
           return;
         }
-        
+
         if (!description) {
+          console.log('❌ No hay descripción');
           mostrarMensaje('info', 'Agrega una descripción', 'Escribe una descripción para tu publicación.');
           return;
         }
-        
+
         // Validar tamaño del archivo (10MB máximo)
         if (file.size > 10 * 1024 * 1024) {
+          console.log('❌ Archivo muy grande');
           mostrarMensaje('error', 'Archivo muy grande', 'El archivo no debe superar los 10MB.');
           return;
         }
-        
+
         // Validar tipo de archivo
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime'];
         if (!validTypes.includes(file.type)) {
+          console.log('❌ Tipo de archivo no válido:', file.type);
           mostrarMensaje('error', 'Tipo de archivo no válido', 'Solo se permiten imágenes (JPEG, PNG, GIF) y videos (MP4).');
           return;
         }
-        
+
         try {
+          console.log('🚀 Iniciando proceso de publicación...');
           uploadBtn.disabled = true;
           uploadBtn.textContent = 'Subiendo...';
-          
+
           // Subir a través del backend
+          console.log('📤 Subiendo a Imgur...');
           const mediaData = await uploadToImgur(file);
-          
+          console.log('✅ Subida a Imgur exitosa:', mediaData);
+
           // Guardar publicación en Firestore
+          console.log('💾 Guardando en Firestore...');
           const postId = await savePost(mediaData, description, file.type);
-          
+          console.log('✅ Guardado en Firestore, ID:', postId);
+
           // Actualizar último tiempo de publicación
           if (!isAdmin) {
+            console.log('⏰ Actualizando tiempo de última publicación...');
             await updateDoc(doc(db, "usuarios", currentUserId), {
               lastPostTime: new Date().toISOString()
             });
             lastPostTime = new Date().toISOString();
             startCountdown(60); // 60 minutos de espera
           }
-          
+
           // Limpiar formulario
+          console.log('🧹 Limpiando formulario...');
           fileInput.value = '';
           postDescription.value = '';
           previewContainer.innerHTML = '';
           uploadBtn.disabled = false;
           uploadBtn.textContent = 'Publicar';
-          
+
           // Recargar el feed
+          console.log('🔄 Recargando feed...');
           loadPosts();
-          
+
+          console.log('✅ Publicación completada exitosamente');
           mostrarMensaje('info', '¡Publicación exitosa!', 'Tu publicación ha sido compartida.');
-          
+
         } catch (error) {
-          console.error('Error al publicar:', error);
+          console.error('❌ Error al publicar:', error);
           mostrarMensaje('error', 'Error al publicar', error.message || 'No se pudo completar la publicación.');
           uploadBtn.disabled = false;
           uploadBtn.textContent = 'Publicar';
@@ -3007,9 +3080,9 @@ let countdownInterval = null;
         try {
           const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
           const querySnapshot = await getDocs(q);
-          
+
           feed.innerHTML = '';
-          
+
           if (querySnapshot.empty) {
             feed.innerHTML = `
               <div class="empty-feed">
@@ -3019,7 +3092,7 @@ let countdownInterval = null;
             `;
             return;
           }
-          
+
           querySnapshot.forEach((doc) => {
             const post = doc.data();
             displayPost(post, doc.id);
@@ -3039,10 +3112,10 @@ let countdownInterval = null;
       function displayPost(post, postId) {
         const postElement = document.createElement('div');
         postElement.className = 'post-card';
-        
+
         const timeAgo = getTimeAgo(new Date(post.timestamp));
         const isPostOwner = post.userId === currentUserId;
-        
+
         postElement.innerHTML = `
           <div class="post-header">
             <img src="${post.userPhoto}" alt="Foto de perfil" class="post-user-img" onerror="this.src='https://dummyimage.com/40x40/ccc/fff'">
@@ -3058,10 +3131,10 @@ let countdownInterval = null;
           </div>
           
           <div class="post-content">
-            ${post.mediaType.startsWith('image/') 
-              ? `<img src="${post.mediaUrl}" alt="Publicación" loading="lazy" onerror="this.style.display='none'">`
-              : `<video src="${post.mediaUrl}" controls></video>`
-            }
+            ${post.mediaType.startsWith('image/')
+            ? `<img src="${post.mediaUrl}" alt="Publicación" loading="lazy" onerror="this.style.display='none'">`
+            : `<video src="${post.mediaUrl}" controls></video>`
+          }
           </div>
           
           <div class="post-description">
@@ -3078,7 +3151,7 @@ let countdownInterval = null;
             <button class="reaction-btn" data-reaction="seven" data-postid="${postId}">7️⃣ <span class="reaction-count">${post.reactions.seven.length}</span></button>
           </div>
         `;
-        
+
         feed.appendChild(postElement);
       }
 
@@ -3089,12 +3162,12 @@ let countdownInterval = null;
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
-        
+
         if (diffMins < 1) return 'Ahora mismo';
         if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
         if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
         if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
-        
+
         return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
       }
 
@@ -3104,16 +3177,16 @@ let countdownInterval = null;
           const btn = e.target.classList.contains('reaction-btn') ? e.target : e.target.closest('.reaction-btn');
           const reaction = btn.getAttribute('data-reaction');
           const postId = btn.getAttribute('data-postid');
-          
+
           await addReaction(postId, reaction);
         }
-        
+
         // Manejar eliminación de posts
         if (e.target.classList.contains('delete-post-btn') || e.target.closest('.delete-post-btn')) {
           const btn = e.target.classList.contains('delete-post-btn') ? e.target : e.target.closest('.delete-post-btn');
           const postId = btn.getAttribute('data-postid');
           const deletehash = btn.getAttribute('data-deletehash');
-          
+
           mostrarMensaje('confirm', 'Eliminar publicación', '¿Estás seguro de que quieres eliminar esta publicación?', async () => {
             try {
               await deletePost(postId, deletehash);
@@ -3131,14 +3204,14 @@ let countdownInterval = null;
         try {
           const postRef = doc(db, "posts", postId);
           const postDoc = await getDoc(postRef);
-          
+
           if (postDoc.exists()) {
             const postData = postDoc.data();
             const reactions = postData.reactions[reaction] || [];
-            
+
             // Verificar si el usuario ya reaccionó
             const userIndex = reactions.indexOf(currentUserId);
-            
+
             if (userIndex > -1) {
               // Quitar reacción
               reactions.splice(userIndex, 1);
@@ -3146,21 +3219,21 @@ let countdownInterval = null;
               // Agregar reacción
               reactions.push(currentUserId);
             }
-            
+
             const updatedReactions = {
               ...postData.reactions,
               [reaction]: reactions
             };
-            
+
             await updateDoc(postRef, {
               reactions: updatedReactions
             });
-            
+
             // Actualizar visualmente
             const countElement = document.querySelector(`[data-postid="${postId}"][data-reaction="${reaction}"] .reaction-count`);
             if (countElement) {
               countElement.textContent = reactions.length;
-              
+
               // Resaltar si el usuario reaccionó
               const btn = countElement.closest('.reaction-btn');
               if (reactions.includes(currentUserId)) {
@@ -3193,7 +3266,7 @@ let countdownInterval = null;
 
           // Eliminar de Firestore
           await deleteDoc(doc(db, "posts", postId));
-          
+
           return true;
         } catch (error) {
           console.error('Error eliminando publicación:', error);
@@ -3213,6 +3286,31 @@ let countdownInterval = null;
           return false;
         }
       }
+
+      // 🔹 VERIFICACIÓN INICIAL DEL ESTADO
+      console.log('🔍 Estado inicial de la red social:');
+      console.log('- currentUserId:', currentUserId);
+      console.log('- userData:', userData);
+      console.log('- isAdmin:', isAdmin);
+      console.log('- inicioSection visible:', !inicioSection.classList.contains('hidden'));
+
+      // Verificar si debemos inicializar la red social inmediatamente
+      document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(() => {
+          if (!inicioSection.classList.contains('hidden') && currentUserId && userData) {
+            console.log('🚀 Inicializando red social automáticamente...');
+            initializeSocialNetwork();
+          }
+        }, 1000);
+      });
+
+      // También verificar después de que Firebase se inicialice
+      setTimeout(() => {
+        if (!inicioSection.classList.contains('hidden') && currentUserId && userData) {
+          console.log('🚀 Inicializando red social después de Firebase...');
+          initializeSocialNetwork();
+        }
+      }, 2000);
 
 
 
