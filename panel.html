@@ -1258,7 +1258,9 @@
         getDocs,
         query,
         orderBy,
-        deleteDoc
+        deleteDoc,
+        limit,
+        setDoc
       } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
       import {
         getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll, getMetadata
@@ -3121,19 +3123,46 @@
         }
       }
 
-      // 🔹 Cargar publicaciones - VERSIÓN MEJORADA
+      // 🔹 Cargar publicaciones - VERSIÓN MEJORADA CON FALLBACK
       async function loadPosts() {
         try {
           console.log('📥 Cargando publicaciones...');
 
+          // Cargar de Firestore
           const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
           const querySnapshot = await getDocs(q);
 
-          console.log(`📊 Se encontraron ${querySnapshot.size} publicaciones`);
+          console.log(`📊 Se encontraron ${querySnapshot.size} publicaciones en Firestore`);
 
           feed.innerHTML = '';
 
-          if (querySnapshot.empty) {
+          // Cargar publicaciones de localStorage si hay
+          const localPosts = JSON.parse(localStorage.getItem('localPosts') || '[]');
+          console.log(`📊 Se encontraron ${localPosts.length} publicaciones locales`);
+
+          const allPosts = [];
+
+          // Agregar publicaciones de Firestore
+          querySnapshot.forEach((doc) => {
+            allPosts.push({
+              ...doc.data(),
+              id: doc.id,
+              source: 'firestore'
+            });
+          });
+
+          // Agregar publicaciones locales
+          localPosts.forEach(post => {
+            allPosts.push({
+              ...post,
+              source: 'local'
+            });
+          });
+
+          // Ordenar todas las publicaciones por fecha
+          allPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+          if (allPosts.length === 0) {
             feed.innerHTML = `
         <div class="empty-feed">
           <h3>📷 No hay publicaciones aún</h3>
@@ -3143,72 +3172,82 @@
             return;
           }
 
-          querySnapshot.forEach((doc) => {
-            const post = doc.data();
-            console.log('📄 Publicación cargada:', post);
-            displayPost(post, doc.id);
+          // Mostrar todas las publicaciones
+          allPosts.forEach((post) => {
+            displayPost(post, post.id);
           });
 
         } catch (error) {
           console.error('❌ Error cargando publicaciones:', error);
-          console.error('Código de error:', error.code);
-          console.error('Mensaje de error:', error.message);
 
-          feed.innerHTML = `
-      <div class="empty-feed">
-        <h3>❌ Error al cargar publicaciones</h3>
-        <p>${error.message || 'Intenta recargar la página'}</p>
-        <button onclick="loadPosts()" style="margin-top: 10px; padding: 8px 16px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
-          Reintentar
-        </button>
-      </div>
-    `;
+          // Fallback a localStorage
+          const localPosts = JSON.parse(localStorage.getItem('localPosts') || '[]');
+
+          if (localPosts.length > 0) {
+            feed.innerHTML = '';
+            localPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+              .forEach(post => displayPost(post, post.id));
+          } else {
+            feed.innerHTML = `
+        <div class="empty-feed">
+          <h3>❌ Error al cargar publicaciones</h3>
+          <p>${error.message || 'Intenta recargar la página'}</p>
+          <button onclick="loadPosts()" style="margin-top: 10px; padding: 8px 16px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Reintentar
+          </button>
+        </div>
+      `;
+          }
         }
       }
 
-      // 🔹 Mostrar publicación en el feed
+      // 🔹 Mostrar publicación en el feed - VERSIÓN MEJORADA
       function displayPost(post, postId) {
         const postElement = document.createElement('div');
         postElement.className = 'post-card';
 
         const timeAgo = getTimeAgo(new Date(post.timestamp));
         const isPostOwner = post.userId === currentUserId;
+        const isLocalPost = post.source === 'local';
 
         postElement.innerHTML = `
-          <div class="post-header">
-            <img src="${post.userPhoto}" alt="Foto de perfil" class="post-user-img" onerror="this.src='https://dummyimage.com/40x40/ccc/fff'">
-            <div>
-              <div class="post-user-name">${post.userName}</div>
-              <div class="post-time">${timeAgo}</div>
-            </div>
-            ${(isAdmin || isPostOwner) ? `
-              <button class="delete-post-btn" data-postid="${postId}" data-deletehash="${post.imgurData?.deletehash}">
-                🗑️ Eliminar
-              </button>
-            ` : ''}
-          </div>
-          
-          <div class="post-content">
-            ${post.mediaType.startsWith('image/')
+    <div class="post-header">
+      <img src="${post.userPhoto}" alt="Foto de perfil" class="post-user-img" onerror="this.src='https://dummyimage.com/40x40/ccc/fff'">
+      <div>
+        <div class="post-user-name">${post.userName}</div>
+        <div class="post-time">
+          ${timeAgo}
+          ${isLocalPost ? ' (Guardado localmente)' : ''}
+        </div>
+      </div>
+      ${(isAdmin || isPostOwner) ? `
+        <button class="delete-post-btn" data-postid="${postId}" data-deletehash="${post.imgurData?.deletehash}" data-source="${post.source}">
+          🗑️ Eliminar
+        </button>
+      ` : ''}
+    </div>
+    
+    <div class="post-content">
+      ${post.mediaType.startsWith('image/')
             ? `<img src="${post.mediaUrl}" alt="Publicación" loading="lazy" onerror="this.style.display='none'">`
             : `<video src="${post.mediaUrl}" controls></video>`
           }
-          </div>
-          
-          <div class="post-description">
-            ${post.description}
-          </div>
-          
-          <div class="post-actions">
-            <button class="reaction-btn" data-reaction="like" data-postid="${postId}">❤️ <span class="reaction-count">${post.reactions.like.length}</span></button>
-            <button class="reaction-btn" data-reaction="love" data-postid="${postId}">😍 <span class="reaction-count">${post.reactions.love.length}</span></button>
-            <button class="reaction-btn" data-reaction="laugh" data-postid="${postId}">😂 <span class="reaction-count">${post.reactions.laugh.length}</span></button>
-            <button class="reaction-btn" data-reaction="wow" data-postid="${postId}">🤣 <span class="reaction-count">${post.reactions.wow.length}</span></button>
-            <button class="reaction-btn" data-reaction="sad" data-postid="${postId}">😲 <span class="reaction-count">${post.reactions.sad.length}</span></button>
-            <button class="reaction-btn" data-reaction="angry" data-postid="${postId}">😠 <span class="reaction-count">${post.reactions.angry.length}</span></button>
-            <button class="reaction-btn" data-reaction="seven" data-postid="${postId}">7️⃣ <span class="reaction-count">${post.reactions.seven.length}</span></button>
-          </div>
-        `;
+    </div>
+    
+    <div class="post-description">
+      ${post.description}
+    </div>
+    
+    <div class="post-actions">
+      <button class="reaction-btn" data-reaction="like" data-postid="${postId}" data-source="${post.source}">❤️ <span class="reaction-count">${post.reactions?.like?.length || 0}</span></button>
+      <button class="reaction-btn" data-reaction="love" data-postid="${postId}" data-source="${post.source}">😍 <span class="reaction-count">${post.reactions?.love?.length || 0}</span></button>
+      <button class="reaction-btn" data-reaction="laugh" data-postid="${postId}" data-source="${post.source}">😂 <span class="reaction-count">${post.reactions?.laugh?.length || 0}</span></button>
+      <button class="reaction-btn" data-reaction="wow" data-postid="${postId}" data-source="${post.source}">🤣 <span class="reaction-count">${post.reactions?.wow?.length || 0}</span></button>
+      <button class="reaction-btn" data-reaction="sad" data-postid="${postId}" data-source="${post.source}">😲 <span class="reaction-count">${post.reactions?.sad?.length || 0}</span></button>
+      <button class="reaction-btn" data-reaction="angry" data-postid="${postId}" data-source="${post.source}">😠 <span class="reaction-count">${post.reactions?.angry?.length || 0}</span></button>
+      <button class="reaction-btn" data-reaction="seven" data-postid="${postId}" data-source="${post.source}">7️⃣ <span class="reaction-count">${post.reactions?.seven?.length || 0}</span></button>
+    </div>
+  `;
 
         feed.appendChild(postElement);
       }
@@ -3244,10 +3283,19 @@
           const btn = e.target.classList.contains('delete-post-btn') ? e.target : e.target.closest('.delete-post-btn');
           const postId = btn.getAttribute('data-postid');
           const deletehash = btn.getAttribute('data-deletehash');
+          const source = btn.getAttribute('data-source');
 
           mostrarMensaje('confirm', 'Eliminar publicación', '¿Estás seguro de que quieres eliminar esta publicación?', async () => {
             try {
-              await deletePost(postId, deletehash);
+              if (source === 'firestore') {
+                await deletePost(postId, deletehash);
+              } else {
+                // Eliminar de localStorage
+                const localPosts = JSON.parse(localStorage.getItem('localPosts') || '[]');
+                const updatedPosts = localPosts.filter(post => post.id !== postId);
+                localStorage.setItem('localPosts', JSON.stringify(updatedPosts));
+              }
+
               btn.closest('.post-card').remove();
               mostrarMensaje('info', 'Publicación eliminada', 'La publicación ha sido eliminada correctamente.');
             } catch (error) {
@@ -3370,7 +3418,7 @@
         }
       }, 2000);
 
-      // 🔹 Función para verificar y configurar Firestore
+      // 🔹 Función para verificar y configurar Firestore - VERSIÓN CORREGIDA
       async function initializeFirestore() {
         try {
           console.log('🔥 Inicializando Firestore...');
@@ -3387,13 +3435,14 @@
         }
       }
 
-      // 🔹 Probar permisos de Firestore
+      // 🔹 Probar permisos de Firestore - VERSIÓN CORREGIDA
       async function testFirestorePermissions() {
         try {
           console.log('🔐 Probando permisos de Firestore...');
 
           // Intentar escribir un documento de prueba
-          const testDocRef = doc(collection(db, "test_permissions"));
+          const testCollectionRef = collection(db, "test_permissions");
+          const testDocRef = doc(testCollectionRef);
           await setDoc(testDocRef, {
             test: true,
             timestamp: new Date().toISOString(),
@@ -3410,6 +3459,23 @@
           return true;
         } catch (error) {
           console.error('❌ Error en permisos:', error);
+          return false;
+        }
+      }
+
+      // 🔹 Función de fallback para guardar en localStorage
+      function savePostToLocalStorage(postData) {
+        try {
+          const savedPosts = JSON.parse(localStorage.getItem('localPosts') || '[]');
+          savedPosts.push({
+            ...postData,
+            id: 'local_' + Date.now(),
+            local: true
+          });
+          localStorage.setItem('localPosts', JSON.stringify(savedPosts));
+          return true;
+        } catch (error) {
+          console.error('Error guardando en localStorage:', error);
           return false;
         }
       }
