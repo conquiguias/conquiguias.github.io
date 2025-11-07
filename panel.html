@@ -1168,6 +1168,13 @@
       background: #f8f9fa;
       border-radius: 0 0 8px 8px;
     }
+
+    .status-admin {
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #8b6914 !important;
+      border: 1px solid #ffd700;
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -1497,11 +1504,6 @@
       // 🔹 Detectar usuario logueado
       // 🔹 Detectar usuario logueado
       onAuthStateChanged(auth, async (user) => {
-        // 🔒 Lista de correos permitidos para entrar a Especialidades
-        const correosAutorizados = [
-          "kendall.torres.17@gmail.com",
-          "lunabecky026@gmail.com"
-        ];
 
         // Obtener elementos del header
         const headerUserPhoto = document.getElementById("headerUserPhoto");
@@ -1512,13 +1514,15 @@
 
         // Dentro del onAuthStateChanged (después de obtener el usuario)
         if (user) {
+          // Obtener lista de admins desde el backend
+          const adminEmails = await getAdminEmails();
           const email = user.email;
-          puedeEntrarEspecialidades = correosAutorizados.includes(email);
+          puedeEntrarEspecialidades = adminEmails.includes(email);
+          isAdmin = adminEmails.includes(email); // También para el panel admin
         }
 
         // Configurar panel admin si es administrador
-        if (user.email === "kendall.torres.17@gmail.com") {
-          isAdmin = true;
+        if (isAdmin) {
           setupAdminSection();
           setupAdminEventListeners();
         }
@@ -1560,7 +1564,6 @@
 
           // 🔹 INICIALIZAR DATOS DE RED SOCIAL
           userData = data;
-          isAdmin = user.email === "kendall.torres.17@gmail.com"; // Tu correo de admin
           lastPostTime = data.lastPostTime || null;
 
           // 🔹 INICIALIZAR RED SOCIAL INMEDIATAMENTE SI ESTAMOS EN INICIO
@@ -3172,7 +3175,7 @@
               id: mediaData.id,
               deletehash: mediaData.deletehash
             },
-            status: 'pending', // 🔥 NUEVO: Estado pendiente de aprobación
+            status: 'pending',
             moderatedBy: null,
             moderatedAt: null,
             moderationReason: null,
@@ -3467,7 +3470,7 @@
         <div class="post-time">
           ${timeAgo}
           ${isLocalPost ? ' (Guardado localmente)' : ''}
-          ${isAdmin ? '<span class="status-approved post-status-indicator">Admin</span>' : ''}
+          ${isAdmin ? '<span class="status-admin post-status-indicator">Admin</span>' : ''}
         </div>
       </div>
       ${(isAdmin || isPostOwner) ? `
@@ -4261,6 +4264,24 @@
       }
 
 
+      // 🔹 Obtener lista de administradores desde el backend
+      async function getAdminEmails() {
+        try {
+          const response = await fetch('/api/social?action=get-admins');
+          if (!response.ok) {
+            throw new Error('Error al obtener administradores');
+          }
+
+          const data = await response.json();
+          if (data.success) {
+            return data.admins;
+          } else {
+            throw new Error(data.error);
+          }
+        } catch (error) {
+          console.error('❌ Error obteniendo administradores:', error);
+        }
+      }
     </script>
 
 </body>

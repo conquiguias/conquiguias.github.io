@@ -34,6 +34,9 @@ export default async function handler(req, res) {
       case "get-client-id":
         await handleGetClientId(req, res);
         break;
+      case "get-admins":
+        await handleGetAdmins(req, res);
+        break;
       default:
         res.status(400).json({ error: "Acción no válida" });
     }
@@ -99,3 +102,30 @@ export const config = {
     },
   },
 };
+
+// 🔒 Endpoint para obtener lista de administradores
+async function handleGetAdmins(req, res) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Método no permitido" });
+  }
+
+  try {
+    // Lista de administradores - SEGURA en el backend
+    const ADMIN_EMAILS = [
+      "kendall.torres.17@gmail.com",
+      "lunabecky026@gmail.com",
+      // Agrega más correos de administradores aquí
+    ];
+
+    res.status(200).json({
+      success: true,
+      admins: ADMIN_EMAILS,
+    });
+  } catch (error) {
+    console.error("Error obteniendo administradores:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al obtener lista de administradores",
+    });
+  }
+}
