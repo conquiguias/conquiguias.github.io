@@ -3472,7 +3472,7 @@
         <div class="post-time">
           ${timeAgo}
           ${isLocalPost ? ' (Guardado localmente)' : ''}
-          ${ADMIN_EMAILS.includes(post.userEmail) ? '<span class="status-admin post-status-indicator">👑 Admin</span>' : ''}
+          ${ADMIN_EMAILS.includes(post.userEmail) ? '<span class="status-admin post-status-indicator">Admin</span>' : ''}
         </div>
       </div>
       ${(isAdmin || isPostOwner) ? `
