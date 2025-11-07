@@ -3167,6 +3167,7 @@
             userId: currentUserId,
             userName: userData.nombre || 'Usuario',
             userPhoto: userData.fotoURL || 'https://dummyimage.com/40x40/ccc/fff&text=User',
+            userEmail: user.email,
             mediaUrl: mediaData.url,
             mediaType: mediaType,
             description: description.trim(),
@@ -3275,6 +3276,7 @@
             userId: currentUserId,
             userName: userData.nombre || 'Usuario',
             userPhoto: userData.fotoURL || 'https://dummyimage.com/40x40/ccc/fff&text=User',
+            userEmail: user.email,
             mediaUrl: mediaData.url,
             mediaType: file.type,
             description: description,
@@ -3470,7 +3472,7 @@
         <div class="post-time">
           ${timeAgo}
           ${isLocalPost ? ' (Guardado localmente)' : ''}
-          ${isAdmin ? '<span class="status-admin post-status-indicator">Admin</span>' : ''}
+          ${ADMIN_EMAILS.includes(post.userEmail) ? '<span class="status-admin post-status-indicator">👑 Admin</span>' : ''}
         </div>
       </div>
       ${(isAdmin || isPostOwner) ? `
@@ -4264,6 +4266,8 @@
       }
 
 
+      // 🔹 Lista global de administradores (se llena automáticamente)
+let ADMIN_EMAILS = [];
       // 🔹 Obtener lista de administradores desde el backend
       async function getAdminEmails() {
         try {
@@ -4274,6 +4278,10 @@
 
           const data = await response.json();
           if (data.success) {
+            if (data.success) {
+        ADMIN_EMAILS = data.admins;
+        console.log('✅ Administradores cargados:', ADMIN_EMAILS);
+      }
             return data.admins;
           } else {
             throw new Error(data.error);
