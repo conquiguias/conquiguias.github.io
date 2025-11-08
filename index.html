@@ -14,7 +14,8 @@
       signInWithEmailAndPassword,
       updateProfile,
       sendEmailVerification,
-      sendPasswordResetEmail
+      sendPasswordResetEmail,
+      onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
     import {
       getFirestore,
@@ -48,14 +49,45 @@
       const registerForm = document.getElementById("registerForm");
       const resetPasswordForm = document.getElementById("resetPasswordForm");
 
-      // LOGIN
+      // Verificar estado de autenticación
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // Si el usuario está verificado, redirigir al panel
+          if (user.emailVerified) {
+            window.location.href = "panel.html";
+          } else {
+            // Si no está verificado, mostrar mensaje
+            mostrarMensaje("info", "📧 Verifica tu correo", 
+              "Tu cuenta ha sido creada, pero necesitas verificar tu correo electrónico antes de acceder. Revisa tu bandeja de entrada y la carpeta de spam.", 
+              () => {
+                // Cerrar sesión hasta que verifique
+                auth.signOut();
+              });
+          }
+        }
+      });
+
+      // LOGIN CON VERIFICACIÓN OBLIGATORIA
       loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const email = loginForm.email.value.trim();
         const password = loginForm.password.value.trim();
 
         try {
-          await signInWithEmailAndPassword(auth, email, password);
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+          
+          // Verificar si el correo está verificado
+          if (!user.emailVerified) {
+            mostrarMensaje("confirm", "📧 Verificación requerida", 
+              "Debes verificar tu correo electrónico antes de acceder. ¿Quieres que te reenviemos el correo de verificación?", 
+              () => {
+                // Reenviar verificación
+                reenviarVerificacion(user);
+              });
+            return;
+          }
+          
           console.log("✅ Bienvenido de nuevo");
           window.location.href = "panel.html";
         } catch (error) {
@@ -113,6 +145,7 @@
             pais,
             email,
             fotoURL,
+            emailVerificado: false, // Agregar campo para tracking
             creado: new Date().toISOString()
           });
 
@@ -120,10 +153,16 @@
           await sendEmailVerification(user);
           console.log("📧 Correo de verificación enviado");
 
+          // Cerrar sesión hasta que verifique el correo
+          await auth.signOut();
+
           mostrarMensaje("info", `🎉 Registro exitoso, ¡bienvenido ${nombre}!`, 
             "Te hemos enviado un correo de verificación. Por favor, verifica tu dirección de correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada y la carpeta de spam. Jesús te bendiga, nuestro Gran Guía Mayor.", 
             () => {
-              window.location.href = "index.html"; // Redirigir al login
+              // Limpiar formulario
+              registerForm.reset();
+              // Volver al login
+              toggleForms();
             });
 
         } catch (error) {
@@ -151,6 +190,18 @@
         }
       });
     });
+
+    // Función para reenviar verificación de correo
+    async function reenviarVerificacion(user) {
+      try {
+        await sendEmailVerification(user);
+        mostrarMensaje("info", "📧 Correo reenviado", 
+          "Te hemos enviado nuevamente el correo de verificación. Revisa tu bandeja de entrada y la carpeta de spam.");
+      } catch (error) {
+        console.error("Error al reenviar verificación:", error);
+        mostrarMensaje("error", "❌ Error", "No se pudo reenviar el correo de verificación.");
+      }
+    }
 
     // Alternar formularios
     function toggleForms() {
