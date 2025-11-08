@@ -48,6 +48,9 @@
       const loginForm = document.getElementById("loginForm");
       const registerForm = document.getElementById("registerForm");
       const resetPasswordForm = document.getElementById("resetPasswordForm");
+      const loginBtn = document.getElementById("loginBtn");
+      const registerBtn = document.getElementById("registerBtn");
+      const resetPasswordBtn = document.getElementById("resetPasswordBtn");
 
       // Verificar estado de autenticación
       onAuthStateChanged(auth, (user) => {
@@ -73,12 +76,16 @@
         const email = loginForm.email.value.trim();
         const password = loginForm.password.value.trim();
 
+        // 🔥 MOSTRAR LOADER
+        showLoader(loginBtn, "⏳ Iniciando sesión...");
+
         try {
           const userCredential = await signInWithEmailAndPassword(auth, email, password);
           const user = userCredential.user;
           
           // Verificar si el correo está verificado
           if (!user.emailVerified) {
+            hideLoader(loginBtn, "Entrar");
             mostrarMensaje("confirm", "📧 Verificación requerida", 
               "Debes verificar tu correo electrónico antes de acceder. ¿Quieres que te reenviemos el correo de verificación?", 
               () => {
@@ -89,9 +96,14 @@
           }
           
           console.log("✅ Bienvenido de nuevo");
-          window.location.href = "panel.html";
+          showLoader(loginBtn, "✅ Redirigiendo...");
+          setTimeout(() => {
+            window.location.href = "panel.html";
+          }, 1000);
+          
         } catch (error) {
-          mostrarMensaje("error", "⚠️ Error al iniciar sesión.");
+          hideLoader(loginBtn, "Entrar");
+          mostrarMensaje("error", "⚠️ Error al iniciar sesión", "Verifica tus credenciales e intenta nuevamente.");
         }
       });
 
@@ -108,35 +120,44 @@
         const password = registerForm.password.value.trim();
         const foto = registerForm.foto.files[0];
 
+        // 🔥 MOSTRAR LOADER
+        showLoader(registerBtn, "⏳ Creando cuenta...");
+
         try {
           // ✅ VALIDAR FOTO ANTES DE CREAR USUARIO
           if (!foto) {
+            hideLoader(registerBtn, "Registrar");
             mostrarMensaje("info", "⚠️ Debes seleccionar una foto de perfil.");
             return;
           }
 
           if (foto.size > 1024 * 1024) {
+            hideLoader(registerBtn, "Registrar");
             mostrarMensaje("info", "⚠️ La imagen no debe superar 1 MB.");
             return;
           }
 
           // 🔹 Crear usuario
+          updateLoader(registerBtn, "⏳ Creando usuario...");
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           const user = userCredential.user;
           console.log("🟢 Usuario creado:", user.uid);
 
           // Subir foto
+          updateLoader(registerBtn, "⏳ Subiendo foto...");
           const fotoRef = ref(storage, `usuarios/${user.uid}/${foto.name}`);
           await uploadBytes(fotoRef, foto);
           const fotoURL = await getDownloadURL(fotoRef);
 
           // Actualizar perfil de Auth
+          updateLoader(registerBtn, "⏳ Configurando perfil...");
           await updateProfile(user, {
             displayName: `${nombre} ${apellido}`,
             photoURL: fotoURL
           });
 
           // Guardar datos en Firestore
+          updateLoader(registerBtn, "⏳ Guardando datos...");
           await setDoc(doc(db, "usuarios", user.uid), {
             nombre,
             apellido,
@@ -145,17 +166,19 @@
             pais,
             email,
             fotoURL,
-            emailVerificado: false, // Agregar campo para tracking
+            emailVerificado: false,
             creado: new Date().toISOString()
           });
 
           // 🔹 ENVIAR VERIFICACIÓN DE CORREO
+          updateLoader(registerBtn, "⏳ Enviando verificación...");
           await sendEmailVerification(user);
           console.log("📧 Correo de verificación enviado");
 
           // Cerrar sesión hasta que verifique el correo
           await auth.signOut();
 
+          hideLoader(registerBtn, "Registrar");
           mostrarMensaje("info", `🎉 Registro exitoso, ¡bienvenido ${nombre}!`, 
             "Te hemos enviado un correo de verificación. Por favor, verifica tu dirección de correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada y la carpeta de spam. Jesús te bendiga, nuestro Gran Guía Mayor.", 
             () => {
@@ -166,8 +189,19 @@
             });
 
         } catch (error) {
+          hideLoader(registerBtn, "Registrar");
           console.error("Error al registrarse:", error);
-          mostrarMensaje("error", "❌ Error en el registro.", "Revisa tus datos o el tamaño de la imagen.");
+          
+          let errorMessage = "Revisa tus datos o el tamaño de la imagen.";
+          if (error.code === 'auth/email-already-in-use') {
+            errorMessage = "Este correo electrónico ya está registrado.";
+          } else if (error.code === 'auth/weak-password') {
+            errorMessage = "La contraseña debe tener al menos 6 caracteres.";
+          } else if (error.code === 'auth/invalid-email') {
+            errorMessage = "El formato del correo electrónico no es válido.";
+          }
+          
+          mostrarMensaje("error", "❌ Error en el registro", errorMessage);
         }
       });
 
@@ -176,8 +210,12 @@
         e.preventDefault();
         const email = resetPasswordForm.email.value.trim();
 
+        // 🔥 MOSTRAR LOADER
+        showLoader(resetPasswordBtn, "⏳ Enviando enlace...");
+
         try {
           await sendPasswordResetEmail(auth, email);
+          hideLoader(resetPasswordBtn, "Enviar enlace de recuperación");
           mostrarMensaje("info", "📧 Correo enviado", 
             "Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada y la carpeta de spam.", 
             () => {
@@ -185,11 +223,37 @@
               document.getElementById("loginBox").classList.remove("hidden");
             });
         } catch (error) {
+          hideLoader(resetPasswordBtn, "Enviar enlace de recuperación");
           console.error("Error al enviar correo de recuperación:", error);
           mostrarMensaje("error", "❌ Error", "No se pudo enviar el correo de recuperación. Verifica tu dirección de correo.");
         }
       });
     });
+
+    // 🔥 FUNCIONES PARA LOS LOADERS
+    function showLoader(button, text) {
+      button.disabled = true;
+      button.innerHTML = `
+        <div class="loader-button">
+          <div class="loader-spinner"></div>
+          <span>${text}</span>
+        </div>
+      `;
+    }
+
+    function updateLoader(button, text) {
+      button.innerHTML = `
+        <div class="loader-button">
+          <div class="loader-spinner"></div>
+          <span>${text}</span>
+        </div>
+      `;
+    }
+
+    function hideLoader(button, originalText) {
+      button.disabled = false;
+      button.innerHTML = originalText;
+    }
 
     // Función para reenviar verificación de correo
     async function reenviarVerificacion(user) {
@@ -303,10 +367,20 @@
       font-weight: bold;
       cursor: pointer;
       transition: 0.2s;
+      position: relative;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    button:hover {
+    button:hover:not(:disabled) {
       background: #00d49a;
+    }
+
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
     }
 
     .toggle {
@@ -324,6 +398,28 @@
 
     .hidden {
       display: none;
+    }
+
+    /* 🔹 LOADER PARA BOTONES */
+    .loader-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .loader-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top: 2px solid #ffffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     /* 🔹 Fondo del modal */
@@ -441,7 +537,7 @@
         <input class="password" id="password" type="password" name="password" placeholder="Contraseña" required>
         <input class="chkShow" id="chkShow" type="checkbox">
       </div>
-      <button style="font-size: 20px;" type="submit">Entrar</button>
+      <button type="submit" id="loginBtn" style="font-size: 20px;">Entrar</button>
     </form>
     <div class="forgot-password" onclick="showResetPassword()">¿Olvidaste tu contraseña?</div>
     <div class="toggle" onclick="toggleForms()">¿No tienes cuenta? Regístrate</div>
@@ -467,7 +563,7 @@
       </div>
       <h2 style="margin: 0%;">Subir Foto:</h2>
       <input type="file" name="foto" accept="image/*" required>
-      <button type="submit">Registrar</button>
+      <button type="submit" id="registerBtn">Registrar</button>
     </form>
     <div class="toggle" onclick="toggleForms()">¿Ya tienes cuenta? Inicia sesión</div>
   </div>
@@ -477,7 +573,7 @@
     <h1>Recuperar Contraseña</h1>
     <form id="resetPasswordForm">
       <input type="email" name="email" placeholder="Correo electrónico" required>
-      <button type="submit">Enviar enlace de recuperación</button>
+      <button type="submit" id="resetPasswordBtn">Enviar enlace de recuperación</button>
     </form>
     <div class="back-link" onclick="backToLogin()">Volver al inicio de sesión</div>
   </div>
