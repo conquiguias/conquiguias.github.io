@@ -12,7 +12,9 @@
       getAuth,
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
-      updateProfile
+      updateProfile,
+      sendEmailVerification,
+      sendPasswordResetEmail
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
     import {
       getFirestore,
@@ -44,6 +46,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       const loginForm = document.getElementById("loginForm");
       const registerForm = document.getElementById("registerForm");
+      const resetPasswordForm = document.getElementById("resetPasswordForm");
 
       // LOGIN
       loginForm.addEventListener("submit", async (e) => {
@@ -60,7 +63,7 @@
         }
       });
 
-      // REGISTRO
+      // REGISTRO CON VERIFICACIÓN DE CORREO
       registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
@@ -113,14 +116,38 @@
             creado: new Date().toISOString()
           });
 
-          mostrarMensaje("info", `🎉 Registro exitoso, ¡bienvenido ${nombre}!`, "Esperamos sea de gran bendición nuestra plataforma especialmente hecha para ti, un apasionad@ por los clubes. Jesús te bendiga, nuestro  Gran Guía Mayor.", () => {
-            window.location.href = "panel.html";
-          });
+          // 🔹 ENVIAR VERIFICACIÓN DE CORREO
+          await sendEmailVerification(user);
+          console.log("📧 Correo de verificación enviado");
 
+          mostrarMensaje("info", `🎉 Registro exitoso, ¡bienvenido ${nombre}!`, 
+            "Te hemos enviado un correo de verificación. Por favor, verifica tu dirección de correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada y la carpeta de spam. Jesús te bendiga, nuestro Gran Guía Mayor.", 
+            () => {
+              window.location.href = "index.html"; // Redirigir al login
+            });
 
         } catch (error) {
           console.error("Error al registrarse:", error);
           mostrarMensaje("error", "❌ Error en el registro.", "Revisa tus datos o el tamaño de la imagen.");
+        }
+      });
+
+      // RECUPERACIÓN DE CONTRASEÑA
+      resetPasswordForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = resetPasswordForm.email.value.trim();
+
+        try {
+          await sendPasswordResetEmail(auth, email);
+          mostrarMensaje("info", "📧 Correo enviado", 
+            "Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada y la carpeta de spam.", 
+            () => {
+              document.getElementById("resetPasswordBox").classList.add("hidden");
+              document.getElementById("loginBox").classList.remove("hidden");
+            });
+        } catch (error) {
+          console.error("Error al enviar correo de recuperación:", error);
+          mostrarMensaje("error", "❌ Error", "No se pudo enviar el correo de recuperación. Verifica tu dirección de correo.");
         }
       });
     });
@@ -132,16 +159,28 @@
     }
     window.toggleForms = toggleForms;
 
+    // Mostrar formulario de recuperación de contraseña
+    function showResetPassword() {
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("resetPasswordBox").classList.remove("hidden");
+    }
+    window.showResetPassword = showResetPassword;
+
+    // Volver al login desde recuperación
+    function backToLogin() {
+      document.getElementById("resetPasswordBox").classList.add("hidden");
+      document.getElementById("loginBox").classList.remove("hidden");
+    }
+    window.backToLogin = backToLogin;
 
     ////////////////////////////////////////
     /**
- * 🔹 Mostrar mensaje dinámico
- * @param {string} tipo - "info" | "error" | "confirm"
- * @param {string} titulo - Texto del título
- * @param {string} mensaje - Texto del cuerpo
- * @param {function} onConfirm - (Opcional) callback si se presiona "Aceptar" en tipo confirm
- */
-
+     * 🔹 Mostrar mensaje dinámico
+     * @param {string} tipo - "info" | "error" | "confirm"
+     * @param {string} titulo - Texto del título
+     * @param {string} mensaje - Texto del cuerpo
+     * @param {function} onConfirm - (Opcional) callback si se presiona "Aceptar" en tipo confirm
+     */
     function mostrarMensaje(tipo, titulo, mensaje, onConfirm = null) {
       const modal = document.getElementById("mensajeModal");
       const tituloEl = document.getElementById("mensajeTitulo");
@@ -225,6 +264,13 @@
       cursor: pointer;
     }
 
+    .forgot-password {
+      color: #ffdf70;
+      margin-top: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
     .hidden {
       display: none;
     }
@@ -299,7 +345,6 @@
       display: none !important;
     }
 
-
     .contenedor-password {
       display: flex;
       position: relative;
@@ -325,6 +370,13 @@
       flex-direction: column;
       position: relative;
     }
+    
+    .back-link {
+      color: #ffdf70;
+      margin-top: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
   </style>
 </head>
 
@@ -340,6 +392,7 @@
       </div>
       <button style="font-size: 20px;" type="submit">Entrar</button>
     </form>
+    <div class="forgot-password" onclick="showResetPassword()">¿Olvidaste tu contraseña?</div>
     <div class="toggle" onclick="toggleForms()">¿No tienes cuenta? Regístrate</div>
   </div>
 
@@ -367,6 +420,17 @@
     </form>
     <div class="toggle" onclick="toggleForms()">¿Ya tienes cuenta? Inicia sesión</div>
   </div>
+
+  <!-- Recuperación de contraseña -->
+  <div class="container hidden" id="resetPasswordBox">
+    <h1>Recuperar Contraseña</h1>
+    <form id="resetPasswordForm">
+      <input type="email" name="email" placeholder="Correo electrónico" required>
+      <button type="submit">Enviar enlace de recuperación</button>
+    </form>
+    <div class="back-link" onclick="backToLogin()">Volver al inicio de sesión</div>
+  </div>
+
   <!-- 🔹 Contenedor general de mensajes -->
   <div id="mensajeModal" class="hiddenX">
     <div class="mensaje-content">
