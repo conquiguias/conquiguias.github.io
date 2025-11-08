@@ -1507,6 +1507,12 @@
 
       // 🔹 Detectar usuario logueado
       onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          // Usuario NO autenticado - redirigir al login
+          console.log("🚫 Acceso denegado: usuario no autenticado");
+          window.location.href = "index.html";
+          return;
+        }
         // 🔒 VERIFICACIÓN DE CORREO ELECTRÓNICO
         if (user && !user.emailVerified) {
           console.log("🚫 Acceso denegado: correo no verificado");
@@ -1564,11 +1570,6 @@
         if (isAdmin) {
           setupAdminSection();
           setupAdminEventListeners();
-        }
-
-        if (!user) {
-          window.location.href = "index.html";
-          return;
         }
 
         currentUserId = user.uid;
