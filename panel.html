@@ -2564,7 +2564,7 @@
                             margin-bottom: 10px;
                             letter-spacing: 1px;
                         }
-                            
+
                         .certificado-texto {
                             font-size: 50px;
                             color: #2c3e50;
@@ -2662,6 +2662,40 @@
                             padding: 0;
                             color: #333;
                         }
+
+                        /* 🔹 CONFIGURACIÓN AUTOMÁTICA DE IMPRESIÓN */
+                    @media print {
+                        /* MÁRGENES EN "NINGUNO" */
+                        @page {
+                            margin: 0 !important;
+                            padding: 0 !important;
+                        }
+                        
+                        body {
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            -webkit-print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        
+                        /* GRÁFICOS DE FONDO ACTIVADOS */
+                        * {
+                            -webkit-print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        
+                        /* Asegurar que todas las imágenes de fondo se impriman */
+                        .decoracion-certificado,
+                        .fondo-grafico,
+                        .resumen-examen,
+                        .certificacion-page {
+                            -webkit-print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                    }
                     </style>
                 </head>
                 <body>
