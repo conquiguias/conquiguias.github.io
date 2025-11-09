@@ -38,10 +38,10 @@ export default async function handler(req, res) {
     const { id, nombre, correo, edad, telefono, asociacion, visitanteId, asistenciaNumero } = req.body;
     const fecha = new Date().toISOString();
     
-    // Para asistencias 2 y 3, no necesitamos todos los datos personales
-    const nuevoRegistro = asistenciaNumero === 1 
-      ? { nombre, correo, edad, telefono, asociacion, fecha, visitanteId, asistenciaNumero }
-      : { fecha, visitanteId, asistenciaNumero, id };
+    // Para asistencias 2 y 3, guardamos solo datos esenciales pero INCLUYENDO el nombre
+const nuevoRegistro = asistenciaNumero === 1 
+? { nombre, correo, edad, telefono, asociacion, fecha, visitanteId, asistenciaNumero }
+: { nombre, fecha, visitanteId, asistenciaNumero, id };
   
     const archivo = `respuestas/${id}/respuestas.json`;
     const repo = "conquiguias/conquiguias";
