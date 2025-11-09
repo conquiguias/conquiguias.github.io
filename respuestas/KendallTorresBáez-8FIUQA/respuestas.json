@@ -8,5 +8,15 @@
     "fecha": "2025-11-09T18:43:51.823Z",
     "visitanteId": "d930c05f-cf0d-4084-955b-c820ac7a01da",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Luz Marina",
+    "correo": "luz.marina.baez.gamez.19@gmail.com",
+    "edad": "51",
+    "telefono": "1234567890",
+    "asociacion": "ADN",
+    "fecha": "2025-11-09T18:44:22.284Z",
+    "visitanteId": "bae37a04-0172-4b39-b07b-2a414a6cb509",
+    "asistenciaNumero": 1
   }
 ]
