@@ -1,38 +1,69 @@
+// formulario.js - API unificada para el sistema de formularios
+
 export default async function handler(req, res) {
-  const { accion, id, carpeta } = req.query;
-  
-  // Determinar qué acción ejecutar basado en los parámetros
-  switch (accion) {
-    case 'guardar':
-      return await guardarRespuesta(req, res);
-    case 'guardarEvaluacion':
-      return await guardarEvaluacion(req, res);
-    case 'guardarFormulario':
-      return await guardarFormulario(req, res);
-    case 'guardarResultadoExamen':
-      return await guardarResultadoExamen(req, res);
-    case 'limpiarFormulariosVencidos':
-      return await limpiarFormulariosVencidos(req, res);
-    case 'listarFormularios':
-      return await listarFormularios(req, res);
-    case 'listarImagenes':
-      return await listarImagenes(req, res);
-    case 'obtenerEvaluacion':
-      return await obtenerEvaluacion(req, res);
-    case 'obtenerFormulario':
-      return await obtenerFormulario(req, res);
-    case 'subirImagen':
-      return await subirImagen(req, res);
-    case 'verRespuestas':
-      return await verRespuestas(req, res);
-    default:
-      return res.status(400).json({ error: 'Acción no válida' });
+  const { action } = req.query;
+
+  // Configuración común
+  const repo = "conquiguias/conquiguias";
+
+  try {
+    switch (action) {
+      case 'guardar':
+        await handleGuardar(req, res, repo);
+        break;
+      
+      case 'guardarEvaluacion':
+        await handleGuardarEvaluacion(req, res, repo);
+        break;
+      
+      case 'guardarFormulario':
+        await handleGuardarFormulario(req, res, repo);
+        break;
+      
+      case 'guardarResultadoExamen':
+        await handleGuardarResultadoExamen(req, res, repo);
+        break;
+      
+      case 'limpiarFormulariosVencidos':
+        await handleLimpiarFormulariosVencidos(req, res, repo);
+        break;
+      
+      case 'listarFormularios':
+        await handleListarFormularios(req, res, repo);
+        break;
+      
+      case 'listarImagenes':
+        await handleListarImagenes(req, res, repo);
+        break;
+      
+      case 'obtenerEvaluacion':
+        await handleObtenerEvaluacion(req, res, repo);
+        break;
+      
+      case 'obtenerFormulario':
+        await handleObtenerFormulario(req, res, repo);
+        break;
+      
+      case 'subirImagen':
+        await handleSubirImagen(req, res, repo);
+        break;
+      
+      case 'verRespuestas':
+        await handleVerRespuestas(req, res, repo);
+        break;
+      
+      default:
+        res.status(400).json({ error: "Acción no válida" });
+        break;
+    }
+  } catch (error) {
+    console.error("Error en API formulario:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 }
 
-// ========== FUNCIONES ORIGINALES (sin cambios) ==========
-
-async function guardarRespuesta(req, res) {
+// Handler para guardar.js
+async function handleGuardar(req, res, repo) {
   if (req.method !== 'POST') return res.status(405).send('Método no permitido');
 
   const { id, nombre, correo, edad, telefono, asociacion, visitanteId, asistenciaNumero } = req.body;
@@ -44,7 +75,6 @@ async function guardarRespuesta(req, res) {
     : { fecha, visitanteId, asistenciaNumero, id };
 
   const archivo = `respuestas/${id}/respuestas.json`;
-  const repo = "conquiguias/conquiguias";
 
   // Leer el archivo actual desde GitHub
   const respuesta = await fetch(`https://api.github.com/repos/${repo}/contents/${archivo}`, {
@@ -113,14 +143,13 @@ async function guardarRespuesta(req, res) {
   }
 }
 
-
-async function guardarEvaluacion(req, res) {
+// Handler para guardarEvaluacion.js
+async function handleGuardarEvaluacion(req, res, repo) {
   if (req.method !== 'POST') return res.status(405).send('Método no permitido');
 
   const { id, evaluation } = req.body;
 
   const archivo = `evaluaciones/${id}/evaluacion.json`;
-  const repo = "conquiguias/conquiguias";
 
   try {
     // Convertir evaluación a base64
@@ -151,7 +180,8 @@ async function guardarEvaluacion(req, res) {
   }
 }
 
-async function guardarFormulario(req, res) {
+// Handler para guardarFormulario.js
+async function handleGuardarFormulario(req, res, repo) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
   }
@@ -167,7 +197,6 @@ async function guardarFormulario(req, res) {
     }
 
     const archivoFormularios = `data/formularios.json`;
-    const repo = "conquiguias/conquiguias";
 
     if (!process.env.GITHUB_TOKEN) {
       return res.status(500).json({ error: "Token de GitHub no configurado" });
@@ -275,14 +304,14 @@ async function guardarFormulario(req, res) {
   }
 }
 
-async function guardarResultadoExamen(req, res) {
+// Handler para guardarResultadoExamen.js
+async function handleGuardarResultadoExamen(req, res, repo) {
   if (req.method !== 'POST') return res.status(405).send('Método no permitido');
 
   const { id, visitanteId, respuestas, puntaje } = req.body;
   const fecha = new Date().toISOString();
 
   const archivo = `evaluaciones/${id}/resultados.json`;
-  const repo = "conquiguias/conquiguias";
 
   // Leer el archivo actual desde GitHub
   const respuesta = await fetch(`https://api.github.com/repos/${repo}/contents/${archivo}`, {
@@ -348,8 +377,8 @@ async function guardarResultadoExamen(req, res) {
   }
 }
 
-async function limpiarFormulariosVencidos(req, res) {
-  const repo = "conquiguias/conquiguias";
+// Handler para limpiarFormulariosVencidos.js
+async function handleLimpiarFormulariosVencidos(req, res, repo) {
   const archivoFormularios = `data/formularios.json`;
 
   try {
@@ -443,8 +472,8 @@ async function limpiarFormulariosVencidos(req, res) {
   }
 }
 
-async function listarFormularios(req, res) {
-  const repo = "conquiguias/conquiguias";
+// Handler para listarFormularios.js
+async function handleListarFormularios(req, res, repo) {
   const archivo = `data/formularios.json`;
 
   try {
@@ -467,14 +496,14 @@ async function listarFormularios(req, res) {
   }
 }
 
-async function listarImagenes(req, res) {
+// Handler para listarImagenes.js
+async function handleListarImagenes(req, res, repo) {
   const { carpeta } = req.query;
 
   if (!carpeta || (carpeta !== 'especialidades' && carpeta !== 'firmas')) {
     return res.status(400).json({ error: "Carpeta no válida" });
   }
 
-  const repo = "conquiguias/conquiguias";
   const ruta = `images/${carpeta}`;
 
   try {
@@ -512,13 +541,13 @@ async function listarImagenes(req, res) {
   }
 }
 
-async function obtenerEvaluacion(req, res) {
+// Handler para obtenerEvaluacion.js
+async function handleObtenerEvaluacion(req, res, repo) {
   const { id } = req.query;
 
   if (!id) return res.status(400).json({ error: "ID no especificado" });
 
   const archivo = `evaluaciones/${id}/evaluacion.json`;
-  const repo = "conquiguias/conquiguias";
 
   try {
     const respuesta = await fetch(`https://api.github.com/repos/${repo}/contents/${archivo}`, {
@@ -566,13 +595,13 @@ async function obtenerEvaluacion(req, res) {
   }
 }
 
-async function obtenerFormulario(req, res) {
+// Handler para obtenerFormulario.js
+async function handleObtenerFormulario(req, res, repo) {
   const { id } = req.query;
 
   if (!id) return res.status(400).json({ error: "ID no especificado" });
 
   const archivo = `data/formularios.json`;
-  const repo = "conquiguias/conquiguias";
 
   try {
     const respuesta = await fetch(`https://api.github.com/repos/${repo}/contents/${archivo}`, {
@@ -613,7 +642,8 @@ async function obtenerFormulario(req, res) {
   }
 }
 
-async function subirImagen(req, res) {
+// Handler para subirImagen.js
+async function handleSubirImagen(req, res, repo) {
   if (req.method !== 'POST') return res.status(405).send('Método no permitido');
 
   const { carpeta, nombre, contenido, tipo } = req.body;
@@ -622,7 +652,6 @@ async function subirImagen(req, res) {
     return res.status(400).json({ error: "Datos incompletos" });
   }
 
-  const repo = "conquiguias/conquiguias";
   const archivo = `images/${carpeta}/${nombre}`;
 
   try {
@@ -668,13 +697,13 @@ async function subirImagen(req, res) {
   }
 }
 
-async function verRespuestas(req, res) {
+// Handler para verRespuestas.js
+async function handleVerRespuestas(req, res, repo) {
   const { id } = req.query;
 
   if (!id) return res.status(400).json({ error: "ID no especificado" });
 
   const archivo = `respuestas/${id}/respuestas.json`;
-  const repo = "conquiguias/conquiguias";
 
   try {
     const respuesta = await fetch(`https://api.github.com/repos/${repo}/contents/${archivo}`, {
