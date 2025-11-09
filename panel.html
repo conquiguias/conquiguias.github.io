@@ -1501,9 +1501,14 @@
       let currentUserId = null;
       let currentPhotoURL = "";
       const placeholderURL = "https://dummyimage.com/120x120/ccc/fff";
-
-      // Variable global para guardar si el usuario puede acceder o no
       let puedeEntrarEspecialidades = false;
+      let isSocialNetworkInitialized = false;
+      let postsLoading = false;
+      let lastLoadTime = 0;
+      let certificacionesCache = null;
+      let certificacionesCacheTime = 0;
+      const CACHE_DURATION = 5 * 60 * 1000;
+
 
       // 🔹 Detectar usuario logueado
       onAuthStateChanged(auth, async (user) => {
@@ -1615,12 +1620,6 @@
 
         cargarEspecialidadesFijas();
       });
-      // 🔹 Inicializar red social automáticamente si estamos en la sección de inicio
-      setTimeout(() => {
-        if (!inicioSection.classList.contains('hidden') && currentUserId && userData) {
-          initializeSocialNetwork();
-        }
-      }, 500);
 
       // 🔹 Navegación
       menuInicio.addEventListener("click", () => mostrarSeccion(inicioSection, menuInicio));
@@ -1865,15 +1864,6 @@
 
         seccion.classList.remove("hidden");
         botonActivo.classList.add("active");
-
-        // 🔹 INICIALIZAR RED SOCIAL CUANDO SE MUESTRE LA SECCIÓN DE INICIO
-        if (seccion.id === "inicioSection") {
-          setTimeout(() => {
-            if (currentUserId && userData) {
-              initializeSocialNetwork();
-            }
-          }, 100);
-        }
       }
 
       ////////////////////////////////////////////
@@ -2086,6 +2076,18 @@
 
       // Función para cargar las certificaciones del usuario
       async function cargarCertificaciones() {
+        console.log(`🔍 Firestore Read - ${funcion}`, {
+          timestamp: new Date().toISOString(),
+          user: currentUserId
+        });
+        // 🔒 Usar cache si está disponible
+        const now = Date.now();
+        if (certificacionesCache && (now - certificacionesCacheTime < CACHE_DURATION)) {
+          console.log('📚 Usando cache de certificaciones');
+          actualizarInterfazCertificaciones(certificacionesCache);
+          return;
+        }
+
         // Mostrar loading
         certificacionesLoading.style.display = "block";
         certificacionesContent.style.display = "none";
@@ -2221,6 +2223,9 @@
             }
           }
 
+          // Guardar en cache
+          certificacionesCache = certificaciones;
+          certificacionesCacheTime = now;
           // Actualizar la interfaz con las certificaciones
           actualizarInterfazCertificaciones(certificaciones);
 
@@ -3070,6 +3075,16 @@
 
       // 🔹 Inicializar red social - VERSIÓN MEJORADA
       async function initializeSocialNetwork() {
+        console.log(`🔍 Firestore Read - ${funcion}`, {
+          timestamp: new Date().toISOString(),
+          user: currentUserId
+        });
+        if (isSocialNetworkInitialized) {
+          console.log('⚠️ Red social ya estaba inicializada');
+          return;
+        }
+
+        isSocialNetworkInitialized = true;
         console.log('🚀 Inicializando red social...');
         console.log('👤 User ID:', currentUserId);
         console.log('👑 Es admin:', isAdmin);
@@ -3485,14 +3500,34 @@
 
       // 🔹 Cargar publicaciones - VERSIÓN MEJORADA CON FALLBACK
       async function loadPosts() {
+        console.log(`🔍 Firestore Read - ${funcion}`, {
+          timestamp: new Date().toISOString(),
+          user: currentUserId
+        });
+        // 🔒 Protección contra llamadas simultáneas
+        if (postsLoading) {
+          console.log('⏳ LoadPosts ya en ejecución, ignorando...');
+          return;
+        }
+
+        // 🔒 Protección contra llamadas muy frecuentes (mínimo 30 segundos)
+        const now = Date.now();
+        if (lastLoadTime && (now - lastLoadTime < 30000)) {
+          console.log('⏰ LoadPosts llamado muy pronto, ignorando...');
+          return;
+        }
+
+        postsLoading = true;
+        lastLoadTime = now;
         try {
           console.log('📥 Cargando publicaciones aprobadas...');
+          console.log('🔍 Firestore Read - loadPosts iniciado');
 
-          // Consulta SOLO publicaciones aprobadas
           const q = query(
             collection(db, "posts"),
             where("status", "==", "approved"),
-            orderBy("timestamp", "desc")
+            orderBy("timestamp", "desc"),
+            limit(20) // 🔥 LIMITAR a 20 publicaciones
           );
 
           const querySnapshot = await getDocs(q);
@@ -3502,11 +3537,11 @@
 
           if (querySnapshot.empty) {
             feed.innerHTML = `
-                <div class="empty-feed">
-                    <h3>📷 No hay publicaciones aún</h3>
-                    <p>¡Sé el primero en compartir algo!</p>
-                </div>
-            `;
+        <div class="empty-feed">
+          <h3>📷 No hay publicaciones aún</h3>
+          <p>¡Sé el primero en compartir algo!</p>
+        </div>
+      `;
             return;
           }
 
@@ -3555,6 +3590,8 @@
                     </button>
                 </div>
             `;
+          } finally {
+            postsLoading = false;
           }
         }
       }
@@ -3944,23 +3981,7 @@
       console.log('- isAdmin:', isAdmin);
       console.log('- inicioSection visible:', !inicioSection.classList.contains('hidden'));
 
-      // Verificar si debemos inicializar la red social inmediatamente
-      document.addEventListener('DOMContentLoaded', function () {
-        setTimeout(() => {
-          if (!inicioSection.classList.contains('hidden') && currentUserId && userData) {
-            console.log('🚀 Inicializando red social automáticamente...');
-            initializeSocialNetwork();
-          }
-        }, 1000);
-      });
 
-      // También verificar después de que Firebase se inicialice
-      setTimeout(() => {
-        if (!inicioSection.classList.contains('hidden') && currentUserId && userData) {
-          console.log('🚀 Inicializando red social después de Firebase...');
-          initializeSocialNetwork();
-        }
-      }, 2000);
 
       // 🔹 Función para verificar y configurar Firestore - VERSIÓN CORREGIDA
       async function initializeFirestore() {
