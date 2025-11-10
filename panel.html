@@ -3657,7 +3657,7 @@
         }
       }
 
-      
+
       // 🔹 Función para mostrar estado vacío
       function showEmptyFeed() {
         feed.innerHTML = `
@@ -3677,6 +3677,19 @@
         // Usar passive events para mejor performance
         window.addEventListener('scroll', handleScroll, { passive: true });
         window.addEventListener('resize', handleScroll, { passive: true }); // También en resize
+        window.addEventListener('orientationchange', handleScroll, { passive: true });
+
+        // 🔥 MÚLTIPLES EVENTOS PARA COMPUTADORA
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('wheel', handleScroll, { passive: true }); // Rueda del mouse
+        window.addEventListener('touchmove', handleScroll, { passive: true }); // Touch
+
+        // 🔥 FORZAR DETECCIÓN PERIÓDICA EN COMPUTADORA
+        setInterval(() => {
+          if (!postsLoading && !allPostsLoaded) {
+            handleScroll();
+          }
+        }, 500);
 
         scrollHandlerAdded = true;
         console.log('🎯 Scroll infinito activado con eventos pasivos');
