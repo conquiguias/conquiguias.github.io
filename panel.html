@@ -3636,11 +3636,17 @@
             displayPost(post, doc.id);
           });
 
+          setTimeout(() => {
+            console.log('🔄 Forzando verificación de scroll después de carga...');
+            handleScroll();
+          }, 1000);
+
           // Si cargamos menos de los solicitados, no hay más
           if (querySnapshot.size < POSTS_PER_PAGE) {
             allPostsLoaded = true;
             console.log('🎯 Últimos posts cargados');
           }
+
 
         } catch (error) {
           console.error('❌ Error cargando posts:', error);
@@ -3667,20 +3673,41 @@
       function setupInfiniteScroll() {
         if (scrollHandlerAdded) return;
 
-        window.addEventListener('scroll', handleScroll);
+        // Usar passive events para mejor performance
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('resize', handleScroll, { passive: true }); // También en resize
+
         scrollHandlerAdded = true;
-        console.log('🎯 Scroll infinito activado');
+        console.log('🎯 Scroll infinito activado con eventos pasivos');
       }
+
+      let isScrolling = false;
 
       function handleScroll() {
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
         const scrollHeight = document.documentElement.scrollHeight;
         const clientHeight = window.innerHeight;
 
-        // Cargar más posts cuando esté a 200px del final
-        const threshold = 200;
+        // Usar un threshold más grande para asegurar la detección
+        const threshold = 500;
 
-        if (scrollTop + clientHeight >= scrollHeight - threshold) {
+        // Verificar que hay contenido y no estamos ya cargando
+        if (scrollHeight <= clientHeight) return; // No hay scroll
+        if (postsLoading || allPostsLoaded) return;
+
+        const isNearEnd = (scrollTop + clientHeight >= scrollHeight - threshold);
+
+        console.log('🔍 Scroll check:', {
+          scrollTop,
+          scrollHeight,
+          clientHeight,
+          isNearEnd,
+          postsLoading,
+          allPostsLoaded
+        });
+
+        if (isNearEnd) {
+          console.log('🎯 Cargando más posts...');
           loadMorePosts();
         }
       }
