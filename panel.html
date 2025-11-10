@@ -3545,7 +3545,7 @@
 
       // 🔹 Cargar publicaciones - VERSIÓN MEJORADA CON FALLBACK
       // 🔹 CONFIGURACIÓN MEJORADA DE PAGINACIÓN
-      const POSTS_PER_PAGE = 2;
+      const POSTS_PER_PAGE = 5;
       let lastVisiblePost = null;
       let allPostsLoaded = false;
       let observer = null;
@@ -3588,7 +3588,7 @@
           },
           {
             root: null, // viewport
-            rootMargin: '100px', // Cargar 100px antes de llegar al final
+            rootMargin: '500px', // Cargar 100px antes de llegar al final
             threshold: 0.1 // 10% visible
           }
         );
