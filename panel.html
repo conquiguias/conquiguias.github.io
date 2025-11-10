@@ -3408,8 +3408,8 @@
           const postData = {
             userId: currentUserId,
             userName: `${userData.nombre || ''} ${userData.apellido || ''}`.trim() || 'Usuario',
-            userNombre: userData.nombre,
-            userApellido: userData.apellido,
+            userNombre: userData.nombre || '',
+            userApellido: userData.apellido || '',
             userPhoto: userData.fotoURL || 'https://dummyimage.com/40x40/ccc/fff&text=User',
             userEmail: userData.email || '',
             mediaUrl: mediaData.url,
