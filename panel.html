@@ -1178,6 +1178,26 @@
       border: 1px solid #ffd700;
       font-weight: bold;
     }
+
+    /* 🔹 ESTILOS PARA SCROLL INFINITO */
+    .loading-posts {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    .no-more-posts {
+      text-align: center;
+      padding: 20px;
+      color: #999;
+      font-style: italic;
+    }
+
+    .scroll-sentinel {
+      height: 1px;
+      width: 100%;
+      background: transparent;
+    }
   </style>
 </head>
 
@@ -1233,6 +1253,19 @@
 
       <!-- Feed de publicaciones -->
       <div id="feed" style="display: flex; flex-direction: column; gap: 20px;"></div>
+      <!-- Indicador de carga para scroll infinito -->
+      <div id="loadingPosts" class="loading-posts hidden">
+        <div class="loading" style="display: inline-block;"></div>
+        <p>Cargando más publicaciones...</p>
+      </div>
+
+      <!-- Indicador de fin de publicaciones -->
+      <div id="noMorePosts" class="no-more-posts hidden">
+        <p>No hay más publicaciones para mostrar</p>
+      </div>
+
+      <!-- Elemento centinela para detectar scroll -->
+      <div id="scrollSentinel" class="scroll-sentinel"></div>
     </div>
 
     <!-- Sección Clubes -->
@@ -3070,9 +3103,10 @@
 
       // 🔹 RED SOCIAL - Funciones principales
 
-      // 🔹 Inicializar red social - VERSIÓN MEJORADA
+      // 🔹 DENTRO DE initializeSocialNetwork(), después de cargarPosts():
       async function initializeSocialNetwork() {
-        agregarLogFirestore('cargarCertificaciones');
+        agregarLogFirestore('initializeSocialNetwork');
+
         if (isSocialNetworkInitialized) {
           console.log('⚠️ Red social ya estaba inicializada');
           return;
@@ -3080,22 +3114,8 @@
 
         isSocialNetworkInitialized = true;
         console.log('🚀 Inicializando red social...');
-        console.log('👤 User ID:', currentUserId);
-        console.log('👑 Es admin:', isAdmin);
-        console.log('📝 User Data:', userData);
 
-        // Verificar que tenemos los datos necesarios
-        if (!currentUserId) {
-          console.error('❌ currentUserId no está definido');
-          mostrarMensaje('error', 'Error de sesión', 'Por favor, inicia sesión nuevamente.');
-          return;
-        }
-
-        if (!userData) {
-          console.error('❌ userData no está definido');
-          mostrarMensaje('error', 'Error de datos', 'No se pudieron cargar los datos del usuario.');
-          return;
-        }
+        // (Código de verificación de usuario y datos...)
 
         // Verificar Firestore
         const firestoreReady = await initializeFirestore();
@@ -3106,7 +3126,7 @@
 
         setupUploadListeners();
         checkPostCooldown();
-        await loadPosts();
+        await loadPosts(); // Esto ahora carga solo el primer lote
 
         console.log('✅ Red social inicializada correctamente');
       }
@@ -3492,9 +3512,113 @@
         }
       }
 
-      // 🔹 Cargar publicaciones - VERSIÓN MEJORADA CON FALLBACK
+      // 🔹 VARIABLES PARA SCROLL INFINITO
+      let lastVisiblePost = null; // Último documento visible para paginación
+      let hasMorePosts = true; // Si hay más publicaciones por cargar
+      let isLoadingMore = false; // Para evitar múltiples cargas simultáneas
+      let postsPerLoad = 2; // Número de publicaciones a cargar por vez
+      let observer = null; // Observer para el scroll infinito
+
+      // 🔹 INICIALIZAR SCROLL INFINITO
+      function initializeInfiniteScroll() {
+        const sentinel = document.getElementById('scrollSentinel');
+        const loadingIndicator = document.getElementById('loadingPosts');
+        const noMoreIndicator = document.getElementById('noMorePosts');
+
+        // Configurar Intersection Observer para detectar cuando el centinela es visible
+        observer = new IntersectionObserver(async (entries) => {
+          const entry = entries[0];
+
+          if (entry.isIntersecting && hasMorePosts && !isLoadingMore) {
+            console.log('🔄 Cargando más publicaciones...');
+            isLoadingMore = true;
+            loadingIndicator.classList.remove('hidden');
+
+            try {
+              await loadMorePosts();
+            } catch (error) {
+              console.error('❌ Error cargando más publicaciones:', error);
+            } finally {
+              isLoadingMore = false;
+              loadingIndicator.classList.add('hidden');
+            }
+          }
+
+          // Mostrar indicador de fin de publicaciones
+          if (!hasMorePosts && !noMoreIndicator.classList.contains('hidden')) {
+            noMoreIndicator.classList.remove('hidden');
+          }
+        }, {
+          rootMargin: '100px', // Cargar cuando el centinela esté a 100px de ser visible
+          threshold: 0.1
+        });
+
+        if (sentinel) {
+          observer.observe(sentinel);
+        }
+      }
+
+      // 🔹 CARGAR MÁS PUBLICACIONES (Paginación)
+      async function loadMorePosts() {
+        if (!hasMorePosts) return;
+
+        try {
+          console.log('📥 Cargando más publicaciones...');
+
+          let q;
+          if (lastVisiblePost) {
+            // Cargar después del último post visible
+            q = query(
+              collection(db, "posts"),
+              where("status", "==", "approved"),
+              orderBy("timestamp", "desc"),
+              startAfter(lastVisiblePost),
+              limit(postsPerLoad)
+            );
+          } else {
+            // Primera carga (esto no debería pasar, pero por si acaso)
+            q = query(
+              collection(db, "posts"),
+              where("status", "==", "approved"),
+              orderBy("timestamp", "desc"),
+              limit(postsPerLoad)
+            );
+          }
+
+          const querySnapshot = await getDocs(q);
+
+          if (querySnapshot.empty) {
+            console.log('📭 No hay más publicaciones');
+            hasMorePosts = false;
+            return;
+          }
+
+          console.log(`📊 Se cargaron ${querySnapshot.size} publicaciones más`);
+
+          // Actualizar el último documento visible
+          lastVisiblePost = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+          // Mostrar las nuevas publicaciones
+          querySnapshot.forEach((doc) => {
+            const post = { ...doc.data(), id: doc.id };
+            displayPost(post, doc.id);
+          });
+
+          // Si cargamos menos de postsPerLoad, no hay más publicaciones
+          if (querySnapshot.size < postsPerLoad) {
+            hasMorePosts = false;
+          }
+
+        } catch (error) {
+          console.error('❌ Error cargando más publicaciones:', error);
+          throw error;
+        }
+      }
+
+      // 🔹 CARGA INICIAL DE PUBLICACIONES (Modificada para scroll infinito)
       async function loadPosts() {
         agregarLogFirestore('loadPosts');
+
         // 🔒 Protección contra llamadas simultáneas
         if (postsLoading) {
           console.log('⏳ LoadPosts ya en ejecución, ignorando...');
@@ -3510,36 +3634,57 @@
 
         postsLoading = true;
         lastLoadTime = now;
+
         try {
           console.log('📥 Cargando publicaciones aprobadas...');
           console.log('🔍 Firestore Read - loadPosts iniciado');
+
+          // Reiniciar variables de paginación
+          lastVisiblePost = null;
+          hasMorePosts = true;
 
           const q = query(
             collection(db, "posts"),
             where("status", "==", "approved"),
             orderBy("timestamp", "desc"),
-            //limit(20) // 🔥 LIMITAR a 20 publicaciones
+            limit(postsPerLoad) // 🔥 Cargar solo el primer lote
           );
 
           const querySnapshot = await getDocs(q);
           console.log(`📊 Se encontraron ${querySnapshot.size} publicaciones aprobadas`);
 
+          // Limpiar feed solo en carga inicial
           feed.innerHTML = '';
 
           if (querySnapshot.empty) {
             feed.innerHTML = `
-        <div class="empty-feed">
-          <h3>📷 No hay publicaciones aún</h3>
-          <p>¡Sé el primero en compartir algo!</p>
-        </div>
-      `;
+            <div class="empty-feed">
+              <h3>📷 No hay publicaciones aún</h3>
+              <p>¡Sé el primero en compartir algo!</p>
+            </div>
+          `;
+            hasMorePosts = false;
             return;
           }
 
+          // Actualizar el último documento visible
+          lastVisiblePost = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+          // Mostrar las publicaciones
           querySnapshot.forEach((doc) => {
             const post = { ...doc.data(), id: doc.id };
             displayPost(post, doc.id);
           });
+
+          // Si cargamos menos de postsPerLoad, no hay más publicaciones
+          if (querySnapshot.size < postsPerLoad) {
+            hasMorePosts = false;
+          }
+
+          // 🔹 INICIALIZAR SCROLL INFINITO DESPUÉS DE LA PRIMERA CARGA
+          setTimeout(() => {
+            initializeInfiniteScroll();
+          }, 500);
 
         } catch (error) {
           console.error('❌ Error cargando publicaciones:', error);
@@ -3547,40 +3692,57 @@
           // Fallback: intentar cargar sin filtro
           try {
             console.log('🔄 Intentando carga sin filtro...');
-            const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+            const q = query(
+              collection(db, "posts"),
+              orderBy("timestamp", "desc"),
+              limit(postsPerLoad)
+            );
             const querySnapshot = await getDocs(q);
 
             feed.innerHTML = '';
 
             if (querySnapshot.empty) {
               feed.innerHTML = `
-                    <div class="empty-feed">
-                        <h3>📷 No hay publicaciones aún</h3>
-                        <p>¡Sé el primero en compartir algo!</p>
-                    </div>
-                `;
+              <div class="empty-feed">
+                <h3>📷 No hay publicaciones aún</h3>
+                <p>¡Sé el primero en compartir algo!</p>
+              </div>
+            `;
+              hasMorePosts = false;
               return;
             }
 
             // Filtrar manualmente las aprobadas
+            let approvedCount = 0;
             querySnapshot.forEach((doc) => {
               const post = doc.data();
               if (post.status === 'approved') {
                 displayPost({ ...post, id: doc.id }, doc.id);
+                approvedCount++;
+                lastVisiblePost = doc;
               }
             });
+
+            if (approvedCount < postsPerLoad) {
+              hasMorePosts = false;
+            }
+
+            // Inicializar scroll infinito después del fallback
+            setTimeout(() => {
+              initializeInfiniteScroll();
+            }, 500);
 
           } catch (fallbackError) {
             console.error('❌ Error en fallback:', fallbackError);
             feed.innerHTML = `
-                <div class="empty-feed">
-                    <h3>❌ Error al cargar publicaciones</h3>
-                    <p>${fallbackError.message || 'Intenta recargar la página'}</p>
-                    <button onclick="loadPosts()" style="margin-top: 10px; padding: 8px 16px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Reintentar
-                    </button>
-                </div>
-            `;
+            <div class="empty-feed">
+              <h3>❌ Error al cargar publicaciones</h3>
+              <p>${fallbackError.message || 'Intenta recargar la página'}</p>
+              <button onclick="loadPosts()" style="margin-top: 10px; padding: 8px 16px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Reintentar
+              </button>
+            </div>
+          `;
           } finally {
             postsLoading = false;
           }
