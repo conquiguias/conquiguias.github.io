@@ -1178,64 +1178,6 @@
       border: 1px solid #ffd700;
       font-weight: bold;
     }
-
-    /* 🔹 Estilos para el final del feed */
-    .end-of-feed {
-      text-align: center;
-      padding: 40px 20px;
-      color: #666;
-      border-top: 1px solid #eee;
-      margin-top: 20px;
-    }
-
-    .end-of-feed p {
-      margin: 5px 0;
-    }
-
-    /* 🔹 Mejorar el indicador de carga */
-    #loadingIndicator {
-      text-align: center;
-      padding: 30px;
-      color: #666;
-      font-size: 14px;
-    }
-
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #3498db;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-right: 10px;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* 🔹 Asegurar que el feed ocupe espacio mínimo */
-    #feed {
-      min-height: 60vh;
-    }
-
-    .empty-feed {
-      text-align: center;
-      padding: 40px 20px;
-      color: #666;
-    }
-
-    .empty-feed h3 {
-      margin-bottom: 10px;
-      color: #999;
-    }
   </style>
 </head>
 
@@ -1497,8 +1439,7 @@
         deleteDoc,
         limit,
         setDoc,
-        where,
-        startAfter
+        where
       } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
       import {
         getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll, getMetadata
@@ -1923,17 +1864,6 @@
 
         seccion.classList.remove("hidden");
         botonActivo.classList.add("active");
-
-        // 🔥 REINICIAR PAGINACIÓN AL CAMBIAR A INICIO
-        if (seccion.id === "inicioSection") {
-          resetPagination();
-
-          setTimeout(() => {
-            if (currentUserId && userData) {
-              initializeSocialNetwork();
-            }
-          }, 100);
-        }
       }
 
       ////////////////////////////////////////////
@@ -3140,28 +3070,7 @@
 
       // 🔹 RED SOCIAL - Funciones principales
 
-      // 🔹 Inicializar red social - VERSIÓN MEJORADA
-      // 🔹 MODIFICAR LA INICIALIZACIÓN
-      async function initializeSocialNetwork() {
-        if (isSocialNetworkInitialized) {
-          console.log('⚠️ Red social ya inicializada');
-          return;
-        }
-
-        console.log('🚀 INICIALIZANDO RED SOCIAL CON INTERSECTION OBSERVER...');
-        resetPagination();
-
-        setupUploadListeners();
-        checkPostCooldown();
-
-        // Primero cargar posts, luego configurar observer
-        await loadPosts(false);
-        setupInfiniteScroll();
-
-        isSocialNetworkInitialized = true;
-        console.log('✅ Red social inicializada con Intersection Observer');
-      }
-
+      
       // 🔹 Configurar listeners para la subida - VERSIÓN CON VERIFICACIÓN
       function setupUploadListeners() {
         console.log('🎯 Configurando listeners...');
@@ -3543,197 +3452,185 @@
         }
       }
 
-      // 🔹 Cargar publicaciones - VERSIÓN MEJORADA CON FALLBACK
       // 🔹 CONFIGURACIÓN MEJORADA DE PAGINACIÓN
-      const POSTS_PER_PAGE = 1;
-      let lastVisiblePost = null;
-      let allPostsLoaded = false;
-      let observer = null;
+const POSTS_PER_PAGE = 5;
+let lastVisiblePost = null;
+let allPostsLoaded = false;
+let postsLoading = false;
+let observer = null;
 
-      // 🔹 REEMPLAZAR COMPLETAMENTE EL SISTEMA DE SCROLL
-      function setupInfiniteScroll() {
-        console.log('🎯 Configurando Intersection Observer...');
+// 🔹 MEJORAR LA CONFIGURACIÓN DEL OBSERVER
+function setupInfiniteScroll() {
+    console.log('🎯 Configurando Intersection Observer...');
+    
+    // Eliminar cualquier observer anterior
+    if (observer) {
+        observer.disconnect();
+        observer = null;
+    }
 
-        // Eliminar cualquier observer anterior
-        if (observer) {
-          observer.disconnect();
+    // Crear el observer
+    observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !postsLoading && !allPostsLoaded) {
+                    console.log('🎯 Trigger visible - Cargando más posts...');
+                    loadMorePosts();
+                }
+            });
+        },
+        {
+            root: null,
+            rootMargin: '100px', // Cargar 100px antes de llegar al final
+            threshold: 0.1
         }
+    );
 
-        // Crear el elemento observador (trigger)
-        let observerElement = document.getElementById('loadMoreTrigger');
+    // Asegurar que el trigger exista y observarlo
+    ensureLoadMoreTrigger();
+    console.log('✅ Intersection Observer configurado');
+}
 
-        // Si no existe, crearlo
-        if (!observerElement) {
-          observerElement = document.createElement('div');
-          observerElement.id = 'loadMoreTrigger';
-          observerElement.style.cssText = `
-            height: 1px;
+// 🔹 FUNCIONES AUXILIARES MEJORADAS
+function ensureLoadMoreTrigger() {
+    let trigger = document.getElementById('loadMoreTrigger');
+    
+    // Si no existe, crearlo
+    if (!trigger) {
+        trigger = document.createElement('div');
+        trigger.id = 'loadMoreTrigger';
+        trigger.style.cssText = `
+            height: 10px;
             width: 100%;
             background: transparent;
-            margin: 0;
+            margin: 20px 0;
             padding: 0;
         `;
-          feed.appendChild(observerElement);
+        feed.appendChild(trigger);
+    }
+    
+    // Observar el trigger si existe el observer
+    if (observer) {
+        observer.observe(trigger);
+        console.log('👀 Observando trigger:', trigger.id);
+    }
+}
+
+function removeLoadMoreTrigger() {
+    const trigger = document.getElementById('loadMoreTrigger');
+    if (trigger) {
+        if (observer) {
+            observer.unobserve(trigger);
         }
+        trigger.remove();
+        console.log('🗑️ Trigger removido');
+    }
+}
 
-        // Configurar Intersection Observer
-        observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting && !postsLoading && !allPostsLoaded) {
-                console.log('🎯 Trigger visible - Cargando más posts...');
-                loadMorePosts();
-              }
-            });
-          },
-          {
-            root: null, // viewport
-            rootMargin: '100px', // Cargar 100px antes de llegar al final
-            threshold: 0.9 // 10% visible
-          }
-        );
+// 🔹 FUNCIÓN PRINCIPAL MEJORADA - CON RECONEXIÓN DEL OBSERVER
+async function loadPosts(loadMore = false) {
+    console.log('🔄 loadPosts - loadMore:', loadMore, 'allPostsLoaded:', allPostsLoaded);
+    
+    if (postsLoading) {
+        console.log('⏳ Posts ya cargando, ignorando...');
+        return;
+    }
 
-        // Observar el elemento trigger
-        observer.observe(observerElement);
-        console.log('✅ Intersection Observer configurado');
-      }
+    if (loadMore && allPostsLoaded) {
+        console.log('📭 Todos los posts ya cargados');
+        removeLoadMoreTrigger();
+        showEndOfFeed();
+        return;
+    }
 
-      // 🔹 FUNCIÓN MEJORADA PARA CARGAR MÁS POSTS
-      async function loadMorePosts() {
-        console.log('⬇️ loadMorePosts llamado');
+    postsLoading = true;
 
-        if (postsLoading) {
-          console.log('⏳ Ya cargando, ignorando...');
-          return;
-        }
+    // Mostrar loading solo para cargas adicionales
+    if (loadMore) {
+        showLoadingIndicator();
+    } else {
+        // En carga inicial, mostrar loading breve
+        feed.innerHTML = '<div style="text-align: center; padding: 20px;">Cargando publicaciones...</div>';
+    }
 
-        if (allPostsLoaded) {
-          console.log('📭 Todos cargados, ignorando...');
-          removeLoadMoreTrigger();
-          return;
-        }
+    try {
+        console.log('📥 Preparando query...');
 
-        await loadPosts(true);
-      }
+        let q;
+        const postsRef = collection(db, "posts");
 
-      // 🔹 FUNCIÓN PRINCIPAL MEJORADA CON PAGINACIÓN
-      async function loadPosts(loadMore = false) {
-        console.log('🔄 loadPosts - loadMore:', loadMore, 'allPostsLoaded:', allPostsLoaded);
-
-        if (postsLoading) {
-          console.log('⏳ Posts ya cargando, ignorando...');
-          return;
-        }
-
-        if (loadMore && allPostsLoaded) {
-          console.log('📭 Todos los posts ya cargados');
-          removeLoadMoreTrigger();
-          showEndOfFeed();
-          return;
-        }
-
-        postsLoading = true;
-
-        // Mostrar loading solo para cargas adicionales
-        if (loadMore) {
-          showLoadingIndicator();
-        } else {
-          // En carga inicial, mostrar loading breve
-          feed.innerHTML = '<div style="text-align: center; padding: 20px;">Cargando publicaciones...</div>';
-        }
-
-        try {
-          console.log('📥 Preparando query...', {
-            loadMore,
-            lastVisiblePost: !!lastVisiblePost,
-            POSTS_PER_PAGE
-          });
-
-          let q;
-          const postsRef = collection(db, "posts");
-
-          if (loadMore && lastVisiblePost) {
+        if (loadMore && lastVisiblePost) {
             console.log('➡️ Cargando MÁS posts con paginación');
             q = query(
-              postsRef,
-              where("status", "==", "approved"),
-              orderBy("timestamp", "desc"),
-              startAfter(lastVisiblePost),
-              limit(POSTS_PER_PAGE)
+                postsRef,
+                where("status", "==", "approved"),
+                orderBy("timestamp", "desc"),
+                startAfter(lastVisiblePost),
+                limit(POSTS_PER_PAGE)
             );
-          } else {
+        } else {
             console.log('🆕 Cargando PRIMEROS posts');
             q = query(
-              postsRef,
-              where("status", "==", "approved"),
-              orderBy("timestamp", "desc"),
-              limit(POSTS_PER_PAGE)
+                postsRef,
+                where("status", "==", "approved"),
+                orderBy("timestamp", "desc"),
+                limit(POSTS_PER_PAGE)
             );
-          }
+        }
 
-          console.log('🔍 Ejecutando query...');
-          const querySnapshot = await getDocs(q);
-          console.log('✅ Query completada - Documentos:', querySnapshot.size);
+        const querySnapshot = await getDocs(q);
+        console.log('✅ Query completada - Documentos:', querySnapshot.size);
 
-          if (querySnapshot.empty) {
+        if (querySnapshot.empty) {
             console.log('❌ No se encontraron posts');
             if (loadMore) {
-              allPostsLoaded = true;
-              removeLoadMoreTrigger();
-              showEndOfFeed();
+                allPostsLoaded = true;
+                removeLoadMoreTrigger();
+                showEndOfFeed();
             } else {
-              showEmptyFeed();
+                showEmptyFeed();
             }
             return;
-          }
+        }
 
-          // 🔥 LIMPIAR SOLO EN CARGA INICIAL
-          if (!loadMore) {
+        // 🔥 LIMPIAR SOLO EN CARGA INICIAL
+        if (!loadMore) {
             feed.innerHTML = '';
-          }
+        }
 
-          // 🔥 PROCESAR DOCUMENTOS
-          const posts = [];
-          querySnapshot.forEach((doc) => {
-            console.log('📄 Procesando documento:', doc.id);
-            const post = {
-              ...doc.data(),
-              id: doc.id
+        // 🔥 PROCESAR DOCUMENTOS
+        querySnapshot.forEach((doc) => {
+            const post = { 
+                ...doc.data(), 
+                id: doc.id
             };
-            posts.push(post);
             displayPost(post, doc.id);
-          });
+        });
 
-          // 🔥 ACTUALIZAR PAGINACIÓN
-          lastVisiblePost = querySnapshot.docs[querySnapshot.docs.length - 1];
-          console.log('📌 Último documento para paginación:', lastVisiblePost.id);
+        // 🔥 ACTUALIZAR PAGINACIÓN
+        lastVisiblePost = querySnapshot.docs[querySnapshot.docs.length - 1];
+        console.log('📌 Último documento para paginación:', lastVisiblePost.id);
 
-          // 🔥 VERIFICAR SI HAY MÁS POSTS
-          if (querySnapshot.size < POSTS_PER_PAGE) {
+        // 🔥 VERIFICAR SI HAY MÁS POSTS
+        if (querySnapshot.size < POSTS_PER_PAGE) {
             allPostsLoaded = true;
             console.log('🎯 Última página alcanzada');
             removeLoadMoreTrigger();
             if (loadMore || querySnapshot.size > 0) {
-              showEndOfFeed();
+                showEndOfFeed();
             }
-          } else {
+        } else {
             console.log('📖 Hay más posts por cargar');
-            // Asegurar que el trigger esté presente
-            ensureLoadMoreTrigger();
-          }
+            // 🔥 CLAVE: RECONECTAR EL OBSERVER DESPUÉS DE CARGAR NUEVOS POSTS
+            setTimeout(() => {
+                ensureLoadMoreTrigger();
+            }, 100);
+        }
 
-          // 🔥 DEBUG: Mostrar información de paginación
-          console.log('📊 Estado de paginación:', {
-            postsCargados: posts.length,
-            allPostsLoaded,
-            lastVisiblePost: lastVisiblePost?.id,
-            hayMasPosts: querySnapshot.size === POSTS_PER_PAGE
-          });
-
-        } catch (error) {
-          console.error('❌ ERROR en loadPosts:', error);
-
-          if (!loadMore) {
+    } catch (error) {
+        console.error('❌ ERROR en loadPosts:', error);
+        
+        if (!loadMore) {
             feed.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: #e74c3c;">
                     <h3>❌ Error al cargar publicaciones</h3>
@@ -3751,105 +3648,107 @@
                     </button>
                 </div>
             `;
-          }
-
-          mostrarMensaje('error', 'Error', 'No se pudieron cargar las publicaciones: ' + error.message);
-        } finally {
-          postsLoading = false;
-          hideLoadingIndicator();
-          console.log('🏁 loadPosts finalizado');
         }
-      }
-
-      // 🔹 FUNCIONES AUXILIARES PARA EL OBSERVER
-      function ensureLoadMoreTrigger() {
-        let trigger = document.getElementById('loadMoreTrigger');
-        if (!trigger) {
-          trigger = document.createElement('div');
-          trigger.id = 'loadMoreTrigger';
-          trigger.style.cssText = `
-            height: 1px;
-            width: 100%;
-            background: transparent;
-            margin: 0;
-            padding: 0;
-        `;
-          feed.appendChild(trigger);
-
-          // Re-conectar el observer si existe
-          if (observer) {
-            observer.observe(trigger);
-          }
-        }
-      }
-
-      function removeLoadMoreTrigger() {
-        const trigger = document.getElementById('loadMoreTrigger');
-        if (trigger) {
-          trigger.remove();
-        }
-      }
-
-      // 🔹 REINICIALIZAR PAGINACIÓN
-      function resetPagination() {
-        console.log('🔄 Reiniciando paginación...');
-        lastVisiblePost = null;
-        allPostsLoaded = false;
+        
+        mostrarMensaje('error', 'Error', 'No se pudieron cargar las publicaciones: ' + error.message);
+    } finally {
         postsLoading = false;
+        hideLoadingIndicator();
+        console.log('🏁 loadPosts finalizado - Estado:', {
+            postsLoading,
+            allPostsLoaded,
+            lastVisiblePost: !!lastVisiblePost
+        });
+    }
+}
+
+// 🔹 FUNCIÓN MEJORADA PARA CARGAR MÁS POSTS
+async function loadMorePosts() {
+    console.log('⬇️ loadMorePosts llamado');
+    console.log('📊 Estado actual:', {
+        postsLoading,
+        allPostsLoaded,
+        lastVisiblePost: !!lastVisiblePost
+    });
+    
+    if (postsLoading) {
+        console.log('⏳ Ya cargando, ignorando...');
+        return;
+    }
+    
+    if (allPostsLoaded) {
+        console.log('📭 Todos cargados, ignorando...');
         removeLoadMoreTrigger();
-      }
+        return;
+    }
 
-      // 🔹 FUNCIÓN GLOBAL PARA REINICIAR
-      window.resetAndLoadPosts = function () {
+    // Remover temporalmente el observer para evitar múltiples llamadas
+    removeLoadMoreTrigger();
+    
+    await loadPosts(true);
+}
+
+// 🔹 REINICIALIZAR PAGINACIÓN COMPLETAMENTE
+function resetPagination() {
+    console.log('🔄 Reiniciando paginación...');
+    lastVisiblePost = null;
+    allPostsLoaded = false;
+    postsLoading = false;
+    
+    // Limpiar completamente el observer
+    if (observer) {
+        observer.disconnect();
+        observer = null;
+    }
+    
+    removeLoadMoreTrigger();
+}
+
+// 🔹 MODIFICAR LA INICIALIZACIÓN PARA SER MÁS ROBUSTA
+async function initializeSocialNetwork() {
+    if (isSocialNetworkInitialized) {
+        console.log('⚠️ Red social ya inicializada, reiniciando...');
         resetPagination();
-        loadPosts(false);
-      };
+    }
 
-      // 🔹 AGREGAR FUNCIONES DE UI
-      function showLoadingIndicator() {
-        // Solo mostrar si no existe ya
-        if (!document.getElementById('loadingIndicator')) {
-          const loadingDiv = document.createElement('div');
-          loadingDiv.id = 'loadingIndicator';
-          loadingDiv.innerHTML = `
-            <div style="text-align: center; padding: 20px; color: #666;">
-                <div class="loading" style="display: inline-block; margin-right: 10px;"></div>
-                Cargando más publicaciones...
-            </div>
-        `;
-          feed.appendChild(loadingDiv);
-        }
-      }
+    console.log('🚀 INICIALIZANDO RED SOCIAL CON INTERSECTION OBSERVER...');
+    
+    setupUploadListeners();
+    checkPostCooldown();
+    
+    // Primero cargar posts, luego configurar observer
+    await loadPosts(false);
+    
+    // Configurar observer después de cargar los primeros posts
+    setTimeout(() => {
+        setupInfiniteScroll();
+    }, 500);
 
-      function hideLoadingIndicator() {
-        const loadingDiv = document.getElementById('loadingIndicator');
-        if (loadingDiv) {
-          loadingDiv.remove();
-        }
-      }
+    isSocialNetworkInitialized = true;
+    console.log('✅ Red social inicializada con Intersection Observer');
+}
 
-      function showEndOfFeed() {
-        const existingEnd = document.getElementById('endOfFeed');
-        if (existingEnd) return;
+// 🔹 AGREGAR DEBUGGING EN TIEMPO REAL
+function debugObserver() {
+    console.log('🐛 DEBUG OBSERVER:', {
+        observer: !!observer,
+        postsLoading,
+        allPostsLoaded,
+        lastVisiblePost: !!lastVisiblePost,
+        trigger: !!document.getElementById('loadMoreTrigger'),
+        feedChildren: feed.children.length
+    });
+    
+    // Verificar si el trigger está siendo observado
+    if (observer && document.getElementById('loadMoreTrigger')) {
+        console.log('✅ Trigger está siendo observado');
+    } else {
+        console.log('❌ Trigger NO está siendo observado');
+    }
+}
 
-        const endDiv = document.createElement('div');
-        endDiv.id = 'endOfFeed';
-        endDiv.className = 'end-of-feed';
-        endDiv.innerHTML = `
-        <p>🎉 ¡Has visto todas las publicaciones!</p>
-        <p>Vuelve más tarde para ver contenido nuevo.</p>
-    `;
-        feed.appendChild(endDiv);
-      }
+// Ejecutar en consola: debugObserver()
 
-      function showEmptyFeed() {
-        feed.innerHTML = `
-        <div class="empty-feed">
-            <h3>📷 No hay publicaciones aún</h3>
-            <p>¡Sé el primero en compartir algo!</p>
-        </div>
-    `;
-      }
       function agregarLogFirestore(funcion) {
         console.log(`🔍 Firestore Read - ${funcion}`, {
           timestamp: new Date().toISOString(),
