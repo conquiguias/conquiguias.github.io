@@ -3559,7 +3559,7 @@
       // 🔹 Cargar publicaciones - VERSIÓN MEJORADA CON FALLBACK
       // 🔹 Cargar publicaciones - VERSIÓN MEJORADA CON FALLBACK
       let lastVisiblePost = null;
-      const POSTS_PER_PAGE = 5;
+      const POSTS_PER_PAGE = 3;
       let allPostsLoaded = false;
 
       async function loadPosts(loadMore = false) {
@@ -3588,7 +3588,7 @@
           let q;
 
           if (loadMore && lastVisiblePost) {
-            // Cargar siguientes posts
+            console.log('📥 Cargando MÁS posts (paginación)...');
             q = query(
               collection(db, "posts"),
               where("status", "==", "approved"),
@@ -3597,7 +3597,7 @@
               limit(POSTS_PER_PAGE)
             );
           } else {
-            // Cargar primeros posts
+            console.log('📥 Cargando PRIMEROS posts (inicial)...');
             q = query(
               collection(db, "posts"),
               where("status", "==", "approved"),
