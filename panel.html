@@ -3519,7 +3519,7 @@
       let lastVisiblePost = null; // Último documento visible para paginación
       let hasMorePosts = true; // Si hay más publicaciones por cargar
       let isLoadingMore = false; // Para evitar múltiples cargas simultáneas
-      let postsPerLoad = 2; // Número de publicaciones a cargar por vez
+      let postsPerLoad = 1; // Número de publicaciones a cargar por vez
       let observer = null; // Observer para el scroll infinito
 
       // 🔹 INICIALIZAR SCROLL INFINITO
@@ -3842,7 +3842,7 @@
           }
     </div>
     
-    
+
     <div class="post-description">
       ${post.description || ''}
     </div>
