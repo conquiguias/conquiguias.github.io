@@ -1497,7 +1497,8 @@
         deleteDoc,
         limit,
         setDoc,
-        where
+        where,
+        startAfter
       } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
       import {
         getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll, getMetadata
@@ -3544,7 +3545,7 @@
 
       // 🔹 Cargar publicaciones - VERSIÓN MEJORADA CON FALLBACK
       // 🔹 CONFIGURACIÓN MEJORADA DE PAGINACIÓN
-      const POSTS_PER_PAGE = 5;
+      const POSTS_PER_PAGE = 2;
       let lastVisiblePost = null;
       let allPostsLoaded = false;
       let observer = null;
