@@ -2449,155 +2449,7 @@
 
       // Función para cargar las certificaciones del usuario
       // 🔹 REEMPLAZAR LA FUNCIÓN cargarCertificaciones CON ESTA VERSIÓN MEJORADA
-// 🔹 DIAGNÓSTICO COMPLETO - Agregar esto antes de cargarCertificaciones
-async function diagnosticarCertificacionesCompleto() {
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    const userEmail = user.email.toLowerCase().trim();
-    let visitanteId = localStorage.getItem("visitanteId");
-    
-    console.log('🩺 DIAGNÓSTICO COMPLETO INICIADO');
-    console.log('📧 Email usuario:', userEmail);
-    console.log('🆔 VisitanteId en localStorage:', visitanteId);
-    console.log('🔑 UserId Firebase:', currentUserId);
-    console.log('📱 UserAgent:', navigator.userAgent);
-    console.log('💾 localStorage soportado:', typeof(Storage) !== "undefined");
-    
-    // Verificar si hay visitanteId en sessionStorage también
-    const sessionVisitanteId = sessionStorage.getItem("visitanteId");
-    console.log('🔄 VisitanteId en sessionStorage:', sessionVisitanteId);
-    
-    // Obtener lista de formularios para verificar datos
-    try {
-        const formulariosRes = await fetch("/api/formulario?action=listarFormularios");
-        const formularios = await formulariosRes.json();
-        const formulariosIds = Object.keys(formularios);
-        
-        console.log('📋 Total formularios:', formulariosIds.length);
-        
-        // Revisar el primer formulario para ver las respuestas
-        if (formulariosIds.length > 0) {
-            const primerFormularioId = formulariosIds[0];
-            const respuestasRes = await fetch(`/api/formulario?action=verRespuestas&id=${primerFormularioId}`);
-            const data = await respuestasRes.json();
-            const respuestas = data.asistencias || [];
-            
-            console.log('👥 Respuestas en el primer formulario:');
-            
-            // Buscar respuestas de este usuario específicamente
-            const respuestasUsuario = respuestas.filter(r => {
-                const rEmail = (r.correo || '').toLowerCase().trim();
-                return rEmail === userEmail || r.visitanteId === visitanteId;
-            });
-            
-            console.log('🎯 Respuestas del usuario encontradas:', respuestasUsuario.length);
-            
-            respuestasUsuario.forEach((respuesta, index) => {
-                console.log(`   ${index + 1}. Asistencia ${respuesta.asistenciaNumero} - VisitanteId: ${respuesta.visitanteId} - Correo: ${respuesta.correo}`);
-            });
-            
-            // Mostrar resumen en un alert para móvil
-            const diagnosticoHTML = `
-📧 <strong>Email:</strong> ${userEmail}<br>
-🆔 <strong>VisitanteId actual:</strong> ${visitanteId || 'NO ENCONTRADO'}<br>
-📋 <strong>Formularios:</strong> ${formulariosIds.length}<br>
-🎯 <strong>Respuestas encontradas:</strong> ${respuestasUsuario.length}<br>
-📱 <strong>Dispositivo:</strong> ${navigator.userAgent.includes('Mobile') ? 'MÓVIL' : 'PC'}<br><br>
-
-<strong>Respuestas específicas:</strong><br>
-${respuestasUsuario.map((r, i) => 
-    `${i+1}. Asistencia ${r.asistenciaNumero} (VisitanteId: ${r.visitanteId})`
-).join('<br>') || 'Ninguna'}
-            `;
-            
-            // Crear un modal de diagnóstico
-            const modalDiag = document.createElement('div');
-            modalDiag.style.cssText = `
-                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                background: white; padding: 20px; border-radius: 10px; z-index: 10000;
-                box-shadow: 0 0 20px rgba(0,0,0,0.3); max-width: 90%; max-height: 80%;
-                overflow-y: auto; color: black;
-            `;
-            modalDiag.innerHTML = `
-                <h3>🔍 Diagnóstico Certificaciones</h3>
-                <div style="text-align: left; margin: 15px 0;">${diagnosticoHTML}</div>
-                <button onclick="this.parentElement.remove()" style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 4px;">Cerrar</button>
-                <button onclick="solucionarVisitanteId()" style="padding: 8px 16px; background: #4caf50; color: white; border: none; border-radius: 4px; margin-left: 10px;">🛠️ Solucionar</button>
-            `;
-            document.body.appendChild(modalDiag);
-        }
-        
-    } catch (error) {
-        console.error('Error en diagnóstico:', error);
-    }
-}
-
-// 🔹 FUNCIÓN PARA SOLUCIONAR EL VISITANTE ID
-async function solucionarVisitanteId() {
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    const userEmail = user.email.toLowerCase().trim();
-    
-    console.log('🛠️ SOLUCIONANDO VISITANTE ID...');
-    
-    // 1. Buscar en todos los formularios para encontrar el visitanteId correcto
-    try {
-        const formulariosRes = await fetch("/api/formulario?action=listarFormularios");
-        const formularios = await formulariosRes.json();
-        const formulariosIds = Object.keys(formularios);
-        
-        let visitanteIdEncontrado = null;
-        
-        for (const formularioId of formulariosIds) {
-            const respuestasRes = await fetch(`/api/formulario?action=verRespuestas&id=${formularioId}`);
-            const data = await respuestasRes.json();
-            const respuestas = data.asistencias || [];
-            
-            // Buscar cualquier respuesta con este email
-            const respuestaUsuario = respuestas.find(r => 
-                (r.correo || '').toLowerCase().trim() === userEmail
-            );
-            
-            if (respuestaUsuario && respuestaUsuario.visitanteId) {
-                visitanteIdEncontrado = respuestaUsuario.visitanteId;
-                console.log('🎯 VisitanteId encontrado en formulario:', formularioId, visitanteIdEncontrado);
-                break;
-            }
-        }
-        
-        // 2. Si no se encuentra, generar uno basado en el email
-        if (!visitanteIdEncontrado) {
-            visitanteIdEncontrado = 'user_' + btoa(userEmail).replace(/[=+/]/g, '').substring(0, 12);
-            console.log('🆕 VisitanteId generado:', visitanteIdEncontrado);
-        }
-        
-        // 3. Guardar en localStorage y sessionStorage
-        localStorage.setItem("visitanteId", visitanteIdEncontrado);
-        sessionStorage.setItem("visitanteId", visitanteIdEncontrado);
-        
-        console.log('💾 VisitanteId guardado:', visitanteIdEncontrado);
-        
-        // 4. Mostrar resultado
-        mostrarMensaje('success', '✅ VisitanteId solucionado', 
-            `Se estableció el VisitanteId: ${visitanteIdEncontrado}<br><br>
-             <strong>Ahora recarga las certificaciones</strong>`);
-             
-    } catch (error) {
-        console.error('Error solucionando visitanteId:', error);
-        mostrarMensaje('error', '❌ Error', 'No se pudo solucionar el VisitanteId');
-    }
-}
-
-// 🔹 REEMPLAZAR LA FUNCIÓN cargarCertificaciones CON ESTA VERSIÓN CORREGIDA
 async function cargarCertificaciones() {
-    console.log('🚀 INICIANDO CARGA DE CERTIFICACIONES...');
-    
-    // Ejecutar diagnóstico automáticamente
-    await diagnosticarCertificacionesCompleto();
-    
-    // El resto del código original de cargarCertificaciones...
     agregarLogFirestore('cargarCertificaciones');
     
     // 🔒 Usar cache si está disponible
@@ -2622,45 +2474,22 @@ async function cargarCertificaciones() {
 
         const userEmail = user.email.toLowerCase().trim();
 
-        // 🔥 OBTENER VISITANTE ID DE MÚLTIPLES FUENTES
-        let visitanteId = localStorage.getItem("visitanteId") || 
-                         sessionStorage.getItem("visitanteId");
+        // 🔥 MEJORA: Obtener visitanteId de múltiples fuentes
+        let visitanteId = localStorage.getItem("visitanteId");
         
+        // Si no hay visitanteId en localStorage, intentar generarlo
+        if (!visitanteId) {
+            // Crear un visitanteId basado en el email del usuario
+            visitanteId = 'user_' + btoa(userEmail).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+            localStorage.setItem("visitanteId", visitanteId);
+            console.log('🆕 VisitanteId generado:', visitanteId);
+        }
+
         console.log('🔍 Buscando certificaciones para:', {
             email: userEmail,
             visitanteId: visitanteId,
-            platform: navigator.userAgent,
-            source: visitanteId ? 'localStorage' : 'NO ENCONTRADO'
+            platform: navigator.userAgent
         });
-
-        // Si no hay visitanteId, buscar en las respuestas
-        if (!visitanteId) {
-            console.log('🕵️‍♂️ Buscando visitanteId en respuestas...');
-            const formulariosRes = await fetch("/api/formulario?action=listarFormularios");
-            const formularios = await formulariosRes.json();
-            
-            for (const formularioId of Object.keys(formularios)) {
-                const respuestasRes = await fetch(`/api/formulario?action=verRespuestas&id=${formularioId}`);
-                const data = await respuestasRes.json();
-                const respuestaUsuario = data.asistencias?.find(r => 
-                    (r.correo || '').toLowerCase().trim() === userEmail
-                );
-                
-                if (respuestaUsuario?.visitanteId) {
-                    visitanteId = respuestaUsuario.visitanteId;
-                    localStorage.setItem("visitanteId", visitanteId);
-                    console.log('🎯 VisitanteId encontrado en respuestas:', visitanteId);
-                    break;
-                }
-            }
-            
-            // Si aún no se encuentra, generar uno
-            if (!visitanteId) {
-                visitanteId = 'user_' + btoa(userEmail).replace(/[=+/]/g, '').substring(0, 12);
-                localStorage.setItem("visitanteId", visitanteId);
-                console.log('🆕 VisitanteId generado:', visitanteId);
-            }
-        }
 
         // Obtener todos los formularios
         const formulariosRes = await fetch("/api/formulario?action=listarFormularios");
@@ -2683,53 +2512,71 @@ async function cargarCertificaciones() {
                     const respuestas = data.asistencias || [];
                     const examenes = data.examenes || [];
 
-                    // Obtener la fecha de cierre del formulario
+                    // Obtener la fecha de cierre del formulario desde la lista de formularios
                     const fechaCierreFormulario = formularios[formularioId].fechaCierre;
                     const fechaFin = fechaCierreFormulario ? new Date(fechaCierreFormulario) : null;
                     const hoy = new Date();
 
-                    // 🔥 BÚSQUEDA ROBUSTA - Buscar por múltiples criterios
+                    // 🔥 MEJORA: Búsqueda más robusta de respuestas del usuario
                     let respuestasUsuario = respuestas.filter(r => {
+                        // Buscar por email (case insensitive)
                         const rEmail = (r.correo || '').toLowerCase().trim();
                         const emailMatch = rEmail === userEmail;
+                        
+                        // Buscar por visitanteId
                         const visitanteMatch = r.visitanteId === visitanteId;
                         
-                        return emailMatch || visitanteMatch;
+                        // Buscar por userId si existe
+                        const userIdMatch = r.userId === currentUserId;
+                        
+                        return emailMatch || visitanteMatch || userIdMatch;
                     });
 
-                    console.log(`📋 Formulario ${formularioId}: ${respuestasUsuario.length} respuestas del usuario`);
+                    console.log(`📋 Formulario ${formularioId}:`, {
+                        totalRespuestas: respuestas.length,
+                        respuestasUsuario: respuestasUsuario.length,
+                        criterios: {
+                            email: userEmail,
+                            visitanteId: visitanteId,
+                            userId: currentUserId
+                        }
+                    });
 
+                    // Si no encontramos respuestas, continuar con el siguiente formulario
                     if (respuestasUsuario.length === 0) {
                         continue;
                     }
 
-                    // Agrupar por visitanteId
+                    // Agrupar respuestas por identificador único (email + visitanteId)
                     const respuestasAgrupadas = {};
                     respuestasUsuario.forEach(respuesta => {
-                        const key = respuesta.visitanteId || 'default';
+                        const key = respuesta.visitanteId || respuesta.correo || 'unknown';
                         if (!respuestasAgrupadas[key]) {
                             respuestasAgrupadas[key] = [];
                         }
                         respuestasAgrupadas[key].push(respuesta);
                     });
 
-                    // Procesar cada grupo
+                    // Procesar cada grupo de respuestas
                     for (const [grupoKey, respuestasGrupo] of Object.entries(respuestasAgrupadas)) {
+                        // Encontrar el examen del usuario para este grupo
                         const examenUsuario = examenes.find(e => 
                             e.visitanteId === grupoKey || 
                             (e.correo && e.correo.toLowerCase() === userEmail)
                         );
 
-                        // CONTAR ASISTENCIAS ÚNICAS
+                        // 🔥 CORRECCIÓN MEJORADA: Contar asistencias completadas
                         const numerosAsistencia = respuestasGrupo.map(r => parseInt(r.asistenciaNumero) || 0);
-                        const asistenciasUnicas = [...new Set(numerosAsistencia)].filter(num => num >= 1 && num <= 3);
-                        const asistenciasCompletadas = asistenciasUnicas.length;
+                        const asistenciasUnicas = [...new Set(numerosAsistencia)]; // Eliminar duplicados
+                        const asistenciasCompletadas = asistenciasUnicas.filter(num => 
+                            num >= 1 && num <= 3
+                        ).length;
 
                         const examenRealizado = examenUsuario !== undefined;
                         const calificacion = examenRealizado ? examenUsuario.puntaje : null;
                         const aprobado = examenRealizado ? calificacion >= 70 : false;
 
-                        // DETERMINAR ESTADO
+                        // 🔥 NUEVA LÓGICA MEJORADA PARA DETERMINAR ESTADO
                         let estado = "";
                         let estadoClase = "";
 
@@ -2763,7 +2610,7 @@ async function cargarCertificaciones() {
                             }
                         }
 
-                        // Fecha más reciente
+                        // Obtener la fecha más reciente
                         const fechaMasReciente = new Date(Math.max(...respuestasGrupo.map(r => new Date(r.fecha))));
 
                         certificaciones.push({
@@ -2777,41 +2624,53 @@ async function cargarCertificaciones() {
                             estado: estado,
                             estadoClase: estadoClase,
                             fechaFin: fechaFin,
-                            visitanteId: grupoKey
+                            visitanteId: grupoKey,
+                            debug: {
+                                respuestasCount: respuestasGrupo.length,
+                                numerosAsistencia: numerosAsistencia,
+                                asistenciasUnicas: asistenciasUnicas
+                            }
                         });
 
-                        console.log(`✅ ${formularios[formularioId].titulo}: ${asistenciasCompletadas}/3 asistencias - ${estado}`);
+                        console.log(`✅ Certificación agregada:`, {
+                            formulario: formularios[formularioId].titulo,
+                            asistenciasCompletadas: asistenciasCompletadas,
+                            estado: estado,
+                            grupo: grupoKey
+                        });
                     }
                 }
             } catch (error) {
-                console.error(`Error en formulario ${formularioId}:`, error);
+                console.error(`Error al cargar respuestas para ${formularioId}:`, error);
             }
         }
 
-        // Guardar en cache y actualizar interfaz
+        // Guardar en cache
         certificacionesCache = certificaciones;
         certificacionesCacheTime = now;
+        
+        console.log('📊 Certificaciones encontradas:', certificaciones.length);
+        
+        // Actualizar la interfaz con las certificaciones
         actualizarInterfazCertificaciones(certificaciones);
 
     } catch (error) {
         console.error("Error al cargar certificaciones:", error);
-        mostrarMensaje("error", "Error al cargar certificaciones", 
-            "No se pudieron cargar tus certificaciones. <button onclick='solucionarVisitanteId()'>🛠️ Solucionar problema</button>");
-        
+        mostrarMensaje("error", "Error al cargar certificaciones", "No se pudieron cargar tus certificaciones. Intenta nuevamente.");
+
+        // Mostrar estado de error
         certificacionesLoading.style.display = "none";
         sinCertificaciones.style.display = "block";
         sinCertificaciones.innerHTML = `
             <h3>❌ Error al cargar certificaciones</h3>
-            <p>${error.message || 'Error desconocido'}</p>
-            <button onclick="solucionarVisitanteId()" style="margin: 10px; padding: 8px 16px; background: var(--accent-color); color: white; border: none; border-radius: 4px;">
-                🛠️ Solucionar Automáticamente
-            </button>
-            <button onclick="cargarCertificaciones()" style="margin: 10px; padding: 8px 16px; background: var(--success-color); color: white; border: none; border-radius: 4px;">
-                🔄 Reintentar
+            <p>No se pudieron cargar tus certificaciones. Intenta nuevamente.</p>
+            <button onclick="cargarCertificaciones()" style="margin-top: 10px; padding: 8px 16px; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Reintentar
             </button>
         `;
     }
 }
+
 
 
 
