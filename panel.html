@@ -2430,10 +2430,8 @@
 
       //////////////////////////////////////////////////////
       // Función para cargar las certificaciones del usuario
-      // 🔹 FUNCIÓN COMPLETAMENTE CORREGIDA - CÁLCULO DE ASISTENCIAS FIXED
 async function cargarCertificaciones() {
     agregarLogFirestore('cargarCertificaciones');
-    
     // 🔒 Usar cache si está disponible
     const now = Date.now();
     if (certificacionesCache && (now - certificacionesCacheTime < CACHE_DURATION)) {
@@ -2443,13 +2441,9 @@ async function cargarCertificaciones() {
     }
 
     // Mostrar loading
-    const certificacionesLoading = document.getElementById("certificacionesLoading");
-    const certificacionesContent = document.getElementById("certificacionesContent");
-    const sinCertificaciones = document.getElementById("sinCertificaciones");
-    
-    if (certificacionesLoading) certificacionesLoading.style.display = "block";
-    if (certificacionesContent) certificacionesContent.style.display = "none";
-    if (sinCertificaciones) sinCertificaciones.style.display = "none";
+    certificacionesLoading.style.display = "block";
+    certificacionesContent.style.display = "none";
+    sinCertificaciones.style.display = "none";
 
     try {
         // Obtener el usuario actual
@@ -2484,9 +2478,8 @@ async function cargarCertificaciones() {
                     const respuestas = data.asistencias || [];
                     const examenes = data.examenes || [];
 
-                    // Obtener información del formulario
-                    const formularioInfo = formularios[formularioId];
-                    const fechaCierreFormulario = formularioInfo.fechaCierre;
+                    // Obtener la fecha de cierre del formulario desde la lista de formularios
+                    const fechaCierreFormulario = formularios[formularioId].fechaCierre;
                     const fechaFin = fechaCierreFormulario ? new Date(fechaCierreFormulario) : null;
                     const hoy = new Date();
 
@@ -2500,40 +2493,30 @@ async function cargarCertificaciones() {
                         continue;
                     }
 
-                    // 🔹 CORRECCIÓN: Agrupar por visitanteId para procesar cada usuario individualmente
-                    const respuestasPorVisitante = {};
+                    // Agrupar respuestas por visitanteId para evitar duplicados
+                    const respuestasAgrupadas = {};
                     respuestasUsuario.forEach(respuesta => {
-                        const visitanteKey = respuesta.visitanteId;
-                        if (!respuestasPorVisitante[visitanteKey]) {
-                            respuestasPorVisitante[visitanteKey] = [];
+                        const key = respuesta.visitanteId;
+                        if (!respuestasAgrupadas[key]) {
+                            respuestasAgrupadas[key] = [];
                         }
-                        respuestasPorVisitante[visitanteKey].push(respuesta);
+                        respuestasAgrupadas[key].push(respuesta);
                     });
 
-                    // Procesar cada grupo de respuestas por visitanteId
-                    for (const [visitanteIdGrupo, respuestasGrupo] of Object.entries(respuestasPorVisitante)) {
-                        
-                        // 🔹 CORRECCIÓN: Buscar examen para este formulario y visitante
-                        const examenUsuario = examenes.find(e => 
-                            e.visitanteId === visitanteIdGrupo
-                        );
+                    // Procesar cada grupo de respuestas (por visitanteId)
+                    for (const [visitanteIdGrupo, respuestasGrupo] of Object.entries(respuestasAgrupadas)) {
+                        // Encontrar el examen del usuario para este visitanteId
+                        const examenUsuario = examenes.find(e => e.visitanteId === visitanteIdGrupo);
 
-                        // 🔹 CORRECCIÓN CRÍTICA: Contar asistencias ÚNICAS por número de asistencia
-                        // Filtrar solo las asistencias que tienen número válido (1, 2, 3)
-                        const asistenciasValidas = respuestasGrupo.filter(r => 
-                            r.asistenciaNumero === 1 || r.asistenciaNumero === 2 || r.asistenciaNumero === 3
-                        );
+                        // 🔹 CORRECCIÓN: VALIDAR DIRECTAMENTE SI TIENE LAS 3 ASISTENCIAS
+                        const numerosAsistenciaUnicos = [...new Set(respuestasGrupo.map(r => r.asistenciaNumero))];
+                        const tieneAsistencia1 = numerosAsistenciaUnicos.includes(1);
+                        const tieneAsistencia2 = numerosAsistenciaUnicos.includes(2);
+                        const tieneAsistencia3 = numerosAsistenciaUnicos.includes(3);
                         
-                        // Contar asistencias únicas por número (evitar duplicados)
-                        const numerosAsistenciaUnicos = [...new Set(asistenciasValidas.map(r => r.asistenciaNumero))];
-                        const asistenciasCompletadas = numerosAsistenciaUnicos.length;
-
-                        console.log(`📊 Formulario ${formularioId}, Visitante ${visitanteIdGrupo}:`, {
-                            totalRespuestas: respuestasGrupo.length,
-                            asistenciasValidas: asistenciasValidas.length,
-                            numerosUnicos: numerosAsistenciaUnicos,
-                            asistenciasCompletadas: asistenciasCompletadas
-                        });
+                        // Si tiene las 3 asistencias, mostrar 3/3, sino contar cuántas tiene
+                        const asistenciasCompletadas = tieneAsistencia1 && tieneAsistencia2 && tieneAsistencia3 ? 3 : 
+                                                     [tieneAsistencia1, tieneAsistencia2, tieneAsistencia3].filter(Boolean).length;
 
                         const examenRealizado = examenUsuario !== undefined;
                         const calificacion = examenRealizado ? examenUsuario.puntaje : null;
@@ -2544,7 +2527,7 @@ async function cargarCertificaciones() {
                         let estadoClase = "";
 
                         // Verificar si el formulario tiene evaluación
-                        const tieneEvaluacion = formularioInfo.tieneEvaluacion === true;
+                        const tieneEvaluacion = formularios[formularioId].tieneEvaluacion === true;
 
                         if (fechaFin && hoy > fechaFin) {
                             // PERIODO TERMINADO
@@ -2588,20 +2571,14 @@ async function cargarCertificaciones() {
                             }
                         }
 
-                        // 🔹 CORRECCIÓN: Obtener fecha de la primera asistencia
-                        const fechasAsistencias = respuestasGrupo
-                            .map(r => new Date(r.fecha))
-                            .filter(date => !isNaN(date.getTime()));
-                        
-                        const fechaParticipacion = fechasAsistencias.length > 0 ? 
-                            new Date(Math.min(...fechasAsistencias)) : new Date();
+                        // Obtener la fecha más reciente
+                        const fechaMasReciente = new Date(Math.max(...respuestasGrupo.map(r => new Date(r.fecha))));
 
                         certificaciones.push({
                             formularioId: formularioId,
-                            titulo: formularioInfo.titulo,
-                            fecha: fechaParticipacion,
+                            titulo: formularios[formularioId].titulo,
+                            fecha: fechaMasReciente,
                             asistenciasCompletadas: asistenciasCompletadas,
-                            totalAsistencias: 3,
                             examenRealizado: examenRealizado,
                             calificacion: calificacion,
                             aprobado: aprobado,
@@ -2609,7 +2586,6 @@ async function cargarCertificaciones() {
                             estadoClase: estadoClase,
                             fechaFin: fechaFin,
                             visitanteId: visitanteIdGrupo,
-                            examenData: examenUsuario,
                             tieneEvaluacion: tieneEvaluacion
                         });
                     }
@@ -2619,60 +2595,40 @@ async function cargarCertificaciones() {
             }
         }
 
-        // 🔹 ORDENAR por fecha más reciente primero
-        certificaciones.sort((a, b) => b.fecha - a.fecha);
-
-        console.log('📊 Certificaciones procesadas:', certificaciones);
-
         // Guardar en cache
         certificacionesCache = certificaciones;
         certificacionesCacheTime = now;
-        
         // Actualizar la interfaz con las certificaciones
         actualizarInterfazCertificaciones(certificaciones);
 
     } catch (error) {
         console.error("Error al cargar certificaciones:", error);
-        
+        mostrarMensaje("error", "Error al cargar certificaciones", "No se pudieron cargar tus certificaciones. Intenta nuevamente.");
+
         // Mostrar estado de error
-        const certificacionesLoading = document.getElementById("certificacionesLoading");
-        const sinCertificaciones = document.getElementById("sinCertificaciones");
-        
-        if (certificacionesLoading) certificacionesLoading.style.display = "none";
-        if (sinCertificaciones) {
-            sinCertificaciones.style.display = "block";
-            sinCertificaciones.innerHTML = `
-                <h3>❌ Error al cargar certificaciones</h3>
-                <p>No se pudieron cargar tus certificaciones. Intenta nuevamente.</p>
-            `;
-        }
+        certificacionesLoading.style.display = "none";
+        sinCertificaciones.style.display = "block";
+        sinCertificaciones.innerHTML = `
+            <h3>❌ Error al cargar certificaciones</h3>
+            <p>No se pudieron cargar tus certificaciones. Intenta nuevamente.</p>
+        `;
     }
 }
 
-// 🔹 FUNCIÓN ACTUALIZADA PARA LA INTERFAZ
+// Función para actualizar la interfaz con las certificaciones
 function actualizarInterfazCertificaciones(certificaciones) {
-    const cuerpoTablaCertificaciones = document.getElementById("cuerpoTablaCertificaciones");
-    const certificacionesLoading = document.getElementById("certificacionesLoading");
-    const certificacionesContent = document.getElementById("certificacionesContent");
-    const sinCertificaciones = document.getElementById("sinCertificaciones");
-    const totalEspecialidades = document.getElementById("totalEspecialidades");
-    const especialidadesCompletadas = document.getElementById("especialidadesCompletadas");
+    // Ocultar loading
+    certificacionesLoading.style.display = "none";
 
-    // ✅ VERIFICAR QUE LOS ELEMENTOS EXISTAN
-    if (!cuerpoTablaCertificaciones || !certificacionesLoading || !certificacionesContent || !sinCertificaciones) {
-        console.error('❌ Elementos del DOM no encontrados');
-        return;
-    }
-    
-    if (!certificaciones || certificaciones.length === 0) {
-        certificacionesLoading.style.display = "none";
-        certificacionesContent.style.display = "none";
+    if (certificaciones.length === 0) {
         sinCertificaciones.style.display = "block";
+        certificacionesContent.style.display = "none";
         return;
     }
 
-    // Limpiar tabla
-    cuerpoTablaCertificaciones.innerHTML = "";
+    // Mostrar contenido
+    sinCertificaciones.style.display = "none";
+    certificacionesContent.style.display = "block";
 
     // Agrupar certificaciones por formularioId para evitar duplicados
     const certificacionesAgrupadas = {};
@@ -2683,77 +2639,68 @@ function actualizarInterfazCertificaciones(certificaciones) {
         certificacionesAgrupadas[cert.formularioId].push(cert);
     });
 
-    // Tomar la mejor certificación de cada formulario
+    // Tomar la mejor certificación de cada formulario (la que tenga más asistencias completadas)
     const certificacionesUnicas = [];
     Object.values(certificacionesAgrupadas).forEach(grupo => {
+        // Ordenar por asistencias completadas (mayor a menor) y luego por fecha (más reciente primero)
         grupo.sort((a, b) => {
             if (b.asistenciasCompletadas !== a.asistenciasCompletadas) {
                 return b.asistenciasCompletadas - a.asistenciasCompletadas;
             }
             return new Date(b.fecha) - new Date(a.fecha);
         });
+        // Tomar la primera (mejor) certificación del grupo
         certificacionesUnicas.push(grupo[0]);
     });
 
     // Actualizar contadores
-    const completadas = certificacionesUnicas.filter(c => 
-        c.estado === "Completado" || c.estado === "Aprobado"
-    ).length;
-    
-    if (totalEspecialidades) totalEspecialidades.textContent = certificacionesUnicas.length;
-    if (especialidadesCompletadas) especialidadesCompletadas.textContent = completadas;
+    const completadas = certificacionesUnicas.filter(c => c.estado === "Completado" || c.estado === "Aprobado").length;
+    totalEspecialidades.textContent = certificacionesUnicas.length;
+    especialidadesCompletadas.textContent = completadas;
 
-    // Ordenar por fecha más reciente primero
+    // Limpiar tabla
+    cuerpoTablaCertificaciones.innerHTML = "";
+
+    // Ordenar certificaciones por fecha (más reciente primero)
     certificacionesUnicas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
     // Llenar tabla
     certificacionesUnicas.forEach((cert, index) => {
         const fila = document.createElement("tr");
 
-        // 🔹 FORMATEAR FECHA CORRECTAMENTE
-        const fechaFormateada = cert.fecha instanceof Date && !isNaN(cert.fecha) ? 
-            cert.fecha.toLocaleDateString('es-ES') : 'Fecha no disponible';
+        let calificacionTexto = "No realizado";
+        let calificacionClase = "";
 
-        // 🔹 FORMATEAR CALIFICACIÓN
-        let calificacionTexto = 'No realizado';
-        let calificacionClase = '';
-        
-        if (cert.examenRealizado && cert.calificacion !== null) {
-            calificacionClase = cert.aprobado ? "calificacion-aprobada" : "calificacion-reprobada";
-            calificacionTexto = `${Math.round(cert.calificacion)}%`;
-        } else if (cert.tieneEvaluacion === false) {
-            calificacionTexto = 'No aplica';
-        }
-
-        // 🔹 BOTÓN DE EXAMEN
-        let examenBoton = 'No disponible';
         if (cert.examenRealizado) {
-            examenBoton = `<button class="btn-ver-examen" onclick="verCertificacionCompleta('${cert.formularioId}', '${cert.visitanteId}')">
-                Ver Examen
-            </button>`;
+            calificacionClase = cert.aprobado ? "calificacion-aprobada" : "calificacion-reprobada";
+            calificacionTexto = `${cert.calificacion.toFixed(1)}%`;
         } else if (cert.tieneEvaluacion === false) {
-            examenBoton = 'No aplica';
+            calificacionTexto = "No aplica";
         }
 
         fila.innerHTML = `
             <td>${index + 1}</td>
             <td>${cert.titulo}</td>
-            <td>${fechaFormateada}</td>
-            <td>${cert.asistenciasCompletadas}/${cert.totalAsistencias}</td>
-            <td>${cert.examenRealizado ? 'Sí' : 'No'}</td>
+            <td>${cert.fecha.toLocaleDateString()}</td>
+            <td>${cert.asistenciasCompletadas}/3</td>
+            <td>${cert.examenRealizado ? "Sí" : "No"}</td>
             <td class="${calificacionClase}">${calificacionTexto}</td>
             <td class="${cert.estadoClase}">${cert.estado}</td>
-            <td>${examenBoton}</td>
+            <td>
+                ${cert.examenRealizado ?
+                `<button onclick="verCertificacionCompleta('${cert.formularioId}', '${cert.visitanteId}')" 
+                             style="background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+                        Ver Examen
+                    </button>`
+                : (cert.tieneEvaluacion === false ? 'No aplica' : 'No disponible')
+            }
+            </td>
         `;
 
         cuerpoTablaCertificaciones.appendChild(fila);
     });
-
-    // Ocultar loading y mostrar contenido
-    certificacionesLoading.style.display = "none";
-    certificacionesContent.style.display = "block";
-    sinCertificaciones.style.display = "none";
 }
+
 
 
 
