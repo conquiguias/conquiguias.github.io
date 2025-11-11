@@ -4057,6 +4057,10 @@
           // 🔹 INICIALIZAR SCROLL INFINITO DESPUÉS DE LA PRIMERA CARGA
           setTimeout(() => {
             initializeInfiniteScroll();
+            // En tu función loadPosts(), después de cargar las publicaciones:
+setTimeout(() => {
+    initializeCenteringSystem();
+}, 1000);
           }, 500);
 
         } catch (error) {
