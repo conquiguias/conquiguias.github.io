@@ -8,5 +8,15 @@
     "fecha": "2025-11-12T01:23:24.481Z",
     "visitanteId": "7ef9763b-7207-4557-a83a-1897f6d9ec4c",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Kendall Alberto Torres Báez",
+    "correo": "kendall.torres.17@gmail.com",
+    "edad": "24",
+    "telefono": "63160345",
+    "asociacion": "ADS",
+    "fecha": "2025-11-12T01:25:56.827Z",
+    "visitanteId": "e0b2f300-4688-4c52-a835-2ad3f28b1109",
+    "asistenciaNumero": 1
   }
 ]
