@@ -4391,7 +4391,7 @@ function actualizarInterfazCertificaciones(certificaciones) {
       ${post.mediaType.startsWith('image/')
             ? `<img src="${post.mediaUrl}" alt="Publicación" loading="lazy" onerror="this.style.display='none'">`
             : post.mediaType.startsWith('video/')
-              ? `<video src="${post.mediaUrl}" playsinline loop controls style="max-width: 100%; border-radius: 8px;"></video>`
+              ? `<video src="${post.mediaUrl}" playsinline loop controls style="max-width: 100%;"></video>`
               : `<div style="padding: 20px; text-align: center; color: #666;">Tipo de archivo no compatible</div>`
           }
     </div>
