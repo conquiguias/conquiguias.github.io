@@ -48,5 +48,15 @@
     "fecha": "2025-11-13T02:06:42.341Z",
     "visitanteId": "ec87621e-9b16-4832-a86b-db3cbaa97e27",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Ismael Antonio Mejía Ovalles ",
+    "correo": "ismael.mejia1207@gmail.com",
+    "edad": "24",
+    "telefono": "8098756247",
+    "asociacion": "ACD",
+    "fecha": "2025-11-13T02:07:14.888Z",
+    "visitanteId": "0e005b11-b307-4bfe-adac-cfe69f8d03c4",
+    "asistenciaNumero": 1
   }
 ]
