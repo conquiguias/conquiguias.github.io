@@ -6125,123 +6125,119 @@ transition: all 0.3s ease;
 
 
 
-      // 🔹 Hacer funciones globales para el botón "Leer más"
-      window.toggleReadMore = function (postId, fullText) {
-        console.log('🔄 toggleReadMore llamado:', postId, fullText?.substring(0, 50) + '...');
+      // 🔹 Hacer funciones globales para el botón "Leer más" - VERSIÓN CORREGIDA
+window.toggleReadMore = function(postId, fullText) {
+    console.log('🔄 toggleReadMore llamado:', postId, fullText?.substring(0, 50) + '...');
+    
+    const descriptionElement = document.getElementById(`post-description-${postId}`);
+    if (!descriptionElement) {
+        console.error('❌ Elemento no encontrado:', `post-description-${postId}`);
+        return;
+    }
 
-        const descriptionElement = document.getElementById(`post-description-${postId}`);
-        if (!descriptionElement) {
-          console.error('❌ Elemento no encontrado:', `post-description-${postId}`);
-          return;
-        }
+    const readMoreBtn = descriptionElement.querySelector('.read-more-btn');
+    const isExpanded = readMoreBtn?.textContent === 'Leer menos';
 
-        const readMoreBtn = descriptionElement.querySelector('.read-more-btn');
-        const isExpanded = readMoreBtn?.textContent === 'Leer menos';
-
-        if (isExpanded) {
-          // Contraer texto - usar versión corta
-          const shortText = window.formatPostDescription(fullText, postId);
-          descriptionElement.innerHTML = shortText;
-        } else {
-          // Expandir texto completo
-          const fullFormattedText = window.formatFullText(fullText);
-          descriptionElement.innerHTML = fullFormattedText + `
+    if (isExpanded) {
+        // Contraer texto - usar versión corta
+        const shortText = window.formatPostDescription(fullText, postId);
+        descriptionElement.innerHTML = shortText;
+    } else {
+        // Expandir texto completo
+        const fullFormattedText = window.formatFullText(fullText);
+        descriptionElement.innerHTML = fullFormattedText + `
             <br>
-            <button class="read-more-btn" onclick="toggleReadMore('${postId}', '${window.escapeHtml(fullText)}')" 
+            <button class="read-more-btn" onclick="window.toggleReadMore('${postId}', '${window.escapeHtml(fullText)}')" 
                     style="background: none; border: none; color: var(--accent-color); 
                            cursor: pointer; font-weight: bold; padding: 5px 0; margin-top: 5px;
                            font-size: 14px;">
                 Leer menos
             </button>
         `;
-        }
-      };
+    }
+};
 
-      window.escapeHtml = function (text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-      };
+window.escapeHtml = function(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+};
 
-      window.formatPostDescription = function (text, postId) {
-        if (!text || typeof text !== 'string') return '';
-
-        const MAX_LENGTH = 300;
-        const hasLongText = text.length > MAX_LENGTH;
-
-        // Escapar HTML para seguridad
-        let safeText = window.escapeHtml(text);
-
-        // Si el texto es corto, mostrar completo
-        if (!hasLongText) {
-          return window.formatTextWithLinks(safeText);
-        }
-
-        // Para texto largo, mostrar versión corta con "Leer más"
-        let shortText = safeText.substring(0, MAX_LENGTH);
-
-        // Asegurar que no cortemos en medio de una palabra
-        const lastSpace = shortText.lastIndexOf(' ');
-        if (lastSpace > MAX_LENGTH - 50 && lastSpace > 0) {
-          shortText = shortText.substring(0, lastSpace) + '...';
-        } else {
-          shortText += '...';
-        }
-
-        let formattedText = window.formatTextWithLinks(shortText);
-
-        // Agregar botón "Leer más"
-        formattedText += `
+window.formatPostDescription = function(text, postId) {
+    if (!text || typeof text !== 'string') return '';
+    
+    const MAX_LENGTH = 300;
+    const hasLongText = text.length > MAX_LENGTH;
+    
+    // Si el texto es corto, mostrar completo
+    if (!hasLongText) {
+        return window.formatTextWithLinks(text);
+    }
+    
+    // Para texto largo, mostrar versión corta con "Leer más"
+    let shortText = text.substring(0, MAX_LENGTH);
+    
+    // Asegurar que no cortemos en medio de una palabra
+    const lastSpace = shortText.lastIndexOf(' ');
+    if (lastSpace > MAX_LENGTH - 50 && lastSpace > 0) {
+        shortText = shortText.substring(0, lastSpace) + '...';
+    } else {
+        shortText += '...';
+    }
+    
+    let formattedText = window.formatTextWithLinks(shortText);
+    
+    // Agregar botón "Leer más"
+    formattedText += `
         <br>
-        <button class="read-more-btn" onclick="toggleReadMore('${postId}', '${window.escapeHtml(text)}')" 
+        <button class="read-more-btn" onclick="window.toggleReadMore('${postId}', '${window.escapeHtml(text)}')" 
                 style="background: none; border: none; color: var(--accent-color); 
                        cursor: pointer; font-weight: bold; padding: 5px 0; margin-top: 5px;
                        font-size: 14px;">
             Leer más
         </button>
     `;
+    
+    return formattedText;
+};
 
-        return formattedText;
-      };
+window.formatFullText = function(text) {
+    if (!text || typeof text !== 'string') return '';
+    return window.formatTextWithLinks(text);
+};
 
-      window.formatFullText = function (text) {
-        if (!text || typeof text !== 'string') return '';
-
-        // Escapar HTML para seguridad
-        let safeText = window.escapeHtml(text);
-
-        return window.formatTextWithLinks(safeText);
-      };
-
-      window.formatTextWithLinks = function (text) {
-        if (!text) return '';
-
-        // 1. Mantener formato original
-        let formattedText = text
-          .replace(/\n/g, '<br>')
-          .replace(/  /g, ' &nbsp;')
-          .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-
-        // 2. Detectar URLs
-        const urlRegex = /(https?:\/\/[^\s<]+[^<.,!?;:)\]\s])/g;
-        formattedText = formattedText.replace(urlRegex, (url) => {
-          try {
+window.formatTextWithLinks = function(text) {
+    if (!text) return '';
+    
+    // Primero escapar el HTML para seguridad
+    let safeText = window.escapeHtml(text);
+    
+    // 1. Mantener formato original
+    let formattedText = safeText
+        .replace(/\n/g, '<br>')
+        .replace(/  /g, ' &nbsp;')
+        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+    
+    // 2. Detectar URLs
+    const urlRegex = /(https?:\/\/[^\s<]+[^<.,!?;:)\]\s])/g;
+    formattedText = formattedText.replace(urlRegex, (url) => {
+        try {
             new URL(url);
-
+            
             let displayUrl = url;
             try {
-              const urlObj = new URL(url);
-              displayUrl = urlObj.hostname + (urlObj.pathname !== '/' ? urlObj.pathname : '');
-              if (displayUrl.length > 30) {
-                displayUrl = displayUrl.substring(0, 27) + '...';
-              }
+                const urlObj = new URL(url);
+                displayUrl = urlObj.hostname + (urlObj.pathname !== '/' ? urlObj.pathname : '');
+                if (displayUrl.length > 30) {
+                    displayUrl = displayUrl.substring(0, 27) + '...';
+                }
             } catch (e) {
-              if (url.length > 30) {
-                displayUrl = url.substring(0, 27) + '...';
-              }
+                if (url.length > 30) {
+                    displayUrl = url.substring(0, 27) + '...';
+                }
             }
-
+            
             return `<a href="${url}" target="_blank" rel="noopener noreferrer" 
                      style="color: var(--accent-color); text-decoration: underline; 
                             word-break: break-all; font-weight: 500;"
@@ -6250,16 +6246,16 @@ transition: all 0.3s ease;
                      title="${url}">
                      🔗 ${displayUrl}
                    </a>`;
-          } catch (error) {
+        } catch (error) {
             return url;
-          }
-        });
-
-        // 3. Detectar enlaces sin protocolo
-        const wwwRegex = /(^|\s)(www\.[^\s<]+\.[^\s<]+)/g;
-        formattedText = formattedText.replace(wwwRegex, (match, space, url) => {
-          const fullUrl = 'https://' + url;
-          return `${space}<a href="${fullUrl}" target="_blank" rel="noopener noreferrer"
+        }
+    });
+    
+    // 3. Detectar enlaces sin protocolo
+    const wwwRegex = /(^|\s)(www\.[^\s<]+\.[^\s<]+)/g;
+    formattedText = formattedText.replace(wwwRegex, (match, space, url) => {
+        const fullUrl = 'https://' + url;
+        return `${space}<a href="${fullUrl}" target="_blank" rel="noopener noreferrer"
                  style="color: var(--accent-color); text-decoration: underline; 
                         word-break: break-all; font-weight: 500;"
                  onmouseover="this.style.textDecoration='none'" 
@@ -6267,22 +6263,44 @@ transition: all 0.3s ease;
                  title="${fullUrl}">
                  🔗 ${url}
                </a>`;
-        });
+    });
+    
+    // 4. Menciones @usuario
+    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+    formattedText = formattedText.replace(mentionRegex, 
+        '<span style="color: var(--accent-color); font-weight: bold;">@$1</span>'
+    );
+    
+    // 5. Hashtags #tema
+    const hashtagRegex = /#([a-zA-Z0-9_]+)/g;
+    formattedText = formattedText.replace(hashtagRegex, 
+        '<span style="color: var(--success-color); font-weight: bold;">#$1</span>'
+    );
+    
+    return formattedText;
+};
+// 🔹 INICIALIZAR SISTEMA "LEER MÁS" DESPUÉS DE CARGAR POSTS
+function inicializarSistemaLeerMas() {
+    console.log('✅ Sistema "Leer más" inicializado');
+    
+    // Re-asignar event listeners a los botones existentes
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('read-more-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const postId = e.target.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+            const fullText = e.target.getAttribute('onclick')?.match(/'([^']+)'/)?.[2];
+            
+            if (postId && fullText) {
+                window.toggleReadMore(postId, fullText);
+            }
+        }
+    });
+}
 
-        // 4. Menciones @usuario
-        const mentionRegex = /@([a-zA-Z0-9_]+)/g;
-        formattedText = formattedText.replace(mentionRegex,
-          '<span style="color: var(--accent-color); font-weight: bold;">@$1</span>'
-        );
-
-        // 5. Hashtags #tema
-        const hashtagRegex = /#([a-zA-Z0-9_]+)/g;
-        formattedText = formattedText.replace(hashtagRegex,
-          '<span style="color: var(--success-color); font-weight: bold;">#$1</span>'
-        );
-
-        return formattedText;
-      };
+// Llamar después de cargar posts
+setTimeout(inicializarSistemaLeerMas, 1000);
     </script>
 
 
