@@ -128,5 +128,11 @@
     "fecha": "2025-11-13T01:05:35.754Z",
     "visitanteId": "d6421b0a-a4e5-44e1-b059-a2ce75fb55a1",
     "asistenciaNumero": 1
+  },
+  {
+    "fecha": "2025-11-13T01:08:45.626Z",
+    "visitanteId": "d6421b0a-a4e5-44e1-b059-a2ce75fb55a1",
+    "asistenciaNumero": 2,
+    "id": "RamonVentura-KYIFOS"
   }
 ]
