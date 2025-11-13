@@ -4736,254 +4736,7 @@ transition: all 0.3s ease;
         feed.appendChild(postElement);
       }
 
-      // 🔹 Formatear descripción del post - mantener espacios y detectar enlaces
-      // 🔹 Formatear descripción del post con "Leer más" para textos largos
-      function formatPostDescription(text, postId) {
-        if (!text || typeof text !== 'string') return '';
-
-        const MAX_LENGTH = 300; // Límite de caracteres antes de mostrar "Leer más"
-        const hasLongText = text.length > MAX_LENGTH;
-
-        // Escapar HTML para seguridad
-        let safeText = text
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-
-        // Texto corto o texto completo si es largo
-        let displayText = hasLongText ? safeText.substring(0, MAX_LENGTH) + '...' : safeText;
-
-        // 1. Mantener formato original (saltos de línea y espacios)
-        let formattedText = displayText
-          .replace(/\n/g, '<br>') // Saltos de línea
-          .replace(/  /g, ' &nbsp;') // Espacios dobles
-          .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); // Tabs
-
-        // 2. Detectar URLs complejas (incluye dominios comunes)
-        const urlRegex = /(https?:\/\/[^\s<]+[^<.,!?;:)\]\s])/g;
-        formattedText = formattedText.replace(urlRegex, (url) => {
-          try {
-            new URL(url);
-
-            let displayUrl = url;
-            try {
-              const urlObj = new URL(url);
-              displayUrl = urlObj.hostname + (urlObj.pathname !== '/' ? urlObj.pathname : '');
-              if (displayUrl.length > 30) {
-                displayUrl = displayUrl.substring(0, 27) + '...';
-              }
-            } catch (e) {
-              if (url.length > 30) {
-                displayUrl = url.substring(0, 27) + '...';
-              }
-            }
-
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer" 
-               style="color: var(--accent-color); text-decoration: underline; 
-                      word-break: break-all; font-weight: 500;"
-               onmouseover="this.style.textDecoration='none'" 
-               onmouseout="this.style.textDecoration='underline'"
-               title="${url}">
-               🔗 ${displayUrl}
-             </a>`;
-          } catch (error) {
-            return url;
-          }
-        });
-
-        // 3. Detectar enlaces sin protocolo (www.example.com)
-        const wwwRegex = /(^|\s)(www\.[^\s<]+\.[^\s<]+)/g;
-        formattedText = formattedText.replace(wwwRegex, (match, space, url) => {
-          const fullUrl = 'https://' + url;
-          return `${space}<a href="${fullUrl}" target="_blank" rel="noopener noreferrer"
-             style="color: var(--accent-color); text-decoration: underline; 
-                    word-break: break-all; font-weight: 500;"
-             onmouseover="this.style.textDecoration='none'" 
-             onmouseout="this.style.textDecoration='underline'"
-             title="${fullUrl}">
-             🔗 ${url}
-           </a>`;
-        });
-
-        // 4. Menciones @usuario
-        const mentionRegex = /@([a-zA-Z0-9_]+)/g;
-        formattedText = formattedText.replace(mentionRegex,
-          '<span style="color: var(--accent-color); font-weight: bold;">@$1</span>'
-        );
-
-        // 5. Hashtags #tema
-        const hashtagRegex = /#([a-zA-Z0-9_]+)/g;
-        formattedText = formattedText.replace(hashtagRegex,
-          '<span style="color: var(--success-color); font-weight: bold;">#$1</span>'
-        );
-
-        // 6. Agregar botón "Leer más" si el texto es largo
-        if (hasLongText) {
-          formattedText += `
-      <br>
-      <button class="read-more-btn" onclick="toggleReadMore('${postId}', '${escapeHtml(text)}')" 
-              style="background: none; border: none; color: var(--accent-color); 
-                     cursor: pointer; font-weight: bold; padding: 5px 0; margin-top: 5px;
-                     font-size: 14px;">
-        Leer más
-      </button>
-    `;
-        }
-
-        return formattedText;
-      }
-
-      // 🔹 Función auxiliar para escapar HTML (seguridad)
-      function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-      }
-
-      // 🔹 Alternar entre texto completo y texto corto
-      function toggleReadMore(postId, fullText) {
-        const descriptionElement = document.getElementById(`post-description-${postId}`);
-        const readMoreBtn = descriptionElement.querySelector('.read-more-btn');
-
-        if (!descriptionElement || !readMoreBtn) return;
-
-        const isExpanded = readMoreBtn.textContent === 'Leer menos';
-
-        if (isExpanded) {
-          // Contraer texto
-          const shortText = formatPostDescription(fullText.substring(0, 300) + '...', postId);
-          descriptionElement.innerHTML = shortText;
-        } else {
-          // Expandir texto completo
-          const fullFormattedText = formatFullText(fullText);
-          descriptionElement.innerHTML = fullFormattedText + `
-      <br>
-      <button class="read-more-btn" onclick="toggleReadMore('${postId}', '${escapeHtml(fullText)}')" 
-              style="background: none; border: none; color: var(--accent-color); 
-                     cursor: pointer; font-weight: bold; padding: 5px 0; margin-top: 5px;
-                     font-size: 14px;">
-        Leer menos
-      </button>
-    `;
-        }
-      }
-
-      // 🔹 Formatear texto completo (sin límite de caracteres)
-      function formatFullText(text) {
-        if (!text || typeof text !== 'string') return '';
-
-        // Escapar HTML para seguridad
-        let safeText = escapeHtml(text);
-
-        // Mantener formato original
-        let formattedText = safeText
-          .replace(/\n/g, '<br>')
-          .replace(/  /g, ' &nbsp;')
-          .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-
-        // Detectar y formatear URLs
-        const urlRegex = /(https?:\/\/[^\s<]+[^<.,!?;:)\]\s])/g;
-        formattedText = formattedText.replace(urlRegex, (url) => {
-          try {
-            new URL(url);
-
-            let displayUrl = url;
-            try {
-              const urlObj = new URL(url);
-              displayUrl = urlObj.hostname + (urlObj.pathname !== '/' ? urlObj.pathname : '');
-            } catch (e) {
-              // Usar URL original si falla el parsing
-            }
-
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer" 
-               style="color: var(--accent-color); text-decoration: underline; 
-                      word-break: break-all; font-weight: 500;"
-               onmouseover="this.style.textDecoration='none'" 
-               onmouseout="this.style.textDecoration='underline'"
-               title="${url}">
-               🔗 ${displayUrl}
-             </a>`;
-          } catch (error) {
-            return url;
-          }
-        });
-
-        // Detectar enlaces sin protocolo
-        const wwwRegex = /(^|\s)(www\.[^\s<]+\.[^\s<]+)/g;
-        formattedText = formattedText.replace(wwwRegex, (match, space, url) => {
-          const fullUrl = 'https://' + url;
-          return `${space}<a href="${fullUrl}" target="_blank" rel="noopener noreferrer"
-             style="color: var(--accent-color); text-decoration: underline; 
-                    word-break: break-all; font-weight: 500;"
-             onmouseover="this.style.textDecoration='none'" 
-             onmouseout="this.style.textDecoration='underline'"
-             title="${fullUrl}">
-             🔗 ${url}
-           </a>`;
-        });
-
-        // Menciones @usuario
-        const mentionRegex = /@([a-zA-Z0-9_]+)/g;
-        formattedText = formattedText.replace(mentionRegex,
-          '<span style="color: var(--accent-color); font-weight: bold;">@$1</span>'
-        );
-
-        // Hashtags #tema
-        const hashtagRegex = /#([a-zA-Z0-9_]+)/g;
-        formattedText = formattedText.replace(hashtagRegex,
-          '<span style="color: var(--success-color); font-weight: bold;">#$1</span>'
-        );
-
-        return formattedText;
-      }
-
-      // Contador de caracteres mejorado para el textarea
-      postDescription.addEventListener('input', function () {
-        const MAX_DESCRIPTION_LENGTH = 1000;
-        const currentLength = this.value.length;
-        const charCount = document.getElementById('charCount');
-
-        if (charCount) {
-          // Actualizar contador
-          const currentChars = charCount.querySelector('#currentChars') || charCount;
-          const maxChars = charCount.querySelector('#maxChars');
-
-          if (currentChars.textContent !== undefined) {
-            currentChars.textContent = currentLength;
-          } else {
-            charCount.textContent = `${currentLength}/${MAX_DESCRIPTION_LENGTH}`;
-          }
-
-          // Cambiar colores según se acerca al límite
-          if (currentLength > MAX_DESCRIPTION_LENGTH) {
-            charCount.style.color = 'var(--danger-color)';
-            charCount.style.fontWeight = 'bold';
-            // Deshabilitar botón de publicación si excede el límite
-            uploadBtn.disabled = true;
-            uploadBtn.style.opacity = '0.6';
-            uploadBtn.style.cursor = 'not-allowed';
-          } else if (currentLength > MAX_DESCRIPTION_LENGTH * 0.9) {
-            charCount.style.color = 'var(--warning-color)';
-            charCount.style.fontWeight = 'bold';
-            uploadBtn.disabled = false;
-            uploadBtn.style.opacity = '1';
-            uploadBtn.style.cursor = 'pointer';
-          } else {
-            charCount.style.color = 'var(--text-secondary)';
-            charCount.style.fontWeight = 'normal';
-            uploadBtn.disabled = false;
-            uploadBtn.style.opacity = '1';
-            uploadBtn.style.cursor = 'pointer';
-          }
-        }
-
-        // Limitar longitud en tiempo real (opcional)
-        if (currentLength > MAX_DESCRIPTION_LENGTH) {
-          this.value = this.value.substring(0, MAX_DESCRIPTION_LENGTH);
-        }
-      });
+      
 
       // 🔹 Calcular tiempo transcurrido (formato humano)
       function getTimeAgo(date) {
@@ -6125,107 +5878,104 @@ transition: all 0.3s ease;
 
 
 
-      // 🔹 Hacer funciones globales para el botón "Leer más" - VERSIÓN CORREGIDA
-window.toggleReadMore = function(postId, fullText) {
-    console.log('🔄 toggleReadMore llamado:', postId, fullText?.substring(0, 50) + '...');
+      // 🔥 SISTEMA "LEER MÁS" COMPLETAMENTE NUEVO Y FUNCIONAL
+
+// Función global para alternar entre texto completo y corto
+window.toggleReadMore = function(button, postId) {
+    console.log('🔄 toggleReadMore ejecutado para post:', postId);
     
     const descriptionElement = document.getElementById(`post-description-${postId}`);
     if (!descriptionElement) {
-        console.error('❌ Elemento no encontrado:', `post-description-${postId}`);
+        console.error('❌ No se encontró el elemento:', `post-description-${postId}`);
         return;
     }
 
-    const readMoreBtn = descriptionElement.querySelector('.read-more-btn');
-    const isExpanded = readMoreBtn?.textContent === 'Leer menos';
+    // Obtener el texto completo desde el atributo data
+    const fullText = button.getAttribute('data-fulltext');
+    if (!fullText) {
+        console.error('❌ No hay texto completo en data-fulltext');
+        return;
+    }
+
+    const isExpanded = button.textContent === 'Leer menos';
 
     if (isExpanded) {
-        // Contraer texto - usar versión corta
-        const shortText = window.formatPostDescription(fullText, postId);
-        descriptionElement.innerHTML = shortText;
+        // Contraer: mostrar versión corta
+        console.log('📝 Contrayendo texto...');
+        const shortVersion = createShortVersion(fullText, postId);
+        descriptionElement.innerHTML = shortVersion;
     } else {
-        // Expandir texto completo
-        const fullFormattedText = window.formatFullText(fullText);
-        descriptionElement.innerHTML = fullFormattedText + `
-            <br>
-            <button class="read-more-btn" onclick="window.toggleReadMore('${postId}', '${window.escapeHtml(fullText)}')" 
-                    style="background: none; border: none; color: var(--accent-color); 
-                           cursor: pointer; font-weight: bold; padding: 5px 0; margin-top: 5px;
-                           font-size: 14px;">
-                Leer menos
-            </button>
-        `;
+        // Expandir: mostrar texto completo
+        console.log('📖 Expandindo texto completo...');
+        const fullVersion = createFullVersion(fullText, postId);
+        descriptionElement.innerHTML = fullVersion;
     }
 };
 
-window.escapeHtml = function(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-};
-
-window.formatPostDescription = function(text, postId) {
-    if (!text || typeof text !== 'string') return '';
-    
+// Crear versión corta del texto
+function createShortVersion(text, postId) {
     const MAX_LENGTH = 300;
-    const hasLongText = text.length > MAX_LENGTH;
     
-    // Si el texto es corto, mostrar completo
-    if (!hasLongText) {
-        return window.formatTextWithLinks(text);
+    if (text.length <= MAX_LENGTH) {
+        return formatTextContent(text);
     }
     
-    // Para texto largo, mostrar versión corta con "Leer más"
     let shortText = text.substring(0, MAX_LENGTH);
     
-    // Asegurar que no cortemos en medio de una palabra
+    // Buscar el último espacio para no cortar palabras
     const lastSpace = shortText.lastIndexOf(' ');
-    if (lastSpace > MAX_LENGTH - 50 && lastSpace > 0) {
-        shortText = shortText.substring(0, lastSpace) + '...';
-    } else {
-        shortText += '...';
+    if (lastSpace > MAX_LENGTH - 50) {
+        shortText = shortText.substring(0, lastSpace);
     }
     
-    let formattedText = window.formatTextWithLinks(shortText);
+    shortText += '...';
     
-    // Agregar botón "Leer más"
-    formattedText += `
+    return formatTextContent(shortText) + `
         <br>
-        <button class="read-more-btn" onclick="window.toggleReadMore('${postId}', '${window.escapeHtml(text)}')" 
+        <button class="read-more-btn" 
+                onclick="window.toggleReadMore(this, '${postId}')" 
+                data-fulltext="${escapeHtml(text)}"
                 style="background: none; border: none; color: var(--accent-color); 
                        cursor: pointer; font-weight: bold; padding: 5px 0; margin-top: 5px;
                        font-size: 14px;">
             Leer más
         </button>
     `;
-    
-    return formattedText;
-};
+}
 
-window.formatFullText = function(text) {
-    if (!text || typeof text !== 'string') return '';
-    return window.formatTextWithLinks(text);
-};
+// Crear versión completa del texto
+function createFullVersion(text, postId) {
+    return formatTextContent(text) + `
+        <br>
+        <button class="read-more-btn" 
+                onclick="window.toggleReadMore(this, '${postId}')" 
+                data-fulltext="${escapeHtml(text)}"
+                style="background: none; border: none; color: var(--accent-color); 
+                       cursor: pointer; font-weight: bold; padding: 5px 0; margin-top: 5px;
+                       font-size: 14px;">
+            Leer menos
+        </button>
+    `;
+}
 
-window.formatTextWithLinks = function(text) {
+// Formatear el contenido del texto con enlaces y formato
+function formatTextContent(text) {
     if (!text) return '';
     
-    // Primero escapar el HTML para seguridad
-    let safeText = window.escapeHtml(text);
+    // 1. Escapar HTML para seguridad
+    let safeText = escapeHtml(text);
     
-    // 1. Mantener formato original
-    let formattedText = safeText
-        .replace(/\n/g, '<br>')
-        .replace(/  /g, ' &nbsp;')
-        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+    // 2. Mantener saltos de línea
+    let formattedText = safeText.replace(/\n/g, '<br>');
     
-    // 2. Detectar URLs
+    // 3. Detectar y convertir URLs
     const urlRegex = /(https?:\/\/[^\s<]+[^<.,!?;:)\]\s])/g;
     formattedText = formattedText.replace(urlRegex, (url) => {
         try {
             new URL(url);
-            
             let displayUrl = url;
+            
+            // Acortar URL para mostrar
             try {
                 const urlObj = new URL(url);
                 displayUrl = urlObj.hostname + (urlObj.pathname !== '/' ? urlObj.pathname : '');
@@ -6251,7 +6001,7 @@ window.formatTextWithLinks = function(text) {
         }
     });
     
-    // 3. Detectar enlaces sin protocolo
+    // 4. Detectar enlaces sin protocolo (www.)
     const wwwRegex = /(^|\s)(www\.[^\s<]+\.[^\s<]+)/g;
     formattedText = formattedText.replace(wwwRegex, (match, space, url) => {
         const fullUrl = 'https://' + url;
@@ -6265,42 +6015,70 @@ window.formatTextWithLinks = function(text) {
                </a>`;
     });
     
-    // 4. Menciones @usuario
+    // 5. Menciones @usuario
     const mentionRegex = /@([a-zA-Z0-9_]+)/g;
     formattedText = formattedText.replace(mentionRegex, 
         '<span style="color: var(--accent-color); font-weight: bold;">@$1</span>'
     );
     
-    // 5. Hashtags #tema
+    // 6. Hashtags #tema
     const hashtagRegex = /#([a-zA-Z0-9_]+)/g;
     formattedText = formattedText.replace(hashtagRegex, 
         '<span style="color: var(--success-color); font-weight: bold;">#$1</span>'
     );
     
     return formattedText;
-};
-// 🔹 INICIALIZAR SISTEMA "LEER MÁS" DESPUÉS DE CARGAR POSTS
-function inicializarSistemaLeerMas() {
-    console.log('✅ Sistema "Leer más" inicializado');
+}
+
+// Función auxiliar para escapar HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 🔥 NUEVA FUNCIÓN PARA FORMATEAR DESCRIPCIONES EN POSTS
+window.formatPostDescription = function(text, postId) {
+    if (!text || typeof text !== 'string') return '';
     
-    // Re-asignar event listeners a los botones existentes
+    const MAX_LENGTH = 300;
+    
+    // Si el texto es corto, mostrar completo
+    if (text.length <= MAX_LENGTH) {
+        return formatTextContent(text);
+    }
+    
+    // Para texto largo, crear versión corta con botón "Leer más"
+    return createShortVersion(text, postId);
+};
+// 🔥 INICIALIZAR SISTEMA "LEER MÁS" - EJECUTAR DESPUÉS DE CARGAR POSTS
+function inicializarSistemaLeerMas() {
+    console.log('✅ Sistema "Leer más" inicializado correctamente');
+    
+    // Agregar event listener global para los botones
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('read-more-btn')) {
             e.preventDefault();
             e.stopPropagation();
             
-            const postId = e.target.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
-            const fullText = e.target.getAttribute('onclick')?.match(/'([^']+)'/)?.[2];
+            const postId = e.target.closest('.post-card')?.querySelector('.post-description')?.id?.replace('post-description-', '');
             
-            if (postId && fullText) {
-                window.toggleReadMore(postId, fullText);
+            if (postId) {
+                console.log('🎯 Botón "Leer más" clickeado para post:', postId);
+                window.toggleReadMore(e.target, postId);
             }
         }
     });
 }
 
-// Llamar después de cargar posts
-setTimeout(inicializarSistemaLeerMas, 1000);
+// Inicializar después de que la página cargue
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(inicializarSistemaLeerMas, 2000);
+});
+
+// También inicializar después de cargar posts
+setTimeout(inicializarSistemaLeerMas, 3000);
     </script>
 
 
