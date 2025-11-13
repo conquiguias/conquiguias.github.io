@@ -108,5 +108,15 @@
     "fecha": "2025-11-13T00:46:49.017Z",
     "visitanteId": "d759ada8-fbda-4b90-972b-23538f685a49",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Eunice Paz ",
+    "correo": "eunicepazm@gmail.com",
+    "edad": "19",
+    "telefono": "8293233838",
+    "asociacion": "ACD",
+    "fecha": "2025-11-13T01:01:46.513Z",
+    "visitanteId": "b8622436-a1ca-4467-aaab-6c02ecf02377",
+    "asistenciaNumero": 1
   }
 ]
