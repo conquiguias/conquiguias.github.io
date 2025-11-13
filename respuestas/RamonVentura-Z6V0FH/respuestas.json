@@ -78,5 +78,11 @@
     "fecha": "2025-11-13T02:25:01.263Z",
     "visitanteId": "b1736905-2701-48ed-80af-2dce88317903",
     "asistenciaNumero": 1
+  },
+  {
+    "fecha": "2025-11-13T02:29:15.329Z",
+    "visitanteId": "b1736905-2701-48ed-80af-2dce88317903",
+    "asistenciaNumero": 2,
+    "id": "RamonVentura-Z6V0FH"
   }
 ]
