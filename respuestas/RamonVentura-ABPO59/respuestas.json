@@ -38,5 +38,15 @@
     "fecha": "2025-11-14T02:42:57.790Z",
     "visitanteId": "9ac3534b-b9bd-487c-a750-3dac6878ee01",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Linny Itamar Bautista De la Cruz",
+    "correo": "linnyitamarb@gmail.com",
+    "edad": "20",
+    "telefono": "849-279-7521",
+    "asociacion": "ACD",
+    "fecha": "2025-11-14T02:43:04.426Z",
+    "visitanteId": "dc00c21f-c924-46b7-9658-0e2bc051475a",
+    "asistenciaNumero": 1
   }
 ]
