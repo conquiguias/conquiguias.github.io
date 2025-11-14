@@ -138,5 +138,15 @@
     "fecha": "2025-11-14T02:45:53.504Z",
     "visitanteId": "98104aa9-4c90-404f-9042-2254987fb704",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Abi Yureli Hernández Marín",
+    "correo": "AYureliHrdz@gmail.com",
+    "edad": "23",
+    "telefono": "7352144347",
+    "asociacion": "Pacífico Sur- UMI",
+    "fecha": "2025-11-14T02:48:10.670Z",
+    "visitanteId": "5c503452-8bcd-4b30-aa80-abfbd9eeea36",
+    "asistenciaNumero": 1
   }
 ]
