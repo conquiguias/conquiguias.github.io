@@ -178,5 +178,15 @@
     "fecha": "2025-11-14T02:52:01.880Z",
     "visitanteId": "3f7e1641-9442-473d-ae8f-19be11b70f32",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Carlos Abel Aybar Santana ",
+    "correo": "carlosabelaybar@gmail.com",
+    "edad": "24",
+    "telefono": "8496523611",
+    "asociacion": "Asociación dominicana del sur ",
+    "fecha": "2025-11-14T02:53:52.506Z",
+    "visitanteId": "fba12d1c-1813-4ba5-b6a5-88edcbd2d795",
+    "asistenciaNumero": 1
   }
 ]
