@@ -128,5 +128,15 @@
     "fecha": "2025-11-14T02:45:45.686Z",
     "visitanteId": "5efcefab-6319-49cb-8818-aa4034f46b67",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Elvis Manuel Pimentel Ramos",
+    "correo": "Pimentelramoselvismanuel918@gmail.com",
+    "edad": "19",
+    "telefono": "8298170784",
+    "asociacion": "ACD",
+    "fecha": "2025-11-14T02:45:53.504Z",
+    "visitanteId": "98104aa9-4c90-404f-9042-2254987fb704",
+    "asistenciaNumero": 1
   }
 ]
