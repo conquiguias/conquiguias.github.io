@@ -1,0 +1,857 @@
+[
+  {
+    "id": "q-1763086650325-milyqdbl2",
+    "type": "multiple",
+    "text": "🟦 Preguntas Fáciles - ¿Qué significa la palabra “patriarca”?",
+    "options": [
+      {
+        "id": "opt-1763086650325-m9wgj2nzm",
+        "text": "A. Un guerrero valiente",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086650325-m3l5uzukm",
+        "text": "B. Un padre o líder familiar importante",
+        "correct": true
+      },
+      {
+        "id": "opt-1763086651910-um8ijhsdp",
+        "text": "C. Un vendedor del mercado",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763086771461-gaqihqkom",
+    "type": "multiple",
+    "text": "¿En qué libro aparecen muchos de los primeros patriarcas?",
+    "options": [
+      {
+        "id": "opt-1763086771461-933rpzaat",
+        "text": "A. Éxodo",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086771461-xdnnvbqg3",
+        "text": "B. Génesis",
+        "correct": true
+      },
+      {
+        "id": "opt-1763086783637-eruv6niox",
+        "text": "C. Proverbios",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763086793725-lu66sl5f7",
+    "type": "multiple",
+    "text": "¿Quién es considerado “el padre de la fe”?",
+    "options": [
+      {
+        "id": "opt-1763086793725-d7yhutnzn",
+        "text": "A. Noé",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086793725-911c7xmuu",
+        "text": "B. Abraham",
+        "correct": true
+      },
+      {
+        "id": "opt-1763086806165-bqxr2wf5y",
+        "text": "C. Moisés",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763086821477-vxwcfdp1n",
+    "type": "multiple",
+    "text": "¿Cuál de estos es un patriarca?",
+    "options": [
+      {
+        "id": "opt-1763086821477-w1tp1kjty",
+        "text": "A. Jonás",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086821477-zmaudgwce",
+        "text": "B. Isaac",
+        "correct": true
+      },
+      {
+        "id": "opt-1763086829285-l5ybob9gm",
+        "text": "C. Daniel",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763086847005-e1iuy0lsw",
+    "type": "multiple",
+    "text": "¿Cómo se llamaba originalmente Abraham?",
+    "options": [
+      {
+        "id": "opt-1763086847005-5bvznh5kr",
+        "text": "A. Abram",
+        "correct": true
+      },
+      {
+        "id": "opt-1763086847005-8hg5ku1y2",
+        "text": "B. Adán",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086859108-x3hkmdvb8",
+        "text": "C. Amram",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763086869956-uc6kh368f",
+    "type": "multiple",
+    "text": "¿Quién fue el padre de los 12 patriarcas de Israel?",
+    "options": [
+      {
+        "id": "opt-1763086869956-rmakkximl",
+        "text": "A. Abraham",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086869956-jdvitp4qb",
+        "text": "B. Isaac",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086873422-hyefwh1wm",
+        "text": "C. Jacob",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763086896853-nb89shmxc",
+    "type": "multiple",
+    "text": "¿Qué hijo recibió una túnica de colores?",
+    "options": [
+      {
+        "id": "opt-1763086896853-sjxfrl6y7",
+        "text": "A. Rubén",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086896853-49audexla",
+        "text": "B. José",
+        "correct": true
+      },
+      {
+        "id": "opt-1763086907709-mk7cww9k0",
+        "text": "C. Benjamín",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763086917653-fgff41vky",
+    "type": "multiple",
+    "text": "¿Qué patriarca construyó un arca?",
+    "options": [
+      {
+        "id": "opt-1763086917653-4rk9yoreq",
+        "text": "A. Abraham",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086917653-6g0jtigo9",
+        "text": "B. Noé",
+        "correct": true
+      },
+      {
+        "id": "opt-1763086926853-x01ndp38e",
+        "text": "C. Enoc",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763086942510-0a46xxnc5",
+    "type": "multiple",
+    "text": "¿Qué hizo Dios con el nombre de Abram?",
+    "options": [
+      {
+        "id": "opt-1763086942510-vggsllavn",
+        "text": "A. Lo borró",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086942510-3yrkfpzzh",
+        "text": "B. Lo cambió a Abraham",
+        "correct": true
+      },
+      {
+        "id": "opt-1763086961636-578a9djqi",
+        "text": "C. Lo dejó igual",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763086973316-tmhni31pa",
+    "type": "multiple",
+    "text": "¿En qué capítulo de la Biblia se muestra la fe de Abraham al ofrecer a Isaac?",
+    "options": [
+      {
+        "id": "opt-1763086973316-eq3b6aa0h",
+        "text": "A. Génesis 3",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086973316-1h9wetdvb",
+        "text": "B. Génesis 50",
+        "correct": false
+      },
+      {
+        "id": "opt-1763086980028-gon3la07t",
+        "text": "C. Génesis 22",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763086995607-mxdw9istk",
+    "type": "multiple",
+    "text": "¿Quién fue vendido como esclavo?",
+    "options": [
+      {
+        "id": "opt-1763086995608-74blnjn63",
+        "text": "A. José",
+        "correct": true
+      },
+      {
+        "id": "opt-1763086995608-32egvpu4c",
+        "text": "B. Esaú",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087005260-6fzeaz5uq",
+        "text": "C. Caín",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087015821-azv04tjh9",
+    "type": "multiple",
+    "text": "¿Cuál fue una característica importante de José?",
+    "options": [
+      {
+        "id": "opt-1763087015821-6p5zkuq0b",
+        "text": "A. Ira",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087015821-n3nl0axdo",
+        "text": "B. Fidelidad",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087024413-fqapjun7n",
+        "text": "C. Orgullo",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087044954-7szcikxko",
+    "type": "multiple",
+    "text": "¿Qué construyó Noé siguiendo instrucciones directas de Dios?",
+    "options": [
+      {
+        "id": "opt-1763087044954-0jui2zk85",
+        "text": "A. Una torre",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087044954-ijsphcgz7",
+        "text": "B. Una ciudad",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087052893-t4s53g7ue",
+        "text": "C. Un arca",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763087064028-9y3hncp01",
+    "type": "multiple",
+    "text": "¿Por qué entró la familia de Noé al arca?",
+    "options": [
+      {
+        "id": "opt-1763087064028-n6lw7esti",
+        "text": "A. Para esconderse",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087064028-ctscr3pzt",
+        "text": "B. Para obedecer a Dios",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087080645-zziaa3vlg",
+        "text": "C. Porque llovió antes",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087086836-0uiebqm1p",
+    "type": "multiple",
+    "text": "¿Qué ocurrió con las personas que no quisieron entrar al arca?",
+    "options": [
+      {
+        "id": "opt-1763087086836-zjbr8cumd",
+        "text": "A. Se arrepintieron",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087086836-vkpcz1vj7",
+        "text": "B. Entraron después",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087090372-zgf2yaytr",
+        "text": "C. No fueron protegidas",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763087113204-yer73skyw",
+    "type": "multiple",
+    "text": "¿Cómo se llamaba la esposa de Abraham?",
+    "options": [
+      {
+        "id": "opt-1763087113204-dnhji4btu",
+        "text": "A. Rebeca",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087113204-j4ke4bwp2",
+        "text": "B. Sara",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087116324-isqvpdexw",
+        "text": "C. Lea",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087143494-gw9y4qonr",
+    "type": "multiple",
+    "text": "¿Qué patriarca soñó con una escalera que llegaba al cielo?",
+    "options": [
+      {
+        "id": "opt-1763087143494-c1ounb6ch",
+        "text": "A. Isaac",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087143494-bgdooob09",
+        "text": "B. Jacob",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087150246-unabvmqpz",
+        "text": "C. Noé",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087160780-48gmz4qu7",
+    "type": "multiple",
+    "text": "¿Quién fue el patriarca que liberó a Israel de Egipto?",
+    "options": [
+      {
+        "id": "opt-1763087160780-c0x4xct0e",
+        "text": "A. José",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087160780-x00ma8llb",
+        "text": "B. Abraham",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087168508-ne915tvq5",
+        "text": "C. Moisés",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763087188507-van55rs27",
+    "type": "multiple",
+    "text": "¿Qué profesión tuvo Moisés en Madián?",
+    "options": [
+      {
+        "id": "opt-1763087188507-7q9eeik9s",
+        "text": "A. Pastor de ovejas",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087188507-wbyezxmvu",
+        "text": "B. Soldado",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087196301-g0b4qg6yr",
+        "text": "C. Carpintero",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087215196-ni745frjb",
+    "type": "multiple",
+    "text": "¿Quién recibió los Diez Mandamientos?",
+    "options": [
+      {
+        "id": "opt-1763087215196-1bxn1i4xf",
+        "text": "A. Josué",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087215196-ruuzzpo0e",
+        "text": "B. Moisés",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087220744-7593tyit5",
+        "text": "C. Isaac",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087229485-hgs4tbyig",
+    "type": "multiple",
+    "text": "¿Dónde murió Moisés?",
+    "options": [
+      {
+        "id": "opt-1763087229485-9vw0f4hna",
+        "text": "A. En Egipto",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087229485-9e66t5hz6",
+        "text": "B. En el monte Nebo",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087231412-n5wu2tawt",
+        "text": "C. En Canaán",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087258076-jqow4ci5p",
+    "type": "multiple",
+    "text": "¿Quién fue el sucesor de Moisés?",
+    "options": [
+      {
+        "id": "opt-1763087258076-kju2l1cqw",
+        "text": "A. Aarón",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087258076-4pdifhfd3",
+        "text": "B. Josué",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087259900-l4wzok1bp",
+        "text": "C. Samuel",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087281149-wazoub8fv",
+    "type": "multiple",
+    "text": "¿Qué mostró José al perdonar a sus hermanos?",
+    "options": [
+      {
+        "id": "opt-1763087281150-8pqt2jaxu",
+        "text": "A. Miedo",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087281150-x152furjn",
+        "text": "B. Orgullo",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087291068-mb5hnccob",
+        "text": "C. Amor y misericordia",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763087305565-8igzmvqkg",
+    "type": "multiple",
+    "text": "¿Qué libro cuenta la historia de José en Egipto?",
+    "options": [
+      {
+        "id": "opt-1763087305565-rqy9odotp",
+        "text": "A. Génesis",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087305565-h9thfl0v8",
+        "text": "B. Josué",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087317886-fcwcyake3",
+        "text": "C. Salmos",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087328716-h88w493cv",
+    "type": "multiple",
+    "text": "¿Quién caminó con Dios y “no fue hallado”?",
+    "options": [
+      {
+        "id": "opt-1763087328716-6yazpigqz",
+        "text": "A. Enoc",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087328716-tqvz9m19m",
+        "text": "B. Esaú",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087339164-72qcwubi9",
+        "text": "C. Lot",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087349093-cyrq1f5g8",
+    "type": "multiple",
+    "text": "¿Qué promesa le dio Dios a Abraham?",
+    "options": [
+      {
+        "id": "opt-1763087349093-3d0m6t2ov",
+        "text": "A. Larga vida",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087349093-tp5hxhq4m",
+        "text": "B. Ser padre de muchas naciones",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087360900-emgb244k3",
+        "text": "C. Riquezas sin límite",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087370900-mawkntrrl",
+    "type": "multiple",
+    "text": "¿Qué hermano de José fue acusado de robar la copa?",
+    "options": [
+      {
+        "id": "opt-1763087370900-z706f3r2r",
+        "text": "A. Simeón",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087370900-a7boka0v3",
+        "text": "B. Benjamín",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087383124-mwx6mh1m8",
+        "text": "C. Judá",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087402548-8016e1lck",
+    "type": "multiple",
+    "text": "¿Quién fue el padre de Moisés?",
+    "options": [
+      {
+        "id": "opt-1763087402548-fur9h48xu",
+        "text": "A. Noé",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087402548-d5oj0dkze",
+        "text": "B. Amram",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087410916-tvwcgsijc",
+        "text": "C. Isaí",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087429060-dr3t3bck5",
+    "type": "multiple",
+    "text": "¿Qué hizo Josué en Jericó?",
+    "options": [
+      {
+        "id": "opt-1763087429060-gboszqpdl",
+        "text": "A. Construyó un templo",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087429060-ss9zbq5sb",
+        "text": "B. Rodeó la ciudad y los muros cayeron",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087443885-eh5tkjg8z",
+        "text": "C. Fue capturado",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087448180-f7iio7dhs",
+    "type": "multiple",
+    "text": "¿Qué cualidad de Abraham destaca Génesis 15:6?",
+    "options": [
+      {
+        "id": "opt-1763087448180-d8gapl24i",
+        "text": "A. Su fuerza",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087448180-0r1ze2195",
+        "text": "B. Su fe",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087459495-al3io9de6",
+        "text": "C. Su inteligencia",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087476364-2rwnb5lcf",
+    "type": "multiple",
+    "text": "🟥 Preguntas Muy Difíciles - ¿Qué palabra hebrea describe a Abraham como “padre de muchas multitudes”?",
+    "options": [
+      {
+        "id": "opt-1763087476364-gs4fatxjb",
+        "text": "A. Elohim",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087476364-iqnzr72o8",
+        "text": "B. Shalom",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087500437-kxa061t2h",
+        "text": "C. Abraham",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763087531620-376hrniax",
+    "type": "multiple",
+    "text": "¿Qué pacto renovó Dios con Isaac que ya había hecho con Abraham?",
+    "options": [
+      {
+        "id": "opt-1763087531620-59j8dmg2p",
+        "text": "A. La señal del arco iris",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087531620-hh04w7pj0",
+        "text": "B. El pacto de descendencia y tierra",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087541708-wnb5q0fkr",
+        "text": "C. El pacto del sábado",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087555036-mkiqgxqiq",
+    "type": "multiple",
+    "text": "¿Por qué Isaac amaba más a Esaú?",
+    "options": [
+      {
+        "id": "opt-1763087555036-2pfz511v3",
+        "text": "A. Era el mayor",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087555036-1459f9fdu",
+        "text": "B. Le traía comida de caza",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087574147-o6g3b13ve",
+        "text": "C. Era más obediente",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087591444-j14ep30bn",
+    "type": "multiple",
+    "text": "¿Qué significado tiene el sueño de Jacob con la escalera?",
+    "options": [
+      {
+        "id": "opt-1763087591444-7j7218ukl",
+        "text": "A. Ángeles castigando",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087591444-sgpncfv5n",
+        "text": "B. La comunicación entre el cielo y la tierra",
+        "correct": true
+      },
+      {
+        "id": "opt-1763087599659-epy1r6jrl",
+        "text": "C. El final del mundo",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087610772-5y6nsby16",
+    "type": "multiple",
+    "text": "¿Qué evento mostró el crecimiento espiritual de José en la cárcel?",
+    "options": [
+      {
+        "id": "opt-1763087610772-owvx711md",
+        "text": "A. Ayunar",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087610772-bjzn7zjd1",
+        "text": "B. Cantar",
+        "correct": false
+      },
+      {
+        "id": "opt-1763087618764-tdh8zk8qa",
+        "text": "C. Interpretar sueños confiando en Dios",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763087868572-1sjx962zj",
+    "type": "truefalse",
+    "text": "🟩 Preguntas - Falso y Verdadero - Abraham obedeció a Dios aun cuando no sabía a dónde iba.",
+    "options": [
+      {
+        "id": "true-1763087868572-5qhszjug3",
+        "text": "Verdadero",
+        "correct": true
+      },
+      {
+        "id": "false-1763087868572-00x8dldtb",
+        "text": "Falso",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087877307-dwgm735wf",
+    "type": "truefalse",
+    "text": "Moisés entró a la Tierra Prometida con Josué.",
+    "options": [
+      {
+        "id": "true-1763087877307-txsldumb2",
+        "text": "Verdadero",
+        "correct": false
+      },
+      {
+        "id": "false-1763087877307-np8308gzd",
+        "text": "Falso",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763087892515-1ah914wke",
+    "type": "truefalse",
+    "text": "José siempre mantuvo su confianza en Dios, incluso como esclavo.",
+    "options": [
+      {
+        "id": "true-1763087892515-dkqkcpis9",
+        "text": "Verdadero",
+        "correct": true
+      },
+      {
+        "id": "false-1763087892515-t67kgadk2",
+        "text": "Falso",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "q-1763087901787-a1o3fzelr",
+    "type": "truefalse",
+    "text": "Jacob nunca tuvo ninguna experiencia directa con Dios.",
+    "options": [
+      {
+        "id": "true-1763087901787-wi9l3jeeb",
+        "text": "Verdadero",
+        "correct": false
+      },
+      {
+        "id": "false-1763087901787-nfcbxy7wo",
+        "text": "Falso",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "q-1763087912107-97g0olcde",
+    "type": "truefalse",
+    "text": "Josué declaró que él y su casa servirían a Jehová.",
+    "options": [
+      {
+        "id": "true-1763087912107-9jsm9gub5",
+        "text": "Verdadero",
+        "correct": true
+      },
+      {
+        "id": "false-1763087912107-q7enckcbr",
+        "text": "Falso",
+        "correct": false
+      }
+    ]
+  }
+]
