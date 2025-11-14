@@ -168,5 +168,15 @@
     "fecha": "2025-11-14T02:50:07.950Z",
     "visitanteId": "68f2a527-993c-4c86-b163-0b4bc84990df",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "María Rosa Durán Leyba ",
+    "correo": "mariadl0290@gmail.com",
+    "edad": "35",
+    "telefono": "8299700487",
+    "asociacion": "ACD",
+    "fecha": "2025-11-14T02:52:01.880Z",
+    "visitanteId": "3f7e1641-9442-473d-ae8f-19be11b70f32",
+    "asistenciaNumero": 1
   }
 ]
