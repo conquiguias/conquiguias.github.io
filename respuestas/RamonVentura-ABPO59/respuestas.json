@@ -88,5 +88,15 @@
     "fecha": "2025-11-14T02:43:41.487Z",
     "visitanteId": "e73188c1-b5c6-4f30-a063-13a31ae08be5",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Eleuterio Antonio González Sánchez",
+    "correo": "eleuterio_antonio07@hotmail.com",
+    "edad": "38",
+    "telefono": "8498164570",
+    "asociacion": "ADN",
+    "fecha": "2025-11-14T02:44:49.846Z",
+    "visitanteId": "c6714553-05d0-40e4-aafa-9ef4df642134",
+    "asistenciaNumero": 1
   }
 ]
