@@ -58,5 +58,15 @@
     "fecha": "2025-11-14T02:43:09.651Z",
     "visitanteId": "e7df15d6-204b-4e18-8888-2e97d0025102",
     "asistenciaNumero": 1
+  },
+  {
+    "nombre": "Yovarling Anglada Dipré ",
+    "correo": "Yovarling77@gmail.com",
+    "edad": "22",
+    "telefono": "8296390250",
+    "asociacion": "Asociación Central Dominicana",
+    "fecha": "2025-11-14T02:43:26.933Z",
+    "visitanteId": "c13a794f-b4a5-4154-b265-dfe761f622f2",
+    "asistenciaNumero": 1
   }
 ]
